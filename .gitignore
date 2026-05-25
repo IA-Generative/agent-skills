@@ -1,0 +1,58 @@
+# --- macOS ---
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+
+# --- Éditeurs ---
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.\#*
+\#*\#
+
+# --- Secrets / credentials ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+*.kubeconfig
+kubeconfig*
+credentials
+credentials.json
+service-account*.json
+.netrc
+
+# --- Tokens / sorties d'auth ---
+*.token
+.token
+token.txt
+
+# --- Logs / dumps ---
+*.log
+*.dump
+*.sqlite
+*.db
+
+# --- Sorties de smoke-test ---
+/tmp/smoke.*
+smoke-*.out
+
+# --- Python / scripts annexes éventuels ---
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# --- Node éventuel (si on ajoute des helpers JS plus tard) ---
+node_modules/
