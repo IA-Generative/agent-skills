@@ -5,6 +5,37 @@ l'équipe IA-Generative. Capitalisent les pratiques récurrentes (debug, ADRs,
 smoke-tests pipeline mirai, anti-régression rebranding) dans des modules
 chargés à la demande plutôt que recollés à chaque session.
 
+## ⚡ Déploiement local — partager les skills sur tous tes repos (Claude Code dans VSCode, Mac)
+
+> Objectif : installer ces skills **une fois** sur ta machine pour qu'elles soient disponibles dans
+> **tous** tes projets, quel que soit le dossier ouvert dans VSCode.
+
+Claude Code (CLI **et** extension VSCode) lit les skills « utilisateur » dans `~/.claude/skills/`.
+Ce qui s'y trouve est actif dans **toutes** les fenêtres / tous les workspaces de la machine.
+Le script `install.sh` y crée des **symlinks** vers ce repo : tu édites ici, c'est répercuté partout.
+
+```bash
+# 1. Cloner le repo une fois (emplacement au choix)
+git clone git@github.com:IA-Generative/skills-claude.git ~/code/skills-claude
+cd ~/code/skills-claude
+
+# 2. Installer (symlinks vers ~/.claude/skills/) — idempotent, ré-exécutable
+./install.sh
+
+# 3. Vérifier
+ls -l ~/.claude/skills/        # doit lister gen-doc-homologation, security-pentest-prep, ...
+```
+
+Dans **VSCode** : ouvre n'importe quel projet, lance le panneau Claude Code, tape `/` →
+les skills apparaissent dans l'autocomplétion. Aucune config par-projet n'est requise.
+
+**Mise à jour** : `cd ~/code/skills-claude && git pull` suffit (les symlinks pointent sur le clone,
+le nouveau contenu est pris à chaud — relance une session si une skill n'apparaît pas encore).
+**Désinstaller** : `./install.sh --remove`. **Aperçu sans rien changer** : `./install.sh --dry-run`.
+
+> 💡 Skills **utilisateur** (`~/.claude/skills/`, via ce repo) = dispo partout sur ta machine.
+> Pour ne livrer une skill qu'à un projet précis, voir [Option 2 — Projet](#option-2--projet-à-committer-dans-le-repo-cible) plus bas.
+
 ## Qu'est-ce qu'une skill ?
 
 Une skill = un dossier `<nom>/SKILL.md` avec :
