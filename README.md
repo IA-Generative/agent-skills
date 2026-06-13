@@ -52,7 +52,7 @@ Référence officielle : https://code.claude.com/docs/en/skills
 | Skill | Usage | Portée |
 |---|---|---|
 | `/bug-investigate` | Force 2-3 hypothèses + plan B avant tout fix | **Universelle** |
-| `/security-pentest-prep` | Audit & durcissement sécurité (OWASP + prompt injection) avant pen-test | **Universelle** |
+| `/security-pentest-prep` | Audit sécurité (OWASP + prompt injection) + test « safe pour passer en public » avant pen-test — lecture seule par défaut, `--fix` pour corriger ; sorties en `private/` (gitignoré) | **Universelle** |
 | `/gen-doc-homologation` | Pré-remplit un document d'homologation MirAI (DAT…) depuis le code — modèle + prompt embarqués | MirAI/DTNUM |
 | `/adr-new` | Rédige une ADR au format IA-Generative | **Universelle** |
 | `/smoke-mcr` | Smoke-test pipeline mirai-mesreunions (gateway + auth + ingester) | mirai-only |

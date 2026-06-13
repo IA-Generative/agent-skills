@@ -33,6 +33,14 @@ même convention.
    méthode de découverte, format de sortie. Ne pas le paraphraser ni l'abréger — l'appliquer.
 4. **Cible = repo courant** (le service à homologuer). Détecte le nom du service ; sortie `.docx`
    construite SUR le modèle, sinon Markdown fidèle à la structure du modèle.
+5. **Sortie + gitignore** : écris les documents produits dans `private/` à la racine du repo cible
+   (crée le dossier s'il n'existe pas), ex. `private/DAT_«service»_v0.1.docx`. AVANT d'écrire, garantis
+   que le `.gitignore` du repo cible ignore `private/` (documents d'homologation = archi interne, ne pas
+   committer) ; si l'entrée manque, l'ajouter sous `# Sorties locales sensibles (audit, homologation) — ne pas committer`.
+5. **Sortie + gitignore** : écris les documents produits dans `homologation-output/` à la racine du repo
+   cible (ex. `homologation-output/DAT_«service»_v0.1.docx`). AVANT d'écrire, garantis que le
+   `.gitignore` du repo cible ignore `homologation-output/` (documents d'homologation = archi interne,
+   ne pas committer) ; si l'entrée manque, l'ajouter sous `# Documents d'homologation produits (locaux)`.
 
 ## Garde-fous (rappel — le prompt source les détaille)
 - **Lecture seule sur le service** : aucune branche, aucun push, aucune modif de fichier source.
