@@ -28,7 +28,7 @@ ls -l ~/.claude/skills/                             # vérif : doit afficher des
 Dans **VSCode** : ouvre n'importe quel projet, lance le panneau Claude Code, tape `/` →
 les skills apparaissent dans l'autocomplétion. Aucune config par-projet n'est requise.
 
-**Mise à jour** : `cd ~/code/skills-claude && git pull` suffit (les symlinks pointent sur le clone,
+**Mise à jour** : `git pull` dans ton clone suffit (les symlinks pointent dessus,
 le nouveau contenu est pris à chaud — relance une session si une skill n'apparaît pas encore).
 **Désinstaller** : `./install.sh --remove`. **Aperçu sans rien changer** : `./install.sh --dry-run`.
 
@@ -58,6 +58,11 @@ Référence officielle : https://code.claude.com/docs/en/skills
 | `/smoke-mcr` | Smoke-test pipeline mirai-mesreunions (gateway + auth + ingester) | mirai-only |
 | `/check-service-names` | Détecte les anciens noms de services mcr (rebranding 2026-05-16) | mirai-only |
 
+> ℹ️ **`gen-doc-homologation`** embarque ses propres artefacts versionnés (modèle `dat/MODELE_DAT_MirAI.docx`,
+> prompt, `CHANGELOG.md`) — exception à la règle « SKILL.md léger ». Ce contenu provient du dépôt
+> `IA-Generative/gen-document-homologation`, **fusionné ici en 2026-06** (un seul dépôt à maintenir ;
+> l'ancien repo est retiré). Le modèle/prompt évoluent désormais dans `skills/gen-doc-homologation/`.
+
 ## Hooks (config à coller dans settings.json)
 
 | Hook | Bloque | Doc |
@@ -68,19 +73,13 @@ Référence officielle : https://code.claude.com/docs/en/skills
 
 ### Option 1 — Personnelle (recommandée pour démarrer)
 
-Clone le repo et symlink dans `~/.claude/skills/` :
+Symlink dans `~/.claude/skills/` → dispo dans **toutes** tes sessions, sans recopie.
+Procédure détaillée (et pourquoi pas de second clone) : voir la section
+[⚡ Déploiement local](#-déploiement-local--partager-les-skills-sur-tous-tes-repos-claude-code-dans-vscode-mac) en tête de ce README.
 
 ```bash
-git clone git@github.com:IA-Generative/skills-claude.git ~/code/skills-claude
-cd ~/code/skills-claude
-./install.sh
+cd <ton-clone-skills-claude> && ./install.sh   # --dry-run pour simuler, --remove pour désinstaller
 ```
-
-Les skills sont immédiatement disponibles (Claude Code détecte les changements
-de `~/.claude/skills/` à chaud) dans **toutes** tes sessions.
-
-`./install.sh --dry-run` pour voir ce qui serait fait, `--remove` pour
-désinstaller.
 
 ### Option 2 — Projet (à committer dans le repo cible)
 
