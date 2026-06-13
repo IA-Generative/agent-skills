@@ -12,19 +12,18 @@ chargés à la demande plutôt que recollés à chaque session.
 
 Claude Code (CLI **et** extension VSCode) lit les skills « utilisateur » dans `~/.claude/skills/`.
 Ce qui s'y trouve est actif dans **toutes** les fenêtres / tous les workspaces de la machine.
-Le script `install.sh` y crée des **symlinks** vers ce repo : tu édites ici, c'est répercuté partout.
+`install.sh` y crée des **symlinks** vers ce repo : **aucune recopie**, un seul clone sur le disque,
+tu édites ici → répercuté partout. `ls -l ~/.claude/skills/` montre des liens `->`, pas des fichiers.
 
 ```bash
-# 1. Cloner le repo une fois (emplacement au choix)
-git clone git@github.com:IA-Generative/skills-claude.git ~/code/skills-claude
-cd ~/code/skills-claude
-
-# 2. Installer (symlinks vers ~/.claude/skills/) — idempotent, ré-exécutable
-./install.sh
-
-# 3. Vérifier
-ls -l ~/.claude/skills/        # doit lister gen-doc-homologation, security-pentest-prep, ...
+# Depuis TON clone existant (un seul suffit — ne re-clone pas)
+cd /Users/etiquet/Documents/GitHub/skills-claude   # ou l'emplacement de ton clone
+./install.sh                                        # symlinks vers ~/.claude/skills/ — idempotent
+ls -l ~/.claude/skills/                             # vérif : doit afficher des liens -> .../skills-claude/...
 ```
+
+> Tu n'as **pas** de clone encore ? Clone-le une seule fois où tu veux, puis lance `./install.sh` :
+> `git clone git@github.com:IA-Generative/skills-claude.git ~/code/skills-claude`
 
 Dans **VSCode** : ouvre n'importe quel projet, lance le panneau Claude Code, tape `/` →
 les skills apparaissent dans l'autocomplétion. Aucune config par-projet n'est requise.
