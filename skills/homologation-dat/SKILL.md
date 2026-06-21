@@ -11,7 +11,7 @@ Cette skill **embarque** le modèle et le prompt de référence (anciennement le
 maintenir). Les artefacts vivent à côté de ce fichier :
 
 ```
-skills/gen-doc-homologation/
+skills/homologation-dat/
 ├── SKILL.md          # ce fichier (loader)
 ├── CHANGELOG.md      # versions des modèles/prompts (tags vX.Y du contenu)
 └── dat/
@@ -33,14 +33,12 @@ même convention.
    méthode de découverte, format de sortie. Ne pas le paraphraser ni l'abréger — l'appliquer.
 4. **Cible = repo courant** (le service à homologuer). Détecte le nom du service ; sortie `.docx`
    construite SUR le modèle, sinon Markdown fidèle à la structure du modèle.
-5. **Sortie + gitignore** : écris les documents produits dans `private/` à la racine du repo cible
-   (crée le dossier s'il n'existe pas), ex. `private/DAT_«service»_v0.1.docx`. AVANT d'écrire, garantis
-   que le `.gitignore` du repo cible ignore `private/` (documents d'homologation = archi interne, ne pas
-   committer) ; si l'entrée manque, l'ajouter sous `# Sorties locales sensibles (audit, homologation) — ne pas committer`.
-5. **Sortie + gitignore** : écris les documents produits dans `homologation-output/` à la racine du repo
-   cible (ex. `homologation-output/DAT_«service»_v0.1.docx`). AVANT d'écrire, garantis que le
-   `.gitignore` du repo cible ignore `homologation-output/` (documents d'homologation = archi interne,
-   ne pas committer) ; si l'entrée manque, l'ajouter sous `# Documents d'homologation produits (locaux)`.
+5. **Sortie dans `private/` — jamais committée.** Écris les documents produits dans `private/` à la
+   racine du repo cible (crée le dossier s'il n'existe pas), ex. `private/DAT_«service»_v0.1.docx`.
+   **AVANT d'écrire**, garantis que le `.gitignore` du repo cible ignore `private/` (documents
+   d'homologation = archi interne, ne jamais committer) ; si l'entrée manque, l'ajouter sous
+   `# Sorties locales sensibles (audit, homologation) — ne pas committer`. L'ancien
+   `homologation-output/` est **déprécié** : tout va désormais dans `private/`.
 
 ## Garde-fous (rappel — le prompt source les détaille)
 - **Lecture seule sur le service** : aucune branche, aucun push, aucune modif de fichier source.
@@ -49,7 +47,7 @@ même convention.
 - **Aucune valeur réelle** dans le document : pas d'IP/port d'écoute réel/hôte/clé/token/bucket ;
   désigner par nom de composant ; matrice des flux = **port standard** du protocole (443/5432/4318…).
 - **LLM01 (injection de prompt) APPLICABLE** dès que le service transmet du contenu non maîtrisé à un
-  LLM, même s'il n'héberge aucun modèle. (cf. skill `/security-pentest-prep` pour l'audit technique.)
+  LLM, même s'il n'héberge aucun modèle. (cf. skill `/audit-pentest-prep` pour l'audit technique.)
 - **Tracer les sources** (`# source: helm/values.yaml`) en annexe « Provenance » supprimable.
 
 ## Maintenance du contenu de référence

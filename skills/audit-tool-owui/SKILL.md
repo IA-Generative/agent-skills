@@ -4,7 +4,7 @@ when_to_use: tool OpenWebUI invisible ou qui répond "vous n'êtes pas connecté
 argument-hint: "[--audit (défaut, lecture seule + plan) | --design (concevoir un nouveau tool)] [chemin du repo / cible — sinon repo courant]"
 ---
 
-# owui-tool-identity — identité SSO & credentials pour les tools derrière OpenWebUI
+# audit-tool-owui — identité SSO & credentials pour les tools derrière OpenWebUI
 
 Tu es **ingénieur plateforme & sécurité**. On exploite (ou on s'apprête à créer) un **outil per-user**
 branché derrière une passerelle LLM — typiquement **OpenWebUI** via **MCP** ou un tool server OpenAPI,

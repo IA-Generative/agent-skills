@@ -135,7 +135,7 @@ l'historique → **NON**, avec remédiation (rotation + `git filter-repo`/scrub 
 
 ## Livrables
 
-1. **Rapport** `private/open-repo-check.md` (créé seulement si tu peux garantir `private/` gitignoré ;
+1. **Rapport** `private/audit-repo-ouverture.md` (créé seulement si tu peux garantir `private/` gitignoré ;
    en `--check` strict, si tu ne dois rien écrire, présente le rapport **inline** + via le plan) :
    - en-tête : repo inspecté, mode, date ;
    - **3 verdicts** : `OUVERTURE SÛRE : OUI/NON`, `ANTI-LEAK EN PLACE : OUI/NON`, `AUCUNE FUITE : OUI/NON` ;
