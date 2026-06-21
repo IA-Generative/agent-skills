@@ -49,20 +49,30 @@ Référence officielle : https://code.claude.com/docs/en/skills
 
 ## Skills disponibles
 
+Regroupées par domaine pour s'y retrouver d'un coup d'œil.
+
 | Skill | Usage | Portée |
 |---|---|---|
+| **— Démarrer / dev —** | | |
+| `/repo-init` | Initialise un repo proprement : git, `.gitignore` durci, `private/` gitignoré, structure lisible, anti-leak local **bloquant** (pre-commit gitleaks) | **Universelle** |
 | `/bug-investigate` | Force 2-3 hypothèses + plan B avant tout fix | **Universelle** |
-| `/security-pentest-prep` | Audit sécurité (OWASP + prompt injection) + test « safe pour passer en public » avant pen-test — lecture seule par défaut, `--fix` pour corriger ; sorties en `private/` (gitignoré) | **Universelle** |
-| `/open-repo-check` | Vérifie qu'un repo s'ouvre sans risque avant de bosser dessus : auto-exec au open (hooks/tâches VSCode/lifecycle), anti-leak en place, aucun secret/info sensible dans le code, l'historique ou les heads de commit — lecture seule, rend un plan de remédiation exécutable en mode plan ; `--setup` pose les garde-fous | **Universelle** |
-| `/gen-doc-homologation` | Pré-remplit un document d'homologation MirAI (DAT…) depuis le code — modèle + prompt embarqués | MirAI/DTNUM |
 | `/adr-new` | Rédige une ADR au format IA-Generative | **Universelle** |
-| `/smoke-mcr` | Smoke-test pipeline mirai-mesreunions (gateway + auth + ingester) | mirai-only |
+| **— Audit / sécurité —** | | |
+| `/audit-repo-ouverture` | Vérifie qu'un repo s'ouvre sans risque avant de bosser dessus (auto-exec au open, anti-leak, aucun secret dans code/historique) — lecture seule, `--setup` pose les garde-fous | **Universelle** |
+| `/audit-pentest-prep` | Audit sécurité (OWASP + prompt injection) avant pen-test — lecture seule, `--fix` pour corriger ; sorties en `private/` | **Universelle** |
+| `/audit-redteam` | Campagne red-team / prompt-injection (LLM01) contre un service LLM ; mesure si la garde bloque ; rapports en `private/redteam-reports/` | **Universelle** |
+| `/audit-tool-owui` | Audite l'identité SSO & le coffre de credentials des tools per-user derrière OpenWebUI / MCP | OWUI/MCP |
+| **— Homologation —** | | |
+| `/homologation-dat` | Pré-remplit un document d'homologation MirAI (DAT…) depuis le code — modèle + prompt embarqués ; sortie en `private/` | MirAI/DTNUM |
+| `/homologation-dat-word` | Rend un DAT (Markdown) en `.docx` ministériel sur le modèle officiel ; sortie en `private/` | MirAI/DTNUM |
+| **— Spécifique MirAI —** | | |
+| `/smoke-test` | Smoke-test pipeline mirai-mesreunions (gateway + auth + ingester) | mirai-only |
 | `/check-service-names` | Détecte les anciens noms de services mcr (rebranding 2026-05-16) | mirai-only |
 
-> ℹ️ **`gen-doc-homologation`** embarque ses propres artefacts versionnés (modèle `dat/MODELE_DAT_MirAI.docx`,
+> ℹ️ **`homologation-dat`** embarque ses propres artefacts versionnés (modèle `dat/MODELE_DAT_MirAI.docx`,
 > prompt, `CHANGELOG.md`) — exception à la règle « SKILL.md léger ». Ce contenu provient du dépôt
 > `IA-Generative/gen-document-homologation`, **fusionné ici en 2026-06** (un seul dépôt à maintenir ;
-> l'ancien repo est retiré). Le modèle/prompt évoluent désormais dans `skills/gen-doc-homologation/`.
+> l'ancien repo est retiré). Le modèle/prompt évoluent désormais dans `skills/homologation-dat/`.
 
 ## Hooks (config à coller dans settings.json)
 

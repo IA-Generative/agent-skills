@@ -16,6 +16,9 @@ Icon?
 .\#*
 \#*\#
 
+# --- Sorties locales sensibles (audit, homologation, redteam) — ne pas committer ---
+private/
+
 # --- Secrets / credentials ---
 .env
 .env.*

@@ -7,7 +7,7 @@
 
 Le modèle de DAT **et** la dernière version de ce prompt sont maintenus dans le dépôt de skills partagé :
 
-**https://github.com/IA-Generative/skills-claude** — dossier `skills/gen-doc-homologation/`
+**https://github.com/IA-Generative/skills-claude** — dossier `skills/homologation-dat/`
 
 Les artefacts vivent à côté de ce prompt (mêmes chemins relatifs) :
 
@@ -30,7 +30,7 @@ Tu es architecte technique au sein de la DTNUM (programme MirAI, ministère de l
 Pré-remplir le modèle de DAT pour le service suivant, en t'appuyant **uniquement sur des faits vérifiables dans le dépôt**.
 
 - **Service / projet :** «NOM DU SERVICE»
-- **Modèle DAT :** `dat/MODELE_DAT_MirAI.docx` (depuis `IA-Generative/skills-claude`, `skills/gen-doc-homologation/`, dernière version)
+- **Modèle DAT :** `dat/MODELE_DAT_MirAI.docx` (depuis `IA-Generative/skills-claude`, `skills/homologation-dat/`, dernière version)
 - **Dépôt(s) source du service :** `«chemin ou URL du dépôt»` (ex. `IA-Generative/«repo»`)
 - **Sortie attendue :** `«chemin/vers/DAT_«service»_v0.1.docx»` (sinon, du Markdown fidèle à la structure du modèle)
 
