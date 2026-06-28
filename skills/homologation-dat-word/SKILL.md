@@ -88,10 +88,16 @@ Tout va dans `private/` ; `homologation-output/` est **déprécié**.
 - **Supprime** la page « Comment utiliser ce modèle » et **tous les encadrés d'instruction « ✎ »**.
 - **Remplace** le squelette de corps par le contenu fourni, avec les **styleId réels** du modèle
   (`Heading1/2/3` — l'accès par nom de style peut échouer, d'où l'usage du styleId).
-- **Saut de page avant chaque section de niveau 1** ; `keep_with_next` sur les titres.
+- **Saut de page avant chaque section de niveau 1** ; `keep_with_next` sur les titres ;
+  **contrôle veuves/orphelines** (`widowControl`) → pas de ligne isolée en haut/bas de page.
+- **Page de garde épurée** : la table **« Suivi des mises à jour »** est mise sur une **page
+  séparée** (saut de page avant le titre) et en **police réduite** (`VERSION_TABLE_PT`).
 - **Tableaux** : en-tête répété (`tblHeader`), lignes **non sécables** (`cantSplit`), bordures légères.
-- **TOC** marqué « dirty » + `settings/updateFields=true` → le sommaire se peuple à l'ouverture Word.
-  Repli si vide : **Ctrl+A puis F9** (mettre à jour les champs).
+- **Sommaire (TOC)** : le champ du modèle (encapsulé dans un `w:sdt`, non reconstruit) est remplacé
+  par un **champ TOC standard** → reconnu par Word **et** LibreOffice. Il se met à jour à
+  l'**ouverture dans Word** (champ *dirty* + `updateFields`) ; dans **LibreOffice** : Outils ▸
+  Actualiser ▸ Tout (ou F9). Repli manuel : **Ctrl+A puis F9**. Option `--toc-bake` : tente un
+  pré-remplissage via LibreOffice (vérifié ; **peu fiable en *headless*** — repli automatique).
 
 ## Diagrammes mermaid (rendu image)
 
@@ -134,9 +140,13 @@ en environnement sandboxé, mais le PNG est écrit avant ; ou via `rsvg-convert`
 
 - Les **encadrés bleus de référence socle « ◆ »** du modèle ne sont pas réinjectés tels quels : le
   contenu Markdown doit déjà **porter le texte de socle** (conservé par `/homologation-dat`).
-- La table **« Suivi des mises à jour »** de la garde est peuplée depuis le bloc de méta du Markdown
-  (4 colonnes attendues : Version, Date, Auteurs, Commentaire) ; l'**en-tête** reste celui du modèle.
-- Vérifier visuellement la pagination une fois ouvert dans Word et **mettre à jour le sommaire** (F9).
+- La table **« Suivi des mises à jour »** est peuplée depuis le bloc de méta du Markdown
+  (4 colonnes attendues : Version, Date, Auteurs, Commentaire ; l'**en-tête** reste celui du modèle)
+  et placée sur une **page séparée**.
+- Le **sommaire** se met à jour à l'ouverture (Word) ou via **Outils ▸ Actualiser ▸ Tout** /
+  **F9** (LibreOffice). Le pré-remplissage `--toc-bake` exige un LibreOffice capable de mise en
+  page : **non garanti en *headless***.
+- Vérifier visuellement la pagination une fois ouvert dans Word/LibreOffice.
 
 ## Maintenance
 

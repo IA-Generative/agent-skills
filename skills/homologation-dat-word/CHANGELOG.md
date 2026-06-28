@@ -2,6 +2,20 @@
 
 Versions notables de la logique de rendu `.docx`. Versionnement `vMAJEUR.MINEUR`.
 
+## [v1.3] — 2026-06-28
+
+### Ajouté
+- **Sommaire (TOC) reconnu nativement** : le champ TOC encapsulé dans un `w:sdt` (résultat vide,
+  ni Word ni LibreOffice ne le reconstruisaient) est remplacé par un **champ TOC standard**
+  (`replace_toc_field`). Il se met à jour à l'**ouverture dans Word** (champ *dirty* +
+  `updateFields`) et est reconnu comme **index natif par LibreOffice** (Outils ▸ Actualiser ▸
+  tout). Option `--toc-bake` : pré-remplissage via LibreOffice (vérifié ; **peu fiable en
+  headless** — repli automatique sinon).
+- **Table « Suivi des mises à jour » sur une page séparée** (saut de page avant le titre) et
+  **police réduite** (`VERSION_TABLE_PT`) → page de garde épurée.
+- **Contrôle veuves/orphelines** (`widowControl`) : plus de ligne isolée en haut/bas de page.
+- **Italique `*…*`** robuste même lorsqu'il **enveloppe du code inline** (`*(source : `x`)*`).
+
 ## [v1.2] — 2026-06-28
 
 ### Ajouté
