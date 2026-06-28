@@ -32,6 +32,12 @@ Elle est le **pendant « rendu »** de `/homologation-dat`, qui produit le **con
   dans un venv jetable.
 - Le **modèle** `MODELE_DAT_MirAI.docx`. Par défaut la skill le lit dans la skill sœur
   (`../homologation-dat/dat/MODELE_DAT_MirAI.docx`) ; surchargeable via `--model`.
+- *(Optionnel, pour les diagrammes mermaid)* **`mermaid-cli`** (`npx -y @mermaid-js/mermaid-cli`,
+  ou `mmdc` sur le PATH) **+ un Chrome/Chromium local** (auto-détecté ; sinon `--chrome`). Rendu
+  **100 % local, aucun service externe**. Absent ⇒ repli automatique en texte à chasse fixe.
+  En environnement sandboxé, rediriger le cache npm : `--npm-cache <dossier inscriptible>`.
+- **Logo de la page de garde** : `assets/logo_minint_2020.png` (bloc-marque MININT, fond
+  transparent) **versionné dans la skill** — voir « Logo » plus bas. Absent ⇒ rendu sans logo.
 
 ## Entrée attendue (contrat avec `/homologation-dat`)
 
@@ -44,8 +50,18 @@ Un Markdown **fidèle à la structure du modèle**, avec ce mapping de niveaux d
 | `#### ` | Heading 3 | `#### 5.1.1 Description du service` |
 
 Le titre `#` et le bloc de méta en tête (avant le premier `##`) sont **ignorés** (déjà sur la page de
-garde). Sont rendus : **tableaux** Markdown (`| … |`), **listes** (`- `), **blocs de code** ```` ``` ````
-(police à chasse fixe — pour l'ASCII des schémas), **citations** (`> `), **gras** (`**…**`).
+garde). Sont rendus : **tableaux** Markdown (`| … |`), **listes à tirets** (`- ` → puce « - » avec
+retrait pendant), **code inline** `` `…` `` (chasse fixe, **non** typographié), **blocs de code**
+```` ``` ```` (chasse fixe — pour l'ASCII résiduel), **diagrammes** ```` ```mermaid ```` (rendus en
+**image**, voir ci-dessous), **citations** (`> `), **gras** (`**…**`), **italique** (`*…*`). Tout le texte
+de prose passe par la **normalisation typographique française** (voir ci-dessous).
+
+La table **« Suivi des mises à jour »** placée dans le bloc de méta (avant le premier `##`) est, par
+exception, **rendue** : elle **peuple la table de la page de garde** du modèle (en-tête conservé).
+
+**Conseils de lisibilité (côté contenu).** Pour un rendu fluide : séparer les paragraphes par une
+**ligne vide**, sortir les énumérations en **listes `-`**, et **éviter le gras `**…**` dans la prose**
+(réserver l'emphase à l'*italique*) — le gras alourdit la lecture.
 
 > Les garde-fous de contenu (ne jamais inventer, aucune valeur réelle : IP/port d'écoute/hôte/clé,
 > matrice des flux en port standard, `[À CONFIRMER]` / `N/A`) relèvent de `/homologation-dat`.
@@ -77,12 +93,49 @@ Tout va dans `private/` ; `homologation-output/` est **déprécié**.
 - **TOC** marqué « dirty » + `settings/updateFields=true` → le sommaire se peuple à l'ouverture Word.
   Repli si vide : **Ctrl+A puis F9** (mettre à jour les champs).
 
+## Diagrammes mermaid (rendu image)
+
+Tout bloc ```` ```mermaid … ``` ```` est **rendu en PNG et inséré** centré, à la largeur utile de la
+page. Le rendu est **local** (`mermaid-cli` + Chrome local, `PUPPETEER_EXECUTABLE_PATH`) — **aucun
+appel à un service externe** (on n'utilise PAS `mermaid.ink` : un DAT ne doit pas voir son
+architecture exfiltrée). Si l'outillage manque (ou `--no-mermaid`), repli **sans perte** : la source
+mermaid est rendue en chasse fixe. Avantage : la même source rend nativement sur GitHub/GitLab.
+
+## Typographie française (le français l'emporte)
+
+Tout le texte de prose (titres, paragraphes, listes, **cellules de tableau**, citations) est passé
+par `normalize_typography` — conventions de l'**Imprimerie nationale**, **idempotent**, **100 % local** :
+
+- **insécable** `U+00A0` avant `:`, fine insécable `U+202F` avant `;` `!` `?` et à l'intérieur des
+  guillemets ; insécable avant `% € ° ‰` ; séparateur de milliers en fine (`30 000`) ;
+- apostrophe droite → courbe `’` ; guillemets droits `"…"` en prose → `« … »`.
+- **Règle d'or** : on ne **convertit** qu'une espace **déjà présente**, jamais on n'en **ajoute**
+  (préserve `12:30`, `clé:valeur`, URLs, ratios). Sont **exclus** : code inline `` `…` ``, blocs de
+  code, source mermaid, URLs et e-mails.
+- En cas de conflit FR/EN, le **français gagne**. Fine `U+202F` qui s'affiche en « tofu » selon la
+  police : basculer la constante `THIN_NBSP_FALLBACK = True` (repli sur `U+00A0`).
+
+La **page de garde** (issue du modèle) n'est volontairement pas retypographiée.
+
+## Logo de la page de garde
+
+Un logo PNG (bloc-marque MININT) est inséré **centré en tête de garde**, largeur `LOGO_WIDTH_CM`
+(4 cm). Options : `--logo <chemin>` (défaut `assets/logo_minint_2020.png`), `--no-logo` (repli sans
+perte + avertissement). Asset introuvable ⇒ rendu **sans logo** (jamais d'échec).
+
+L'asset est **vendorisé** dans `assets/` (versionné, hors `private/`). Conformément à la doctrine
+**locale**, il n'est **jamais** téléchargé au rendu. Régénération (build unique, hors ligne au rendu) :
+récupérer le SVG source puis le rasteriser **localement** (ici via Chrome headless,
+`--default-background-color=00000000` pour la transparence — Chrome peut ne pas rendre la main proprement
+en environnement sandboxé, mais le PNG est écrit avant ; ou via `rsvg-convert`/`cairosvg`/`resvg`).
+**Jamais** de service de conversion en ligne.
+
 ## Limites connues
 
 - Les **encadrés bleus de référence socle « ◆ »** du modèle ne sont pas réinjectés tels quels : le
   contenu Markdown doit déjà **porter le texte de socle** (conservé par `/homologation-dat`).
-- Les **schémas** sont rendus en ASCII (police à chasse fixe). Pour un rendu image, insérer l'image
-  manuellement après génération (le modèle accepte les images).
+- La table **« Suivi des mises à jour »** de la garde est peuplée depuis le bloc de méta du Markdown
+  (4 colonnes attendues : Version, Date, Auteurs, Commentaire) ; l'**en-tête** reste celui du modèle.
 - Vérifier visuellement la pagination une fois ouvert dans Word et **mettre à jour le sommaire** (F9).
 
 ## Maintenance
