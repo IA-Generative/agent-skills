@@ -1,4 +1,4 @@
-# Changelog — homologation-dat-word
+# Changelog — dat-word
 
 Versions notables de la logique de rendu `.docx`. Versionnement `vMAJEUR.MINEUR`.
 
@@ -73,7 +73,7 @@ Versions notables de la logique de rendu `.docx`. Versionnement `vMAJEUR.MINEUR`
 
 ### Ajouté
 - `render_docx.py` : rend un DAT MirAI au format ministériel `.docx` **sur le modèle**
-  `MODELE_DAT_MirAI.docx` (skill sœur `homologation-dat`) à partir d'un Markdown fidèle à la
+  `MODELE_DAT_MirAI.docx` (skill sœur `dat-generation`) à partir d'un Markdown fidèle à la
   structure du modèle.
 - Conservation de la **page de garde** (renseignée : service / version / date ; mention « — MODÈLE »
   retirée) et du champ **Sommaire (TOC)** ; suppression de la page « Comment utiliser » et de tous les

@@ -3,7 +3,7 @@
 
 Construit le `.docx` **sur le modèle** `MODELE_DAT_MirAI.docx` (hérite page de garde,
 styles, sommaire/TOC) à partir d'un contenu **Markdown fidèle à la structure du modèle**
-(tel que produit par la skill `homologation-dat`).
+(tel que produit par la skill `dat-generation`).
 
 Opérations :
   - conserve la page de garde et le champ Sommaire (TOC) du modèle ;
@@ -861,8 +861,8 @@ def main() -> None:
     ap.add_argument("--input", required=True, help="Contenu Markdown fidèle à la structure du modèle")
     ap.add_argument("--output", required=True, help="Chemin du .docx de sortie")
     here = os.path.dirname(os.path.abspath(__file__))
-    default_model = os.path.normpath(os.path.join(here, "..", "homologation-dat", "dat", "MODELE_DAT_MirAI.docx"))
-    ap.add_argument("--model", default=default_model, help="Modèle .docx (défaut : skill homologation-dat)")
+    default_model = os.path.normpath(os.path.join(here, "..", "dat-generation", "dat", "MODELE_DAT_MirAI.docx"))
+    ap.add_argument("--model", default=default_model, help="Modèle .docx (défaut : skill dat-generation)")
     ap.add_argument("--service", default="", help="Nom du service (page de garde)")
     ap.add_argument("--version", default="", help="Version (page de garde)")
     ap.add_argument("--date", default="", help="Date (page de garde)")
