@@ -1,162 +1,171 @@
 # skills-claude — skills partagées IA-Generative
 
-Skills [Claude Code](https://code.claude.com/docs/en/skills) réutilisables par
-l'équipe IA-Generative. Capitalisent les pratiques récurrentes (debug, ADRs,
-smoke-tests pipeline mirai, anti-régression rebranding) dans des modules
-chargés à la demande plutôt que recollés à chaque session.
+Skills [Claude Code](https://code.claude.com/docs/en/skills) réutilisables par l'équipe
+IA-Generative. Elles capitalisent les pratiques récurrentes — démarrer un repo proprement,
+enquêter sur un bug, auditer la sécurité, réviser du code, produire un dossier
+d'homologation — dans des modules chargés à la demande, plutôt que recollés à chaque session.
 
-## ⚡ Déploiement local — partager les skills sur tous tes repos (Claude Code dans VSCode, Mac)
+**C'est le dépôt de skills par défaut de l'équipe.** Une pratique qui mérite d'être rejouée
+a vocation à finir ici.
 
-> Objectif : installer ces skills **une fois** sur ta machine pour qu'elles soient disponibles dans
-> **tous** tes projets, quel que soit le dossier ouvert dans VSCode.
+> 🤖 Vous êtes un agent de codage ? Lisez [`CLAUDE.md`](CLAUDE.md) : il contient les
+> invariants du dépôt et la marche à suivre pour ajouter ou modifier une skill.
 
-Claude Code (CLI **et** extension VSCode) lit les skills « utilisateur » dans `~/.claude/skills/`.
-Ce qui s'y trouve est actif dans **toutes** les fenêtres / tous les workspaces de la machine.
-`install.sh` y crée des **symlinks** vers ce repo : **aucune recopie**, un seul clone sur le disque,
-tu édites ici → répercuté partout. `ls -l ~/.claude/skills/` montre des liens `->`, pas des fichiers.
+---
+
+## Installation — une fois par machine, valable partout
+
+Claude Code (CLI **et** extension VSCode) lit les skills « utilisateur » dans
+`~/.claude/skills/`. Ce qui s'y trouve est actif dans **toutes** les fenêtres et tous les
+workspaces de la machine — aucune configuration par projet n'est nécessaire.
+
+`install.sh` y crée des **symlinks** vers ce dépôt : aucune recopie, un seul clone sur le
+disque, vous éditez ici → répercuté partout.
 
 ```bash
-# Depuis TON clone existant (un seul suffit — ne re-clone pas)
-cd /Users/etiquet/Documents/GitHub/skills-claude   # ou l'emplacement de ton clone
-./install.sh                                        # symlinks vers ~/.claude/skills/ — idempotent
-ls -l ~/.claude/skills/                             # vérif : doit afficher des liens -> .../skills-claude/...
+# Un seul clone suffit — si vous l'avez déjà, ne re-clonez pas
+git clone git@github.com:IA-Generative/skills-claude.git ~/Documents/GitHub/skills-claude
+cd ~/Documents/GitHub/skills-claude
+
+./install.sh              # crée les symlinks — idempotent
+ls -l ~/.claude/skills/   # vérification : des liens `->`, pas des fichiers
 ```
 
-> Tu n'as **pas** de clone encore ? Clone-le une seule fois où tu veux, puis lance `./install.sh` :
-> `git clone git@github.com:IA-Generative/skills-claude.git ~/code/skills-claude`
+Dans **VSCode** : ouvrez n'importe quel projet, lancez le panneau Claude Code, tapez `/` —
+les skills apparaissent dans l'autocomplétion.
 
-Dans **VSCode** : ouvre n'importe quel projet, lance le panneau Claude Code, tape `/` →
-les skills apparaissent dans l'autocomplétion. Aucune config par-projet n'est requise.
+| Besoin | Commande |
+|---|---|
+| Mettre à jour | `git pull` dans votre clone (les symlinks suivent ; relancez la session si une skill n'apparaît pas) |
+| Simuler sans rien changer | `./install.sh --dry-run` |
+| Désinstaller | `./install.sh --remove` |
 
-**Mise à jour** : `git pull` dans ton clone suffit (les symlinks pointent dessus,
-le nouveau contenu est pris à chaud — relance une session si une skill n'apparaît pas encore).
-**Désinstaller** : `./install.sh --remove`. **Aperçu sans rien changer** : `./install.sh --dry-run`.
-
-> 💡 Skills **utilisateur** (`~/.claude/skills/`, via ce repo) = dispo partout sur ta machine.
-> Pour ne livrer une skill qu'à un projet précis, voir [Option 2 — Projet](#option-2--projet-à-committer-dans-le-repo-cible) plus bas.
-
-## Qu'est-ce qu'une skill ?
-
-Une skill = un dossier `<nom>/SKILL.md` avec :
-- un **frontmatter YAML** qui décrit quand l'utiliser
-- un **corps markdown** = mode d'emploi que Claude suit quand on l'invoque
-
-L'invocation se fait :
-- en tapant `/<nom-de-la-skill> [args]` dans une session Claude Code
-- ou **automatiquement** par Claude si la `description` matche la demande
-
-Référence officielle : https://code.claude.com/docs/en/skills
+> ⚠️ **Deux pièges de symlink.** `install.sh` ne remplace jamais un lien qui pointe
+> ailleurs : il avertit et passe son tour — si une skill semble ne pas se mettre à jour,
+> `ls -l ~/.claude/skills/<nom>` dira vers quoi elle pointe vraiment. Et votre clone doit
+> être sur `main` : un clone resté sur une branche de travail expose *vos* skills en cours
+> à toutes vos sessions, pas celles de l'équipe.
 
 ## Skills disponibles
 
-Regroupées par domaine pour s'y retrouver d'un coup d'œil.
-
-| Skill | Usage | Portée |
+| Skill | Ce qu'elle fait | Portée |
 |---|---|---|
-| **— Démarrer / dev —** | | |
-| `/repo-init` | Initialise un repo proprement : git, `.gitignore` durci, `private/` gitignoré, structure lisible, anti-leak local **bloquant** (pre-commit gitleaks) | **Universelle** |
-| `/bug-investigate` | Force 2-3 hypothèses + plan B avant tout fix | **Universelle** |
-| `/adr-new` | Rédige une ADR au format IA-Generative | **Universelle** |
+| **— Démarrer / développer —** | | |
+| `/repo-init` | Initialise un repo proprement : git, `.gitignore` durci, `private/` gitignoré, structure lisible, anti-leak local **bloquant** (pre-commit gitleaks) | Universelle |
+| `/bug-investigate` | Force 2-3 hypothèses de cause + un plan B avant tout fix | Universelle |
+| `/adr-new` | Rédige une ADR au format IA-Generative | Universelle |
+| **— Qualité / revue —** | | |
+| `/controle-qualite-code` | Grille de revue du code — en particulier généré par IA — avec verdict motivé, plus un rituel d'hygiène qui mesure et dégonfle la dette | Universelle |
 | **— Audit / sécurité —** | | |
-| `/audit-repo-ouverture` | Vérifie qu'un repo s'ouvre sans risque avant de bosser dessus (auto-exec au open, anti-leak, aucun secret dans code/historique) — lecture seule, `--setup` pose les garde-fous | **Universelle** |
-| `/audit-pentest-prep` | Audit sécurité (OWASP + prompt injection) avant pen-test — lecture seule, `--fix` pour corriger ; sorties en `private/` | **Universelle** |
-| `/audit-redteam` | Campagne red-team / prompt-injection (LLM01) contre un service LLM ; mesure si la garde bloque ; rapports en `private/redteam-reports/` | **Universelle** |
-| `/audit-tool-owui` | Audite l'identité SSO & le coffre de credentials des tools per-user derrière OpenWebUI / MCP | OWUI/MCP |
+| `/audit-repo-ouverture` | Vérifie qu'un repo s'ouvre sans risque avant d'y travailler (auto-exécution à l'ouverture, anti-leak, aucun secret dans le code ni l'historique) — lecture seule | Universelle |
+| `/audit-pentest-prep` | Audit sécurité (OWASP + prompt injection) avant pen-test — lecture seule, `--fix` pour corriger ; sorties en `private/` | Universelle |
+| `/audit-redteam` | Campagne red-team / prompt-injection (LLM01) contre un service LLM ; mesure si la garde tient ; rapports en `private/redteam-reports/` | Universelle |
+| `/audit-tool-owui` | Audite l'identité SSO et le coffre de credentials des tools per-user derrière OpenWebUI / MCP | OWUI/MCP |
 | **— Homologation —** | | |
-| `/dat-generation` | Pré-remplit un document d'homologation MirAI (DAT…) depuis le code — modèle + prompt embarqués ; sortie en `private/` | MirAI/DTNUM |
+| `/dat-generation` | Pré-remplit un document d'homologation MirAI (DAT…) depuis le code — modèle et prompt embarqués ; sortie en `private/` | MirAI/DTNUM |
 | `/dat-word` | Rend un DAT (Markdown) en `.docx` ministériel sur le modèle officiel ; sortie en `private/` | MirAI/DTNUM |
 | **— Spécifique MirAI —** | | |
-| `/smoke-test` | Smoke-test pipeline mirai-mesreunions (gateway + auth + ingester) | mirai-only |
+| `/smoke-test` | Smoke-test du pipeline mirai-mesreunions (gateway + auth + ingester) | mirai-only |
 | `/check-service-names` | Détecte les anciens noms de services mcr (rebranding 2026-05-16) | mirai-only |
 
-> ℹ️ **`dat-generation`** embarque ses propres artefacts versionnés (modèle `dat/MODELE_DAT_MirAI.docx`,
-> prompt, `CHANGELOG.md`) — exception à la règle « SKILL.md léger ». Ce contenu provient du dépôt
-> `IA-Generative/gen-document-homologation`, **fusionné ici en 2026-06** (un seul dépôt à maintenir ;
-> l'ancien repo est retiré). Le modèle/prompt évoluent désormais dans `skills/dat-generation/`.
+### Skills qui embarquent leurs propres artefacts
 
-## Hooks (config à coller dans settings.json)
+Deux exceptions assumées à la règle « une skill = un `SKILL.md` léger » :
 
-| Hook | Bloque | Doc |
+- **`dat-generation`** embarque son modèle versionné (`dat/MODELE_DAT_MirAI.docx`), son
+  prompt et un `CHANGELOG.md`. Ce contenu vient du dépôt
+  `IA-Generative/gen-document-homologation`, **fusionné ici en 2026-06** — un seul dépôt à
+  maintenir, l'ancien est retiré. Le modèle et le prompt évoluent désormais ici. Son binôme
+  `dat-word` embarque de même son script de rendu et ses tests.
+- **`controle-qualite-code`** est **vendoré** depuis un amont public,
+  [`etiquet/controle-qualite-code`](https://github.com/etiquet/controle-qualite-code), qui
+  reste sa source de vérité — c'est là qu'arrivent les contributions externes, que ce dépôt
+  interne ne peut pas accueillir. La copie ici est identique à l'octet près : **ne pas
+  l'éditer**. Procédure de synchronisation et de vérification :
+  [`skills/controle-qualite-code/UPSTREAM.md`](skills/controle-qualite-code/UPSTREAM.md).
+
+## Hooks
+
+Configuration à coller dans votre `settings.json`.
+
+| Hook | Ce qu'il bloque | Doc |
 |---|---|---|
-| `kustomize-guard` | `kubectl apply -f` sur manifest `base/` (écrase env vars overlay) | [hooks/kustomize-guard.md](hooks/kustomize-guard.md) |
+| `kustomize-guard` | `kubectl apply -f` sur un manifest `base/` (écrase les variables d'environnement de l'overlay) | [hooks/kustomize-guard.md](hooks/kustomize-guard.md) |
 
-## Installation
+## Ajouter ou modifier une skill
 
-### Option 1 — Personnelle (recommandée pour démarrer)
-
-Symlink dans `~/.claude/skills/` → dispo dans **toutes** tes sessions, sans recopie.
-Procédure détaillée (et pourquoi pas de second clone) : voir la section
-[⚡ Déploiement local](#-déploiement-local--partager-les-skills-sur-tous-tes-repos-claude-code-dans-vscode-mac) en tête de ce README.
-
-```bash
-cd <ton-clone-skills-claude> && ./install.sh   # --dry-run pour simuler, --remove pour désinstaller
-```
-
-### Option 2 — Projet (à committer dans le repo cible)
-
-Pour rendre une skill disponible à toute l'équipe d'un projet, la copier dans
-`.claude/skills/<nom>/` du repo concerné et committer. Les skills projet
-n'ont pas besoin d'install.
-
-⚠️ Note : les skills avec `allowed-tools` accordent automatiquement des permissions
-à Claude une fois le workspace marqué comme "trusted". Relire les SKILL.md
-avant de faire confiance à un projet inconnu.
-
-### Option 3 — Plugin (futur)
-
-Quand la collection sera stable, on pourra la packager en plugin Claude Code
-(`/plugin install IA-Generative/skills-claude`) pour distribution one-shot.
-À faire si on dépasse une dizaine de skills.
-
-## Ajouter une skill
+Une skill = un dossier `skills/<nom>/SKILL.md`, avec un **frontmatter YAML** qui décrit
+quand l'utiliser et un **corps markdown** que Claude suit à l'invocation. Elle se déclenche
+soit en tapant `/<nom> [args]`, soit **automatiquement** quand la `description` correspond
+à la demande — d'où l'importance de la soigner.
 
 ```bash
 mkdir -p skills/<nom>
 $EDITOR skills/<nom>/SKILL.md
-./install.sh   # re-symlink (idempotent)
+./install.sh            # re-symlink, idempotent
 ```
 
 Format minimum :
 
 ```yaml
 ---
-description: Phrase qui dit quoi et quand utiliser. Claude s'en sert pour décider de l'invoquer auto. Premier mot = mot-clé d'usage.
+description: Ce que fait la skill. C'est ce que Claude lit pour décider de l'invoquer tout seul.
+when_to_use: mots-clés et formulations qui doivent la déclencher
 ---
 
-Instructions que Claude suit quand la skill est invoquée.
+Les instructions que Claude suit quand la skill est invoquée.
 Référer $ARGUMENTS si la skill prend un argument.
 ```
 
-Frontmatter utile (cf. doc officielle) :
-- `disable-model-invocation: true` → seul l'utilisateur peut invoquer (utile pour
-  les actions à effet de bord : deploy, send-message, etc.)
-- `allowed-tools: Bash(git *) Read` → pré-approuve ces tools quand la skill tourne
-- `argument-hint: [titre]` → indication d'argument en autocomplete
-- `paths: ["src/**/*.ts"]` → la skill ne se déclenche auto que sur ces fichiers
+Le nom de la skill est celui du **dossier** — `name:` dans le frontmatter est facultatif et
+la plupart des skills d'ici l'omettent. Si vous le mettez, il doit être identique au nom du
+dossier, sans quoi `/`-invocation et symlink ne désignent plus la même chose.
+
+Frontmatter optionnel utile ([doc officielle](https://code.claude.com/docs/en/skills)) :
+
+| Clé | Effet |
+|---|---|
+| `argument-hint: [titre]` | Indication d'argument dans l'autocomplétion |
+| `allowed-tools: Bash(git *) Read` | Pré-approuve ces outils pendant que la skill tourne |
+| `disable-model-invocation: true` | Seul l'utilisateur peut l'invoquer — à mettre sur tout ce qui a un effet de bord (deploy, envoi de message) |
+| `paths: ["src/**/*.ts"]` | La skill ne se déclenche automatiquement que sur ces fichiers |
+
+**Livraison :** branche dédiée puis PR, jamais de commit direct sur `main`. Une skill qui
+arrive ici devient la pratique de l'équipe — elle passe par une revue, comme le reste.
 
 ## Conventions
 
-- **Une skill = un mode d'emploi reproductible.** Pas du contexte général
-  (ça, c'est CLAUDE.md ou la mémoire perso).
-- **FR par défaut**, sauf si le repo cible est anglophone.
-- **Concis** : viser < 100 lignes par SKILL.md. Les références longues vont
-  dans des fichiers à côté (`reference.md`, `examples/`).
-- **Citer les mémoires / ADRs / runbooks** existants plutôt que les dupliquer.
-- **Pas de secrets** dans les SKILL.md (le repo est partagé).
+- **Une skill = un mode d'emploi reproductible.** Pas du contexte général : ça, c'est
+  `CLAUDE.md` ou la mémoire personnelle.
+- **Français par défaut**, sauf si le dépôt cible est anglophone.
+- **Concis** : viser moins de 100 lignes par `SKILL.md`. Les développements longs vont dans
+  des fichiers voisins (`references/`, `examples/`) que la skill charge à la demande.
+- **Citer** les mémoires, ADRs et runbooks existants plutôt que les dupliquer.
+- **Pas de secrets** dans les `SKILL.md` : ce dépôt est partagé.
+- **Sorties sensibles dans `private/`**, qui est gitignoré — jamais à la racine du dépôt
+  audité.
 
-## Skills personnelles vs partagées
+## Où faire vivre une skill
 
-| | Personnelle | Partagée (ce repo) |
-|---|---|---|
-| Où | `~/.claude/skills/` directement | `IA-Generative/skills-claude/skills/` |
-| Pour | Ton workflow individuel | Pratiques d'équipe |
-| Visibilité | Toi seul | Tout IA-Generative |
-| Modif | Libre | PR review |
+| | Personnelle | Partagée — ce dépôt | Projet |
+|---|---|---|---|
+| Où | `~/.claude/skills/` en dur | `skills/` ici, symlinké par `install.sh` | `.claude/skills/<nom>/` du dépôt cible, committé |
+| Pour qui | vous seul | toute l'équipe IA-Generative | les contributeurs d'un projet précis |
+| Modification | libre | par PR | par PR sur le projet |
 
-Si une skill perso s'avère utile à l'équipe → la promouvoir ici via PR.
+Une skill personnelle qui s'avère utile à l'équipe se promeut ici par une PR.
+
+> ⚠️ Une skill avec `allowed-tools` accorde automatiquement des permissions à Claude dès
+> que le workspace est marqué « trusted ». Relisez les `SKILL.md` avant de faire confiance
+> à un projet inconnu.
+
+**Distribution en plugin.** Le seuil qu'on s'était fixé — une dizaine de skills — est
+atteint. Packager la collection en plugin Claude Code
+(`/plugin install IA-Generative/skills-claude`) supprimerait l'étape `install.sh` et le
+clone. À décider.
 
 ## Liens
 
-- Doc skills Claude Code : https://code.claude.com/docs/en/skills
-- Doc hooks : https://code.claude.com/docs/en/hooks
-- Agent Skills open standard : https://agentskills.io
+- Skills Claude Code : https://code.claude.com/docs/en/skills
+- Hooks : https://code.claude.com/docs/en/hooks
+- Agent Skills, standard ouvert : https://agentskills.io
