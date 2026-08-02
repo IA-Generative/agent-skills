@@ -3,7 +3,7 @@
 
 Construit le `.docx` **sur le modèle** `MODELE_DAT_MirAI.docx` (hérite page de garde,
 styles, sommaire/TOC) à partir d'un contenu **Markdown fidèle à la structure du modèle**
-(tel que produit par la skill `homologation-dat`).
+(tel que produit par la skill `dat-generation`).
 
 Opérations :
   - conserve la page de garde et le champ Sommaire (TOC) du modèle ;
@@ -39,8 +39,8 @@ from types import SimpleNamespace
 
 try:
     from docx import Document
-    from docx.oxml.ns import qn
-    from docx.oxml import OxmlElement
+    from docx.oxml.ns import qn, nsdecls
+    from docx.oxml import OxmlElement, parse_xml
     from docx.shared import Inches, Pt, Cm
     from docx.enum.text import WD_ALIGN_PARAGRAPH
 except ImportError:
@@ -56,6 +56,7 @@ BODY_PT = 10.0          # corps de texte
 H1_PT, H2_PT, H3_PT = 14.0, 12.0, 11.0  # titres
 CODE_PT = 8.5           # blocs de code à chasse fixe (ASCII résiduel)
 TABLE_PT = 9.0          # cellules de tableau
+VERSION_TABLE_PT = 8.0  # table « Suivi des mises à jour » (page de garde) — compacte
 LINE_SPACING = 1.3      # interligne du corps (multiple)
 PARA_AFTER_PT = 8.0     # espace après paragraphe du corps (aération / séparation)
 HEADING_SPACING = {     # (avant, après) en points, par style de titre
@@ -150,16 +151,132 @@ def strip_template_body(doc) -> None:
     _set_page_break_before(sommaire)
 
 
+def replace_toc_field(doc) -> bool:
+    """Remplace le champ TOC encapsulé dans un `w:sdt` par un champ TOC standard.
+
+    Le modèle stocke le sommaire dans un `w:sdt` (content control) au résultat vide :
+    ni Word ni LibreOffice ne le reconstruisent de façon fiable. Un champ TOC « propre »
+    (un seul paragraphe) est reconnu comme index natif → reconstruit par Word (à
+    l'ouverture / F9) et par LibreOffice (cf. `bake_fields_libreoffice`).
+    """
+    body = doc.element.body
+    for el in list(body):
+        if el.tag == qn("w:sdt") and any("TOC" in (it.text or "") for it in el.iter(qn("w:instrText"))):
+            xml = (
+                f'<w:p {nsdecls("w")}>'
+                '<w:r><w:fldChar w:fldCharType="begin" w:dirty="true"/></w:r>'
+                '<w:r><w:instrText xml:space="preserve"> TOC \\o "1-3" \\h \\z \\u </w:instrText></w:r>'
+                '<w:r><w:fldChar w:fldCharType="separate"/></w:r>'
+                '<w:r><w:t xml:space="preserve">Sommaire — à mettre à jour (F9 / Outils ▸ Actualiser)</w:t></w:r>'
+                '<w:r><w:fldChar w:fldCharType="end"/></w:r>'
+                '</w:p>'
+            )
+            el.addprevious(parse_xml(xml))
+            body.remove(el)
+            return True
+    return False
+
+
 def mark_toc_dirty(doc) -> None:
     for el in doc.element.body.iter(qn("w:fldChar")):
         if el.get(qn("w:fldCharType")) == "begin":
             el.set(qn("w:dirty"), "true")
-    # settings/updateFields = true
+    # settings/updateFields = true (Word propose la mise à jour des champs à l'ouverture)
     settings = doc.settings.element
     if settings.find(qn("w:updateFields")) is None:
         uf = OxmlElement("w:updateFields")
         uf.set(qn("w:val"), "true")
         settings.append(uf)
+
+
+def _find_soffice():
+    for p in ("/Applications/LibreOffice.app/Contents/MacOS/soffice",
+              "/usr/bin/soffice", "/usr/bin/libreoffice"):
+        if os.path.isfile(p):
+            return p
+    for name in ("soffice", "libreoffice"):
+        x = shutil.which(name)
+        if x:
+            return x
+    return None
+
+
+def bake_fields_libreoffice(docx_path, soffice=None, timeout=180) -> bool:
+    """Reconstruit (« bake ») le sommaire et les champs via LibreOffice **en local**.
+
+    Ouvre le `.docx` produit, met à jour les index (sommaire) et les champs, puis ré-enregistre :
+    le sommaire est alors **peuplé dans le fichier** → visible et à jour dans **Word ET
+    LibreOffice**, sans action de l'utilisateur. Aucun service externe. Repli sans perte si
+    LibreOffice est absent (le champ TOC reste mis à jour par Word à l'ouverture / F9).
+    """
+    soffice = soffice or _find_soffice()
+    if not soffice:
+        sys.stderr.write("[toc] LibreOffice introuvable → sommaire mis à jour à l'ouverture (Word/F9).\n")
+        return False
+    path = os.path.abspath(docx_path).replace('"', '')
+    prof = tempfile.mkdtemp(prefix="dat_lo_")
+    std = os.path.join(prof, "user", "basic", "Standard")
+    os.makedirs(std, exist_ok=True)
+    module = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">\n'
+        '<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Module1" script:language="StarBasic">\n'
+        'Sub BakeToc\n'
+        '  Dim oArgs(0) As New com.sun.star.beans.PropertyValue\n'
+        '  oArgs(0).Name = "Hidden" : oArgs(0).Value = True\n'
+        '  Dim oDoc\n'
+        f'  oDoc = StarDesktop.loadComponentFromURL(ConvertToURL("{path}"), "_blank", 0, oArgs())\n'
+        '  Dim oIdx, i\n'
+        '  oIdx = oDoc.getDocumentIndexes()\n'
+        '  For i = 0 To oIdx.Count - 1\n'
+        '    oIdx.getByIndex(i).update()\n'
+        '  Next i\n'
+        '  oDoc.getTextFields().refresh()\n'
+        '  oDoc.store()\n'
+        '  oDoc.close(False)\n'
+        '  StarDesktop.terminate()\n'
+        'End Sub\n'
+        '</script:module>\n'
+    )
+    with open(os.path.join(std, "Module1.xba"), "w", encoding="utf-8") as f:
+        f.write(module)
+    with open(os.path.join(std, "script.xlb"), "w", encoding="utf-8") as f:
+        f.write('<?xml version="1.0" encoding="UTF-8"?>\n'
+                '<!DOCTYPE library:library PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "library.dtd">\n'
+                '<library:library xmlns:library="http://openoffice.org/2000/library" library:name="Standard" '
+                'library:readonly="false" library:passwordprotected="false">\n'
+                ' <library:element library:name="Module1"/>\n</library:library>\n')
+    with open(os.path.join(prof, "user", "basic", "script.xlc"), "w", encoding="utf-8") as f:
+        f.write('<?xml version="1.0" encoding="UTF-8"?>\n'
+                '<!DOCTYPE library:libraries PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "libraries.dtd">\n'
+                '<library:libraries xmlns:library="http://openoffice.org/2000/library" '
+                'xmlns:xlink="http://www.w3.org/1999/xlink">\n'
+                ' <library:library library:name="Standard" xlink:href="$(USER)/basic/Standard/script.xlb" '
+                'xlink:type="simple" library:link="false"/>\n</library:libraries>\n')
+    try:
+        r = subprocess.run(
+            [soffice, f"-env:UserInstallation=file://{prof}", "--headless", "--invisible",
+             "--norestore", "--nologo",
+             "vnd.sun.star.script:Standard.Module1.BakeToc?language=Basic&location=application"],
+            capture_output=True, text=True, timeout=timeout)
+        if r.returncode != 0:
+            sys.stderr.write(f"[toc] bake LibreOffice rc={r.returncode} → repli (MAJ à l'ouverture).\n")
+            return False
+        # vérifie que le sommaire est réellement peuplé (sinon repli honnête)
+        try:
+            import zipfile as _zip
+            doc = _zip.ZipFile(path).read("word/document.xml").decode("utf-8", "ignore")
+            if "<w:hyperlink" not in doc:
+                sys.stderr.write("[toc] bake sans effet (headless sans mise en page) → MAJ à l'ouverture.\n")
+                return False
+        except Exception:  # noqa: BLE001
+            return False
+        return True
+    except Exception as e:  # noqa: BLE001
+        sys.stderr.write(f"[toc] bake LibreOffice indisponible ({e}) → repli (MAJ à l'ouverture).\n")
+        return False
+    finally:
+        shutil.rmtree(prof, ignore_errors=True)
 
 
 def _fill_paragraphs(paragraphs, service, version, date) -> None:
@@ -224,8 +341,10 @@ def fill_version_table(doc, md) -> bool:
     """Peuple la table « Suivi des mises à jour » de la garde avec celle du Markdown.
 
     Remplace les lignes de données (placeholders du modèle) par celles du Markdown,
-    en conservant la ligne d'en-tête du modèle. À appeler AVANT `render_markdown`
-    (la table de garde est alors la première — et seule — table du document).
+    en conservant la ligne d'en-tête du modèle. Met le bloc « Suivi des mises à jour »
+    sur une **page séparée** (saut de page avant le titre) et **réduit la police** de la
+    table (`VERSION_TABLE_PT`). À appeler AVANT `render_markdown` (la table de garde est
+    alors la première — et seule — table du document).
     """
     rows = _meta_version_rows(md)
     if not rows or not doc.tables:
@@ -238,8 +357,19 @@ def fill_version_table(doc, md) -> bool:
         for j, val in enumerate(values):
             if j < len(cells):
                 _add_runs(cells[j].paragraphs[0], val)
-                for r in cells[j].paragraphs[0].runs:
-                    r.font.size = Pt(TABLE_PT)
+    # police réduite + interligne compact sur TOUTE la table (en-tête + données)
+    for trow in table.rows:
+        for cell in trow.cells:
+            for para in cell.paragraphs:
+                para.paragraph_format.space_after = Pt(0)
+                para.paragraph_format.line_spacing = 1.0
+                for r in para.runs:
+                    r.font.size = Pt(VERSION_TABLE_PT)
+    # bloc « Suivi des mises à jour » sur une page séparée (saut de page avant le titre)
+    for para in doc.paragraphs:
+        if para.text.strip().lower().startswith("suivi des mises à jour"):
+            _set_page_break_before(para._p)
+            break
     return True
 
 
@@ -296,7 +426,11 @@ def apply_layout(doc) -> None:
         rprd = _ensure_child(dd, "w:rPrDefault")
         _set_rpr_size(_ensure_child(rprd, "w:rPr"), BODY_PT)
         pprd = _ensure_child(dd, "w:pPrDefault")
-        _set_spacing(_ensure_child(pprd, "w:pPr"), line=LINE_SPACING, after=PARA_AFTER_PT)
+        ppr = _ensure_child(pprd, "w:pPr")
+        _set_spacing(ppr, line=LINE_SPACING, after=PARA_AFTER_PT)
+        # contrôle veuves/orphelines : pas de ligne seule en haut/bas de page
+        wc = _ensure_child(ppr, "w:widowControl")
+        wc.set(qn("w:val"), "true")
     normal = _find_style_el(doc, "Normal")
     if normal is not None:
         _set_rpr_size(_ensure_child(normal, "w:rPr", before_tags=()), BODY_PT)
@@ -727,8 +861,8 @@ def main() -> None:
     ap.add_argument("--input", required=True, help="Contenu Markdown fidèle à la structure du modèle")
     ap.add_argument("--output", required=True, help="Chemin du .docx de sortie")
     here = os.path.dirname(os.path.abspath(__file__))
-    default_model = os.path.normpath(os.path.join(here, "..", "homologation-dat", "dat", "MODELE_DAT_MirAI.docx"))
-    ap.add_argument("--model", default=default_model, help="Modèle .docx (défaut : skill homologation-dat)")
+    default_model = os.path.normpath(os.path.join(here, "..", "dat-generation", "dat", "MODELE_DAT_MirAI.docx"))
+    ap.add_argument("--model", default=default_model, help="Modèle .docx (défaut : skill dat-generation)")
     ap.add_argument("--service", default="", help="Nom du service (page de garde)")
     ap.add_argument("--version", default="", help="Version (page de garde)")
     ap.add_argument("--date", default="", help="Date (page de garde)")
@@ -742,6 +876,12 @@ def main() -> None:
                     help="Logo PNG de la page de garde (défaut : assets/logo_minint_2020.png)")
     ap.add_argument("--no-logo", action="store_true",
                     help="Ne pas insérer de logo en page de garde")
+    ap.add_argument("--soffice", default=None,
+                    help="Chemin LibreOffice (soffice) pour --toc-bake (sinon auto-détection)")
+    ap.add_argument("--toc-bake", action="store_true",
+                    help="Tente de pré-remplir le sommaire via LibreOffice (nécessite un LibreOffice "
+                         "capable de mise en page ; peu fiable en headless). Sinon le champ TOC est "
+                         "mis à jour à l'ouverture (Word) ou via Outils ▸ Actualiser (LibreOffice).")
     args = ap.parse_args()
 
     if not os.path.isfile(args.model):
@@ -763,6 +903,7 @@ def main() -> None:
     strip_template_body(doc)
     fill_cover(doc, args.service, args.version, args.date)
     fill_version_table(doc, md)  # garde : table « Suivi des mises à jour » depuis le Markdown
+    replace_toc_field(doc)       # sommaire : champ TOC standard (reconnu Word + LibreOffice)
     if not args.no_logo:
         insert_cover_logo(doc, args.logo)
 
@@ -778,7 +919,12 @@ def main() -> None:
     finally:
         if tmp:
             shutil.rmtree(tmp, ignore_errors=True)
-    print(f"OK → {args.output}" + (f"  ({opts.counter[0]} diagramme(s) mermaid)" if mermaid_on else ""))
+    # Sommaire : champ TOC standard (reconnu Word + LibreOffice), mis à jour à l'ouverture.
+    # Option --toc-bake : tente un pré-remplissage via LibreOffice (vérifié, sinon repli).
+    baked = bake_fields_libreoffice(args.output, args.soffice) if args.toc_bake else False
+    print(f"OK → {args.output}"
+          + (f"  ({opts.counter[0]} diagramme(s) mermaid)" if mermaid_on else "")
+          + ("  + sommaire pré-rempli" if baked else "  (sommaire : MAJ à l'ouverture / Outils ▸ Actualiser)"))
 
 
 if __name__ == "__main__":

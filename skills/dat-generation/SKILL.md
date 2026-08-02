@@ -1,4 +1,5 @@
 ---
+name: dat-generation
 description: Pré-remplit un document d'homologation MirAI (DAT, et à terme AIPD/dossier d'homologation) à partir du code et des manifestes du repo courant. Le modèle et le prompt de référence versionnés sont embarqués dans cette skill. Lecture seule sur le service, ne jamais inventer ni recopier de valeur réelle.
 when_to_use: DAT, dossier d'architecture technique, homologation, AIPD, document d'homologation, MirAI, DTNUM, "remplir le DAT", "générer le DAT", analyse de risques homologation
 argument-hint: [type de doc + nom du service — ex. "DAT mesreunions" — défaut DAT]
@@ -11,7 +12,7 @@ Cette skill **embarque** le modèle et le prompt de référence (anciennement le
 maintenir). Les artefacts vivent à côté de ce fichier :
 
 ```
-skills/homologation-dat/
+skills/dat-generation/
 ├── SKILL.md          # ce fichier (loader)
 ├── CHANGELOG.md      # versions des modèles/prompts (tags vX.Y du contenu)
 └── dat/

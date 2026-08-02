@@ -63,16 +63,16 @@ Regroupées par domaine pour s'y retrouver d'un coup d'œil.
 | `/audit-redteam` | Campagne red-team / prompt-injection (LLM01) contre un service LLM ; mesure si la garde bloque ; rapports en `private/redteam-reports/` | **Universelle** |
 | `/audit-tool-owui` | Audite l'identité SSO & le coffre de credentials des tools per-user derrière OpenWebUI / MCP | OWUI/MCP |
 | **— Homologation —** | | |
-| `/homologation-dat` | Pré-remplit un document d'homologation MirAI (DAT…) depuis le code — modèle + prompt embarqués ; sortie en `private/` | MirAI/DTNUM |
-| `/homologation-dat-word` | Rend un DAT (Markdown) en `.docx` ministériel sur le modèle officiel ; sortie en `private/` | MirAI/DTNUM |
+| `/dat-generation` | Pré-remplit un document d'homologation MirAI (DAT…) depuis le code — modèle + prompt embarqués ; sortie en `private/` | MirAI/DTNUM |
+| `/dat-word` | Rend un DAT (Markdown) en `.docx` ministériel sur le modèle officiel ; sortie en `private/` | MirAI/DTNUM |
 | **— Spécifique MirAI —** | | |
 | `/smoke-test` | Smoke-test pipeline mirai-mesreunions (gateway + auth + ingester) | mirai-only |
 | `/check-service-names` | Détecte les anciens noms de services mcr (rebranding 2026-05-16) | mirai-only |
 
-> ℹ️ **`homologation-dat`** embarque ses propres artefacts versionnés (modèle `dat/MODELE_DAT_MirAI.docx`,
+> ℹ️ **`dat-generation`** embarque ses propres artefacts versionnés (modèle `dat/MODELE_DAT_MirAI.docx`,
 > prompt, `CHANGELOG.md`) — exception à la règle « SKILL.md léger ». Ce contenu provient du dépôt
 > `IA-Generative/gen-document-homologation`, **fusionné ici en 2026-06** (un seul dépôt à maintenir ;
-> l'ancien repo est retiré). Le modèle/prompt évoluent désormais dans `skills/homologation-dat/`.
+> l'ancien repo est retiré). Le modèle/prompt évoluent désormais dans `skills/dat-generation/`.
 
 ## Hooks (config à coller dans settings.json)
 
