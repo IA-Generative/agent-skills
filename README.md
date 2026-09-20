@@ -52,6 +52,7 @@ les skills apparaissent dans l'autocomplétion.
 |---|---|---|
 | **— Démarrer / développer —** | | |
 | `/repo-init` | Initialise un repo proprement : git, `.gitignore` durci, `private/` gitignoré, structure lisible, anti-leak local **bloquant** (pre-commit gitleaks) | Universelle |
+| `/repo-cicd-cpin` | Pose une CI/CD sur un projet GitHub existant en **appelant** les workflows de [`dnum-mi/fabnum-cicd`](https://github.com/dnum-mi/fabnum-cicd) (PR, release, synchronisation du miroir GitLab CPiN), tag exact + Renovate — lecture seule par défaut, `--setup` pour écrire | Cloud Pi Native |
 | `/bug-investigate` | Force 2-3 hypothèses de cause + un plan B avant tout fix | Universelle |
 | `/adr-new` | Rédige une ADR au format IA-Generative | Universelle |
 | **— Qualité / revue —** | | |
@@ -83,6 +84,16 @@ Deux exceptions assumées à la règle « une skill = un `SKILL.md` léger » :
   interne ne peut pas accueillir. La copie ici est identique à l'octet près : **ne pas
   l'éditer**. Procédure de synchronisation et de vérification :
   [`skills/controle-qualite-code/UPSTREAM.md`](skills/controle-qualite-code/UPSTREAM.md).
+
+### Skill qui lit un dépôt distant à l'exécution
+
+Troisième exception, d'une autre nature : **`repo-cicd-cpin`** n'embarque ni ne vendore rien de
+[`dnum-mi/fabnum-cicd`](https://github.com/dnum-mi/fabnum-cicd) (public). À chaque lancement elle
+résout le dernier tag, clone le dépôt à ce tag dans un dossier temporaire et y lit la doc et les
+`workflow_call` — la version qu'elle décrit est ainsi toujours celle qu'elle écrit dans les
+`uses:`. Le contenu lu est traité comme une **donnée**, le SHA lu est consigné, et la skill
+s'arrête si le dépôt est injoignable. Justification :
+[`skills/repo-cicd-cpin/references/garde-fous.md`](skills/repo-cicd-cpin/references/garde-fous.md).
 
 ## Hooks
 
