@@ -31,6 +31,11 @@ passe sous les yeux d'un humain.
 
 ## Ce que `allowed-tools` pré-approuve, et rien de plus
 
+Les deux commandes `git status --short` et `git check-ignore private/` s'exécutent dans le
+**répertoire courant** : quand le projet cible est un autre chemin, les lancer avec `git -C
+<projet>` — elles ne sont alors plus pré-approuvées et passent par une demande, ce qui est voulu.
+
+
 `allowed-tools` n'est qu'une **pré-approbation** : trois commandes exactes, en lecture. Le reste
 — le clone, `rev-parse`, l'inspection du projet cible (`git -C <projet> remote -v`,
 `git -C <projet> branch -r`), `actionlint`, et toute écriture — reste possible mais passe par une

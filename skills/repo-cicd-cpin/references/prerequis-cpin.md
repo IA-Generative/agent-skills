@@ -15,6 +15,9 @@ La skill écrit des fichiers. Tout ce qui suit reste à la main de l'équipe ; l
 | Déclarer le job de synthèse comme *required status check* | après le premier run vert | *Settings > Branches / Rulesets* |
 | Créer la branche de pages | seulement si des charts sont publiés par le canal classique | voir la fiche du workflow |
 | Activer Renovate sur le dépôt | si ce n'est pas déjà fait | application Renovate de l'organisation |
+| Exiger l'approbation des runs venus d'un fork | toujours, si le dépôt accepte des contributions externes | *Settings > Actions > General > Fork pull request workflows* |
+| Décider de la visibilité du paquet d'image | au premier push : il hérite de la visibilité du dépôt | *Packages > <image> > Package settings* |
+| Donner au cluster un moyen de tirer l'image | si le paquet n'est pas public : jeton `read:packages` d'un **compte de service** (pas un jeton personnel), posé en pull secret | côté exploitation — hors dépôt |
 
 Les noms exacts suivent la règle de `composition.md` : une variable porte le nom de l'input
 qu'elle alimente, un secret le nom déclaré dans le `workflow_call` lu au tag résolu.

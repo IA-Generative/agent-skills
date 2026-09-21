@@ -51,7 +51,9 @@ Détail et justification : [`references/garde-fous.md`](references/garde-fous.md
 3. **Détecter le projet cible** : remote `origin` sur `github.com`, HTTPS ou SSH (**arrêt** sinon :
    hors périmètre), Dockerfile(s) et leur contexte, monorepo ou non, charts Helm, langage,
    workflows déjà présents, config release-please, config Renovate, branche par défaut et branches
-   distantes (`git branch -r`). Ce qui ne se détecte pas se demande.
+   distantes (`git branch -r`). Ce qui ne se détecte pas se demande. Faire aussi les trois
+   **détections préalables** de `composition.md` (configuration figée dans l'image, workflow qui
+   publie déjà, branche par défaut rouge) et les mettre en tête du plan.
 4. **Composer** selon [`references/composition.md`](references/composition.md) : faire trancher
    les choix réservés à l'humain, puis un pipeline de pull request, un pipeline de release, les
    fichiers release-please. Chaque `uses:` porte le
@@ -76,7 +78,11 @@ Détail et justification : [`references/garde-fous.md`](references/garde-fous.md
 
 - Tous les `uses:` vers `fabnum-cicd` portent le **même** tag exact, celui de l'étape 1.
 - Chaque fichier de workflow référencé **existe** dans le clone à ce tag — sinon arrêt.
-- Chaque input `required: true` des `workflow_call` appelés est renseigné ; aucun input inconnu.
+- Chaque input `required: true` des `workflow_call` appelés est renseigné ; aucun input inconnu ;
+  les permissions de chaque job appelant couvrent celles du workflow appelé — contrôle outillé :
+  `python3 scripts/verif-appels.py <clone> .github/workflows/*.yml` (parse, n'exécute rien).
+- Scans : `SEVERITY` et `FAIL_ON_ERROR` explicites ; attestation : `PROVENANCE`, `SBOM`, `SIGN`
+  explicites.
 - Aucun fichier préexistant écrasé ; aucune valeur réelle d'URL, d'ID ou de token écrite.
 - `actionlint` sur les fichiers générés s'il est installé ; `git status --short` sans surprise.
 

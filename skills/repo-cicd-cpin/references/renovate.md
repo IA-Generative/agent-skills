@@ -19,6 +19,8 @@ ensemble — relue, avec le changelog sous les yeux.
 
 - Le gestionnaire `github-actions` de Renovate reconnaît un `uses:` de niveau job pointant sur
   `owner/repo/.github/workflows/<fichier>@<ref>` et lui donne le `depType` `workflow`.
+  (Vérifié dans la documentation du gestionnaire le 2026-09-21 ; tout autre `uses:` garde le
+  `depType` `action`.)
 - `groupName` garantit l'invariant vérifié en fin de skill : le même tag partout.
 - `pinDigests: false` garde le tag lisible même si le projet étend
   `helpers:pinGitHubActionDigests` pour ses actions.
@@ -50,3 +52,22 @@ d'`automerge` sur ce groupe ; rappeler dans le rapport que la PR Renovate se rel
 
 Pour un projet qui l'exige, retirer `pinDigests: false` : Renovate réécrit alors
 `@<sha> # vX.Y.Z`. C'est une décision du projet, pas le défaut de cette skill.
+
+## Côté dépôt de déploiement (hors périmètre d'écriture de la skill)
+
+La skill ne modifie pas le dépôt qui déploie l'image. Elle **propose** dans le rapport la règle à y
+poser, pour que chaque release arrive comme une PR de montée de version relue par l'exploitant :
+
+```json
+{
+  "description": "Images des produits publiées par leur CI : une PR par montée, jamais d'automerge.",
+  "matchDatasources": ["docker"],
+  "matchPackageNames": ["ghcr.io/<org>/<image>"],
+  "automerge": false
+}
+```
+
+Le gestionnaire `kustomize` de Renovate lit `images: [{name, newName, newTag}]` ; le gestionnaire
+`helm-values` lit `image.repository` / `image.tag`. Un tag écrit ailleurs (script, variable) n'est
+pas vu : le signaler. L'image doit être **lisible par Renovate** (paquet public, ou jeton
+`read:packages` fourni à Renovate via `hostRules`).

@@ -9,6 +9,17 @@ exception : le job de synthèse, qui est un job local fourni plus bas.
 Adapter au projet un exemple de la documentation lue est attendu. Ce qui est exclu : recopier le
 **contenu** d'un workflow de `fabnum-cicd` dans le projet au lieu de l'appeler.
 
+## Détections préalables (à rapporter AVANT de composer)
+
+Trois situations rendent le pipeline trompeur si on les ignore. Les chercher dans le projet cible
+et les inscrire en tête du plan, avec la conséquence :
+
+| Détection | Où regarder | Conséquence à écrire dans le plan |
+|---|---|---|
+| **Configuration d'environnement figée dans l'image** | `ARG` / `ENV` d'un Dockerfile portant une URL, un domaine, un identifiant SSO/OIDC, un realm (`*_URL`, `*_AUTHORITY`, `*_CLIENT_ID`, `*_REALM`, `*_DOMAIN`, `VITE_*`, `NUXT_PUBLIC_*`), surtout avec un rendu statique (`nuxt generate`, `vite build`) | l'image publiée ne vaut que pour UN environnement ; tant que la configuration n'est pas lue à l'exécution (fichier de config servi, substitution au démarrage), la release produit une image « générique » inutilisable telle quelle. Ne pas passer ces valeurs en `BUILD_ARGS`. |
+| **Un workflow existant publie déjà** | `on: push: tags`, `docker/build-push-action`, `docker push`, `ghcr.io` dans `.github/workflows/` | release-please crée des tags `vX.Y.Z` : un workflow déclenché sur `tags: v*` publierait **en double** (souvent avec `latest`). Proposer de retirer ou désactiver l'ancien au moment de la bascule — ne jamais le laisser coexister en silence. |
+| **Branche par défaut déjà rouge** | dernier run CI de la branche par défaut (`gh run list -b <défaut> -L 3`), ou lancer la commande de test fournie par l'humain | le premier pipeline sera rouge pour des raisons étrangères à la PR ; le dire, et proposer de rendre le job de test obligatoire seulement après réparation. |
+
 ## Choix à faire trancher par l'humain (dans le plan du `--check`)
 
 Ne pas les deviner : les poser, avec le défaut proposé. `--setup` reprend les réponses données
@@ -18,9 +29,12 @@ dans la conversation ; une réponse absente = le défaut ci-dessous, rappelé da
 |---|---|
 | fichier cible déjà présent : fusion ou nom voisin | **nom voisin** (`ci-cpin.yml`, `cd-cpin.yml`) — jamais de fusion sans accord explicite |
 | registre et nom de l'image | `ghcr.io/<owner>/<repo>` ; **poser la question** : si la plateforme reconstruit l'image depuis le miroir, le push côté GitHub est peut-être superflu |
-| architectures de l'image | celle(s) réellement déployée(s) ; la **même** liste en pull request et en release |
+| architectures de l'image | celle(s) réellement déployée(s). En pull request : **amd64 seul** suffit souvent (voir « Multi-architecture ») |
+| seuil de blocage des scans | image : `CRITICAL` bloquant ; configuration : rapport **non bloquant** tant que le dépôt n'a pas eu sa passe de durcissement (voir « Scans ») |
+| profil | générique ; ou **MirAI next** (voir la section du même nom) |
 | tags d'image supplémentaires (`latest`, majeur/mineur, SHA court) | aucun |
-| analyse qualité, tests dans l'image, attestation, automerge | non |
+| analyse qualité, tests dans l'image, automerge | non |
+| attestation de l'image (provenance, SBOM, signature) | **oui** — c'est ce qui permet à l'exploitant de vérifier ce qu'il déploie |
 | flux de pré-release | oui seulement si la branche de pré-release existe déjà sur le remote |
 | synchronisation Cloud Pi Native | oui |
 
@@ -32,6 +46,8 @@ dans la conversation ; une réponse absente = le défaut ci-dessous, rappelé da
 | `.github/workflows/cd.yml` | pipeline de release |
 | config + manifeste release-please | voir plus bas |
 | `renovate.json` (ou équivalent existant) | voir `renovate.md` |
+| `.yamllint` | seulement si le lint YAML est retenu et qu'aucune config yamllint n'existe : la config par défaut (80 colonnes, `document-start`) rend rouge presque tout manifeste Kubernetes existant — écrire `extends: default` + `line-length: {max: 120}` + `document-start: disable` + `comments: {min-spaces-from-content: 1}` + `braces: {max-spaces-inside: 1}`, et le dire |
+| `ct.yaml` | seulement si des charts sont présents : requis par le lint et le test Helm (`CT_CONF_PATH`) ; contenu minimal d'après la fiche lue |
 
 ## Pipeline de pull request
 
@@ -53,6 +69,17 @@ dans la conversation ; une réponse absente = le défaut ci-dessous, rappelé da
 - `concurrency` indexée sur la PR, avec annulation des runs en cours.
 - Un scan « sur l'artefact produit » : un build multi-architecture produit un artefact par
   architecture ; suivre la fiche pour leur nom et scanner chacun de ceux qui sont déployés.
+- **Scans** : toujours passer `SEVERITY` et `FAIL_ON_ERROR` **explicitement** — le défaut du scan de
+  vulnérabilités est de ne **jamais** bloquer (`FAIL_ON_ERROR: false`), un scan qui « passe » ne
+  prouve alors rien. Passer aussi le numéro de PR aux workflows qui commentent (`PR_NUMBER`) :
+  sans lui, un scan en échec bloque la PR **sans rien expliquer au contributeur**. Expression à
+  utiliser, qui laisse le champ vide sur une PR venue d'un fork (voir « PR depuis un fork ») :
+  `${{ github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.number || '' }}`
+- **Multi-architecture** : `PUSH: false` + `USE_QEMU: true` + amd64 **et** arm64 échoue d'emblée
+  (l'exporteur ne sait pas écrire un tarball multi-plateforme). En PR : une seule architecture,
+  ou runners natifs (`USE_QEMU: false`). Un artefact par architecture
+  (`<artifact-prefix>-amd64`, `-arm64`) → un appel de scan par architecture, chacun avec sa
+  `CATEGORY`.
 - Un workflow appelé deux fois dans le même pipeline (ex. deux scans) : vérifier dans sa fiche
   qu'un input distingue les deux appels (catégorie, en-tête de commentaire) ; sinon le signaler.
 
@@ -83,7 +110,12 @@ Fonctions, dans l'ordre :
 
 1. **release applicative** (release-please) — produit « release créée » et la version ;
 2. **build et push de l'image**, conditionné à « release créée », tag = version ;
-3. **attestation de l'image** — seulement si l'humain la demande ;
+3. **attestation de l'image** — par défaut oui. ⚠ Le workflow d'attestation a (au moins jusqu'à
+   v0.19.3) **toutes ses options à `false`** : un appel sans `PROVENANCE: true`, `SBOM: true`,
+   `SIGN: true` réussit en n'attestant rien. Les passer explicitement, et donner dans le rapport
+   la commande de vérification : `gh attestation verify oci://<image>@<digest> --owner <org>
+   --signer-repo dnum-mi/fabnum-cicd` (le signataire est le workflow réutilisable, pas le
+   dépôt : sans `--signer-repo` la vérification échoue) ;
 4. **mise à jour de la version du chart** — si un chart vit dans le dépôt ;
 5. **synchronisation du miroir Cloud Pi Native** — conditionnée à « release créée » ;
 6. **resynchronisation de la branche de pré-release** — seulement avec un flux de pré-release,
@@ -136,3 +168,33 @@ Fonctions, dans l'ordre :
 - **Pas d'interpolation `${{ }}` dans un `run:`** : passer par `env:` — y compris si un exemple
   de la documentation lue fait autrement.
 - Toute action tierce ajoutée hors `fabnum-cicd` est épinglée par SHA avec la version en commentaire.
+
+## PR depuis un fork
+
+Un contributeur externe travaille par fork. Sur une PR venue d'un fork, GitHub donne un jeton en
+**lecture seule** et **aucun secret** ; les permissions `write` demandées sont rabaissées. En
+conséquence :
+
+- le build de PR doit rester `PUSH: false` (il l'est déjà) ;
+- les commentaires de PR et l'envoi SARIF échouent → neutraliser `PR_NUMBER` pour les forks
+  (expression de la section « Scans ») et ne pas activer l'onglet Security dans ce pipeline ;
+- aucun input ne doit dépendre d'un secret dans le pipeline de PR ;
+- prérequis humain à lister : *Settings > Actions > « Require approval for all outside
+  collaborators »* (un mainteneur approuve le premier run d'un fork).
+
+Ce comportement n'a pas encore été observé sur un vrai fork avec cette skill : le dire dans le
+rapport tant que ce n'est pas le cas.
+
+## Profil « MirAI next »
+
+Pour les produits de la plateforme MirAI next (`IA-Generative/*`), en plus de ce qui précède :
+
+| Point | Règle |
+|---|---|
+| registre et nom | `ghcr.io/ia-generative/<nom-de-l-image>` (nom en minuscules, un par Dockerfile) |
+| synchronisation CPiN | **non** par défaut (produit bêta) ; oui seulement si l'humain dit que le produit vise la production Cloud Pi Native |
+| architectures | amd64 (le cluster bêta est amd64) |
+| credential de release | la GitHub App d'organisation prévue pour fabnum-cicd si elle est installée sur le dépôt (`APP_CLIENT_ID`/`APP_PRIVATE_KEY`), pour que la PR de release déclenche la CI ; sinon `GITHUB_TOKEN` et pas de check obligatoire |
+| valeurs d'infrastructure | aucune dans l'image ni dans les workflows : pas d'URL SSO, de domaine, de namespace, de registre privé en `BUILD_ARGS` (détection « configuration figée ») |
+| après la release | le dépôt de déploiement suit l'image par Renovate (voir `renovate.md`, « Côté dépôt de déploiement ») ; la skill ne touche pas à ce dépôt |
+| tirage par le cluster | un paquet ghcr hérite de la visibilité du dépôt : dépôt `internal`/`private` → le cluster a besoin d'un pull secret (jeton `read:packages` d'un compte de service) ; dépôt public → rendre le paquet public, aucun secret |
