@@ -1,4 +1,5 @@
 ---
+name: adr-new
 description: Rédige une nouvelle ADR (Architecture Decision Record) au format IA-Generative. Utiliser quand une décision d'archi a été prise et doit être tracée (choix de backend, refonte, breaking change, trade-off entre options).
 when_to_use: ADR, decision record, on a décidé, on tranche, choix architectural, trade-off
 argument-hint: [titre court de la décision]
@@ -73,3 +74,6 @@ contrepartie.
 ---
 
 **Sujet de l'ADR** : $ARGUMENTS
+
+> Si la ligne ci-dessus montre encore un nom de variable, ton agent ne substitue pas les
+> arguments : prends-les dans la demande de l'utilisateur.

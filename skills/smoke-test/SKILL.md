@@ -1,14 +1,15 @@
 ---
+name: smoke-test
 description: Smoke-test rapide du pipeline mirai-mesreunions (gateway + auth + ingester). Vérifie GET /api/meetings, GET /audio, POST /transcription avec un device_token synthétique. Spécifique projet mirai-mesreunions.
 when_to_use: smoke test, vérifier le pipeline, ça marche encore ?, check intégration, après deploy
-argument-hint: [env: integration | prod-beta] (défaut: integration)
+argument-hint: "[env: integration | prod-beta] (défaut: integration)"
 disable-model-invocation: true
 allowed-tools: Bash(curl *) Bash(python3 *) Bash(echo *) Bash(date *)
 ---
 
 # Smoke MCR — santé du pipeline en 30s
 
-Cible : **$ARGUMENTS** (défaut `integration` si vide).
+Cible : l'environnement passé en argument (défaut `integration` si vide).
 
 ## Étapes
 
@@ -80,3 +81,6 @@ curl -sS -w "\nHTTP %{http_code}\n" -X POST \
 ---
 
 **Env cible** : $ARGUMENTS
+
+> Si la ligne ci-dessus montre encore un nom de variable, ton agent ne substitue pas les
+> arguments : prends-les dans la demande de l'utilisateur.

@@ -1,5 +1,6 @@
 ---
-description: Audite et conçoit les outils per-user derrière OpenWebUI (ou autre passerelle LLM/MCP) — continuité d'identité SSO (le sub Keycloak de bout en bout), coffre-fort de credentials (MyVault), contrôle d'accès et hygiène de session. Vérifie que l'identité de l'utilisateur arrive de façon FIABLE jusqu'au tool et au coffre-fort, sans mélange de sessions. Lecture seule par défaut : produit un verdict + un plan de remédiation exécutable en mode plan.
+name: audit-tool-owui
+description: "Audite et conçoit les outils per-user derrière OpenWebUI (ou autre passerelle LLM/MCP) — continuité d'identité SSO (le sub Keycloak de bout en bout), coffre-fort de credentials (MyVault), contrôle d'accès et hygiène de session. Vérifie que l'identité de l'utilisateur arrive de façon FIABLE jusqu'au tool et au coffre-fort, sans mélange de sessions. Lecture seule par défaut : produit un verdict + un plan de remédiation exécutable en mode plan."
 when_to_use: tool OpenWebUI invisible ou qui répond "vous n'êtes pas connecté", identité/e-mail non transmise au serveur MCP, sessions mixtes entre utilisateurs, brancher un coffre-fort (MyVault) sur un tool, SSO / JWT / sub derrière OpenWebUI, connecteur MCP per-user, "comment passer la session OWUI au tool", avant d'exposer un nouveau connecteur per-user
 argument-hint: "[--audit (défaut, lecture seule + plan) | --design (concevoir un nouveau tool)] [chemin du repo / cible — sinon repo courant]"
 ---
@@ -20,14 +21,14 @@ propager une identité **prouvée** de bout en bout. Si l'identité est devinée
 en route, tu obtiens : tool « invisible » / « pas connecté », mauvaise personne, ou pire — la session
 d'un utilisateur servie à un autre.
 
-## Mode d'exécution (lire `$ARGUMENTS` AVANT toute action)
+## Mode d'exécution (lire les arguments AVANT toute action)
 
 - **`--audit` — DÉFAUT** : **lecture seule stricte**. Tu inspectes le code + la config déployée
   (manifests k8s, config persistée OWUI, env), tu produis un **tableau de findings** et un **verdict**,
-  puis tu présentes le **plan de remédiation via le mode plan** (`ExitPlanMode`). Tu ne modifies rien.
+  puis tu présentes le **plan de remédiation via le mode plan** (Claude Code : `ExitPlanMode` ; autre agent : présente le plan et attends la validation avant d'agir). Tu ne modifies rien.
 - **`--design`** : tu **conçois** un nouveau tool per-user — tu rends l'**architecture de référence**
   (ci-dessous), un **squelette** et une **checklist go-live**, sans rien déployer.
-- Le reste de `$ARGUMENTS` (hors flag) = chemin du repo / nom du déploiement à examiner ; sinon courant.
+- Le reste des arguments (hors flag) = chemin du repo / nom du déploiement à examiner ; sinon courant.
 
 ## Règle d'or : identité **sub-canonique**
 
