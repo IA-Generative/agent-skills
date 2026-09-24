@@ -1,7 +1,8 @@
 ---
-description: Vérifie qu'une base de code peut être ouverte / travaillée sans risque AVANT de s'y plonger. Trois contrôles — (1) ouverture sûre (aucun exécutable auto au open : hooks git, tâches VSCode, scripts de lifecycle, devcontainer) ; (2) anti-leak en place (gitleaks/pre-commit, .gitignore durci) ; (3) rien de sensible n'a fuité (secrets & infos privées dans le working tree, l'historique et les messages/heads de commit). Lecture seule : produit un rapport et le PLAN de remédiation exécutable en mode plan.
+name: audit-repo-ouverture
+description: "Vérifie qu'une base de code peut être ouverte / travaillée sans risque AVANT de s'y plonger. Trois contrôles — (1) ouverture sûre (aucun exécutable auto au open : hooks git, tâches VSCode, scripts de lifecycle, devcontainer) ; (2) anti-leak en place (gitleaks/pre-commit, .gitignore durci) ; (3) rien de sensible n'a fuité (secrets & infos privées dans le working tree, l'historique et les messages/heads de commit). Lecture seule : produit un rapport et le PLAN de remédiation exécutable en mode plan."
 when_to_use: ouvrir un repo, cloner un dépôt inconnu, "est-ce safe d'ouvrir", reprendre un repo, avant de bosser dessus, mettre en place anti-leak / gitleaks / pre-commit, vérifier qu'aucun secret n'a été poussé, infos sensibles dans les commits, hygiène repo, avant push, avant de rendre public
-argument-hint: [--check (défaut, lecture seule + plan) | --setup (applique l'anti-leak après validation)] [chemin du repo — sinon repo courant]
+argument-hint: "[--check (défaut, lecture seule + plan) | --setup (applique l'anti-leak après validation)] [chemin du repo — sinon repo courant]"
 ---
 
 # Open-repo-check — ouvrir une base de code sans risque
@@ -18,18 +19,18 @@ en mode plan** :
 3. **Aucune fuite déjà présente** — pas de secret ni d'info sensible dans le code, l'historique, ou les
    **messages/heads de commit**, et rien de tel n'a été **poussé**.
 
-## Mode d'exécution (lire `$ARGUMENTS` AVANT toute action)
+## Mode d'exécution (lire les arguments AVANT toute action)
 
 - **`--check` — DÉFAUT** : **lecture seule stricte**. Tu n'écris **aucun** fichier dans le repo, tu ne
   lances **aucune** commande qui modifie l'état (pas d'install, pas de hook posé, pas de commit). Tu
   collectes les findings, tu rédiges le rapport, puis tu **présentes le plan de remédiation via le mode
-  plan** (`ExitPlanMode`) pour que l'humain valide les actions avant qu'elles ne s'exécutent. C'est ça,
+  plan** (Claude Code : `ExitPlanMode` ; autre agent : présente le plan et attends la validation avant d'agir) pour que l'humain valide les actions avant qu'elles ne s'exécutent. C'est ça,
   le « rapport exécutable en mode plan ».
 - **`--setup`** : après un `--check` validé, **applique** uniquement les garde-fous anti-leak **sûrs et
   réversibles** (config gitleaks/pre-commit, durcissement `.gitignore`, hook local), step-by-step, en
   expliquant chaque action. **Jamais** de réécriture d'historique, **jamais** de rotation de secret, et
   **aucun** `git push` en automatique — ça reste des décisions humaines que tu prépares et documentes.
-- Le reste de `$ARGUMENTS` (hors flag) = **chemin du repo** à inspecter ; sinon, repo courant.
+- Le reste des arguments (hors flag) = **chemin du repo** à inspecter ; sinon, repo courant.
 
 ## Règles de fonctionnement
 
@@ -165,3 +166,6 @@ l'historique → **NON**, avec remédiation (rotation + `git filter-repo`/scrub 
 ---
 
 **Cible / options demandées** : $ARGUMENTS
+
+> Si la ligne ci-dessus montre encore un nom de variable, ton agent ne substitue pas les
+> arguments : prends-les dans la demande de l'utilisateur.

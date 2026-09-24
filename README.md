@@ -1,7 +1,9 @@
 # skills-claude — skills partagées IA-Generative
 
-Skills [Claude Code](https://code.claude.com/docs/en/skills) réutilisables par l'équipe
-IA-Generative. Elles capitalisent les pratiques récurrentes — démarrer un repo proprement,
+Skills réutilisables par l'équipe IA-Generative, écrites pour
+[Claude Code](https://code.claude.com/docs/en/skills) et au format ouvert
+[Agent Skills](https://agentskills.io/specification), donc lisibles par les
+[autres agents de codage](#autres-agents). Elles capitalisent les pratiques récurrentes — démarrer un repo proprement,
 enquêter sur un bug, auditer la sécurité, réviser du code, produire un dossier
 d'homologation — dans des modules chargés à la demande, plutôt que recollés à chaque session.
 
@@ -38,6 +40,7 @@ les skills apparaissent dans l'autocomplétion.
 |---|---|
 | Mettre à jour | `git pull` dans votre clone (les symlinks suivent ; relancez la session si une skill n'apparaît pas) |
 | Simuler sans rien changer | `./install.sh --dry-run` |
+| Installer aussi pour les autres agents | `./install.sh --agents` — voir [Autres agents](#autres-agents) |
 | Désinstaller | `./install.sh --remove` |
 
 > ⚠️ **Deux pièges de symlink.** `install.sh` ne remplace jamais un lien qui pointe
@@ -45,6 +48,40 @@ les skills apparaissent dans l'autocomplétion.
 > `ls -l ~/.claude/skills/<nom>` dira vers quoi elle pointe vraiment. Et votre clone doit
 > être sur `main` : un clone resté sur une branche de travail expose *vos* skills en cours
 > à toutes vos sessions, pas celles de l'équipe.
+
+### Autres agents
+
+Un `SKILL.md` est un format ouvert ([Agent Skills](https://agentskills.io/specification)) :
+les skills d'ici ne sont pas réservées à Claude Code. Il suffit que l'agent les trouve.
+
+| Votre agent | Ce qu'il faut faire |
+|---|---|
+| Cursor, OpenCode, Amp, Windsurf, Goose, mode agent de VS Code | **Rien de plus** : ils lisent aussi `~/.claude/skills/`, que `./install.sh` remplit déjà |
+| Codex, Gemini CLI, Copilot CLI, Mistral Vibe, Roo Code | `./install.sh --agents` — ajoute les mêmes symlinks dans `~/.agents/skills/`, le répertoire commun qu'ils lisent tous |
+| Cline, ou tout autre répertoire | `./install.sh --target ~/.cline/skills` (répétable) |
+
+Trois limites à connaître :
+
+- **N'utilisez `--agents` que si vous en avez besoin.** Un agent de la première ligne lit
+  les *deux* répertoires et verrait alors chaque skill en double.
+- **Les symlinks ne sont garantis par leur documentation que chez Codex et Roo Code.**
+  Copilot CLI et Cursor les ont corrigés début 2026 ; pour les autres, vérifiez que la skill
+  apparaît, et sinon copiez le dossier à la main. Ne faites jamais du répertoire *parent*
+  (`~/.agents/skills`) lui-même un symlink : c'est le cas qui échoue.
+- **Le frontmatter porte des clés propres à Claude Code** (`when_to_use`, `argument-hint`,
+  `disable-model-invocation`) que la spec ne connaît pas. Les agents les ignorent, mais le
+  validateur de référence `skills-ref validate` les refuse : c'est un écart assumé, Claude
+  Code ne lirait plus ces clés si on les rangeait sous `metadata`.
+
+Ce qui change d'un agent à l'autre, et comment les skills d'ici s'en accommodent :
+
+| | Claude Code | Ailleurs |
+|---|---|---|
+| Lancer une skill | `/<nom> args` | `/<nom>`, `$<nom>` (Codex) ou `@<nom>` (Windsurf), suivi du texte libre |
+| Arguments | `$ARGUMENTS` est remplacé dans le corps | Pas de substitution : la skill dit de les prendre dans la demande |
+| Plan avant d'agir | mode plan, `ExitPlanMode` | La skill demande de présenter le plan et d'attendre la validation |
+| Réserver à l'humain | `disable-model-invocation: true` | Honoré par Cursor, VS Code et Vibe ; **Codex** lit `agents/openai.yaml` dans le dossier de la skill |
+| `allowed-tools` | Pré-approuve ces outils | Noms d'outils propres à Claude Code : sans effet ailleurs |
 
 ## Skills disponibles
 
@@ -106,7 +143,7 @@ Configuration à coller dans votre `settings.json`.
 ## Ajouter ou modifier une skill
 
 Une skill = un dossier `skills/<nom>/SKILL.md`, avec un **frontmatter YAML** qui décrit
-quand l'utiliser et un **corps markdown** que Claude suit à l'invocation. Elle se déclenche
+quand l'utiliser et un **corps markdown** que l'agent suit à l'invocation. Elle se déclenche
 soit en tapant `/<nom> [args]`, soit **automatiquement** quand la `description` correspond
 à la demande — d'où l'importance de la soigner.
 
@@ -120,17 +157,28 @@ Format minimum :
 
 ```yaml
 ---
-description: Ce que fait la skill. C'est ce que Claude lit pour décider de l'invoquer tout seul.
+name: <nom>
+description: Ce que fait la skill. C'est ce que l'agent lit pour décider de l'invoquer tout seul.
 when_to_use: mots-clés et formulations qui doivent la déclencher
 ---
 
-Les instructions que Claude suit quand la skill est invoquée.
-Référer $ARGUMENTS si la skill prend un argument.
+Les instructions que l'agent suit quand la skill est invoquée.
+
+**Demande** : $ARGUMENTS
+
+> Si la ligne ci-dessus montre encore un nom de variable, ton agent ne substitue pas les
+> arguments : prends-les dans la demande de l'utilisateur.
 ```
 
-Le nom de la skill est celui du **dossier** — `name:` dans le frontmatter est facultatif et
-la plupart des skills d'ici l'omettent. Si vous le mettez, il doit être identique au nom du
-dossier, sans quoi `/`-invocation et symlink ne désignent plus la même chose.
+Le nom de la skill est celui du **dossier**, et `name:` doit lui être **identique** : la spec
+Agent Skills l'exige (minuscules, chiffres et tirets, 64 caractères au plus), et les agents
+autres que Claude Code s'y fient. `description` est plafonnée à 1024 caractères. `when_to_use`
+est propre à Claude Code : ce qui doit déclencher la skill ailleurs va dans `description`.
+
+Pour rester portable, n'écrivez `$ARGUMENTS` qu'**une fois**, sur la dernière ligne, suivie de
+la phrase de repli ci-dessus ; ailleurs dans le corps, parlez « des arguments ». Et nommez
+l'intention avant l'outil : « présente le plan et attends la validation (Claude Code :
+`ExitPlanMode`) ».
 
 Frontmatter optionnel utile ([doc officielle](https://code.claude.com/docs/en/skills)) :
 
@@ -138,7 +186,7 @@ Frontmatter optionnel utile ([doc officielle](https://code.claude.com/docs/en/sk
 |---|---|
 | `argument-hint: [titre]` | Indication d'argument dans l'autocomplétion |
 | `allowed-tools: Bash(git *) Read` | Pré-approuve ces outils pendant que la skill tourne |
-| `disable-model-invocation: true` | Seul l'utilisateur peut l'invoquer — à mettre sur tout ce qui a un effet de bord (deploy, envoi de message) |
+| `disable-model-invocation: true` | Seul l'utilisateur peut l'invoquer — à mettre sur tout ce qui a un effet de bord (deploy, envoi de message). Y joindre `agents/openai.yaml` (`policy.allow_implicit_invocation: false`) pour Codex, qui ignore cette clé |
 | `paths: ["src/**/*.ts"]` | La skill ne se déclenche automatiquement que sur ces fichiers |
 
 **Livraison :** branche dédiée puis PR, jamais de commit direct sur `main`. Une skill qui

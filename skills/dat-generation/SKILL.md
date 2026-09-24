@@ -25,7 +25,7 @@ même convention.
 
 ## Étapes
 
-1. **Identifier le type de document** depuis `$ARGUMENTS` (défaut : **DAT**).
+1. **Identifier le type de document** depuis les arguments (défaut : **DAT**).
    - DAT → prompt `dat/PROMPT_coding_assistant_DAT.md` + modèle `dat/MODELE_DAT_MirAI.docx`.
    - Si le type demandé n'a pas encore de répertoire dans la skill, le signaler et s'arrêter.
 2. **Lire `CHANGELOG.md`** (racine de la skill) pour connaître la version courante du modèle/prompt
@@ -58,3 +58,6 @@ dans `CHANGELOG.md` (format `vMAJEUR.MINEUR`), committer. Plus de synchro avec u
 ---
 
 **Type de doc + service demandés** : $ARGUMENTS
+
+> Si la ligne ci-dessus montre encore un nom de variable, ton agent ne substitue pas les
+> arguments : prends-les dans la demande de l'utilisateur.
