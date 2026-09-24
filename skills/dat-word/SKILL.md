@@ -152,5 +152,5 @@ en environnement sandboxé, mais le PNG est écrit avant ; ou via `rsvg-convert`
 
 Le **modèle** et les **garde-fous de contenu** vivent dans `dat-generation`. Cette skill ne porte
 que la **logique de rendu** (`render_docx.py`). Versionner les évolutions dans `CHANGELOG.md` (format
-`vMAJEUR.MINEUR`). À pousser dans le dépôt de skills partagé `IA-Generative/skills-claude`
-(`skills/dat-word/`) pour être disponible à tous les agents.
+`vMAJEUR.MINEUR`). À pousser dans le dépôt de skills partagé `IA-Generative/agent-skills`
+(`skills/dat-word/`) pour être disponible à toute l’équipe.

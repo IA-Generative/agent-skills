@@ -1,6 +1,6 @@
 ---
-name: smoke-test
-description: Smoke-test rapide du pipeline mirai-mesreunions (gateway + auth + ingester). Vérifie GET /api/meetings, GET /audio, POST /transcription avec un device_token synthétique. Spécifique projet mirai-mesreunions.
+name: mirai-smoke-test
+description: Smoke-test rapide du pipeline mirai-mesreunions (gateway + auth + ingester). Vérifie GET /api/meetings, GET /audio, POST /transcription avec un device_token synthétique. Spécifique projet mirai-mesreunions. À lancer uniquement sur demande explicite de l’utilisateur (appels réseau vers un environnement réel).
 when_to_use: smoke test, vérifier le pipeline, ça marche encore ?, check intégration, après deploy
 argument-hint: "[env: integration | prod-beta] (défaut: integration)"
 disable-model-invocation: true

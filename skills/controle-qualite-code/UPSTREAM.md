@@ -17,7 +17,7 @@ Seul `UPSTREAM.md` (ce fichier) est propre au dépôt aval.
 
 ## Resynchroniser depuis l'amont
 
-Depuis la racine de `skills-claude`, avec `UPSTREAM` pointant sur un clone à jour
+Depuis la racine de `agent-skills`, avec `UPSTREAM` pointant sur un clone à jour
 de l'amont :
 
 ```bash

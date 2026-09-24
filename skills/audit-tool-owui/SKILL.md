@@ -109,7 +109,7 @@ OpenWebUI ne forwarde **rien** par défaut. Vérifie l'un de ces trois leviers :
 ### `--audit`
 1. **Tableau de findings** (les 6 sections, ✅/⚠️/❌ + preuve).
 2. **Verdict** : l'identité est-elle prouvée et continue jusqu'au coffre, sans mélange ?
-3. **Plan de remédiation** vers le sub-canonique, présenté via `ExitPlanMode` (rien n'est modifié sans
+3. **Plan de remédiation** vers le sub-canonique, présenté en mode plan (rien n'est modifié sans
    validation). Priorise : (a) forwarder une identité *prouvée*, (b) authentifier les surfaces d'auth,
    (c) lookup coffre par sub, (d) access_grants/visibilité, (e) hygiène de session.
 

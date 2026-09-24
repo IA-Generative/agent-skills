@@ -1,5 +1,5 @@
 ---
-name: check-service-names
+name: mirai-check-service-names
 description: Détecte les anciens noms de services mcr dans le repo courant (avant le rebranding du 2026-05-16). Bloque la régression de noms obsolètes dans le code, manifests, docs. Spécifique projet mirai-mesreunions.
 when_to_use: avant push, avant merge, check noms de services, vérifier rebranding, ai-je oublié un rename
 disable-model-invocation: false

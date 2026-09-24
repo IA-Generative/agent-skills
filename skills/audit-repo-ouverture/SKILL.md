@@ -145,7 +145,7 @@ l'historique → **NON**, avec remédiation (rotation + `git filter-repo`/scrub 
      config), impact, action recommandée — **sans jamais la valeur d'un secret** ;
    - section dédiée **« secrets / infos sensibles & heads de commit »** avec le statut *poussé ou non*.
 2. **Plan de remédiation exécutable en mode plan** — c'est le cœur du livrable. En fin de `--check`,
-   appelle **`ExitPlanMode`** avec un plan **ordonné** (Critique → Faible) où chaque étape est concrète
+   présente (mode plan, ou `ExitPlanMode` sous Claude Code) un plan **ordonné** (Critique → Faible) où chaque étape est concrète
    et actionnable : neutraliser un auto-exec, durcir `.gitignore`, poser le hook anti-leak, ouvrir un
    ticket de rotation, préparer le scrub d'historique. Sépare clairement :
    - ✅ **actions sûres auto-applicables** en `--setup` (anti-leak, `.gitignore`, `private/`) ;
@@ -160,7 +160,7 @@ l'historique → **NON**, avec remédiation (rotation + `git filter-repo`/scrub 
 
 - Si **SAFE-TO-OPEN : OUI** → dis-le clairement, rappelle les éventuels garde-fous manquants, et propose
   `--setup` pour poser l'anti-leak.
-- Si **NON** → présente le plan via `ExitPlanMode` et **n'exécute rien** tant qu'il n'est pas validé.
+- Si **NON** → présente le plan (mode plan) et **n'exécute rien** tant qu'il n'est pas validé.
   Pour tout secret **déjà poussé**, rappelle : *retirer ne suffit pas — rotation d'abord, scrub ensuite.*
 
 ---
