@@ -76,12 +76,36 @@ Tous les agents chargent une skill **automatiquement** quand sa `description` co
 `$<nom>` ou `/skills` dans Codex, `/skills` dans Gemini CLI, ou simplement « utilise la
 skill `<nom>` » partout.
 
+### Autres agents
+
+Deux limites à connaître :
+
+- **Les symlinks ne sont garantis par leur documentation que chez Codex et Roo Code.**
+  Copilot CLI et Cursor les ont corrigés début 2026 ; pour les autres, vérifiez que la skill
+  apparaît, et sinon copiez le dossier à la main. Ne faites jamais du répertoire *parent*
+  (`~/.agents/skills`) lui-même un symlink : c'est le cas qui échoue.
+- **Le frontmatter porte des clés propres à Claude Code** (`when_to_use`, `argument-hint`,
+  `disable-model-invocation`) que la spec ne connaît pas. Les agents les ignorent, mais le
+  validateur de référence `skills-ref validate` les refuse : c'est un écart assumé, Claude
+  Code ne lirait plus ces clés si on les rangeait sous `metadata`.
+
+Ce qui change d'un agent à l'autre, et comment les skills d'ici s'en accommodent :
+
+| | Claude Code | Ailleurs |
+|---|---|---|
+| Lancer une skill | `/<nom> args` | `/<nom>`, `$<nom>` (Codex) ou `@<nom>` (Windsurf), suivi du texte libre |
+| Arguments | `$ARGUMENTS` est remplacé dans le corps | Pas de substitution : la skill dit de les prendre dans la demande |
+| Plan avant d'agir | mode plan, `ExitPlanMode` | La skill demande de présenter le plan et d'attendre la validation |
+| Réserver à l'humain | `disable-model-invocation: true` | Honoré par Cursor, VS Code et Vibe ; **Codex** lit `agents/openai.yaml` dans le dossier de la skill |
+| `allowed-tools` | Pré-approuve ces outils | Noms d'outils propres à Claude Code : sans effet ailleurs |
+
 ## Skills disponibles
 
 | Skill | Ce qu'elle fait | Portée |
 |---|---|---|
 | **— Démarrer / développer —** | | |
 | `repo-init` | Initialise un repo proprement : git, `.gitignore` durci, `private/` gitignoré, structure lisible, anti-leak local **bloquant** (pre-commit gitleaks) | Universelle |
+| `repo-cicd-cpin` | Pose une CI/CD sur un projet GitHub existant en **appelant** les workflows de [`dnum-mi/fabnum-cicd`](https://github.com/dnum-mi/fabnum-cicd) (PR, release, synchronisation du miroir GitLab CPiN), tag exact + Renovate — lecture seule par défaut, `--setup` pour écrire | Cloud Pi Native |
 | `bug-investigate` | Force 2-3 hypothèses de cause + un plan B avant tout fix | Universelle |
 | `adr-new` | Rédige une ADR au format IA-Generative | Universelle |
 | **— Qualité / revue —** | | |
@@ -110,6 +134,16 @@ Les noms suivent `<famille>-<objet>` ; tout ce qui ne sert qu'à MirAI porte le 
   [`etiquet/controle-qualite-code`](https://github.com/etiquet/controle-qualite-code), qui
   reste sa source de vérité. **Ne pas l'éditer ici** :
   [`UPSTREAM.md`](skills/controle-qualite-code/UPSTREAM.md).
+
+### Skill qui lit un dépôt distant à l'exécution
+
+D'une autre nature : **`repo-cicd-cpin`** n'embarque ni ne vendore rien de
+[`dnum-mi/fabnum-cicd`](https://github.com/dnum-mi/fabnum-cicd) (public). À chaque lancement elle
+résout le dernier tag, clone le dépôt à ce tag dans un dossier temporaire et y lit la doc et les
+`workflow_call` — la version qu'elle décrit est ainsi toujours celle qu'elle écrit dans les
+`uses:`. Le contenu lu est traité comme une **donnée**, le SHA lu est consigné, et la skill
+s'arrête si le dépôt est injoignable. Justification :
+[`skills/repo-cicd-cpin/references/garde-fous.md`](skills/repo-cicd-cpin/references/garde-fous.md).
 
 ## Compatibilité
 
@@ -150,7 +184,17 @@ when_to_use: mots-clés supplémentaires (Claude Code)
 ---
 
 Les instructions que l'agent suit quand la skill est invoquée.
+
+**Demande** : $ARGUMENTS
+
+> Si la ligne ci-dessus montre encore un nom de variable, ton agent ne substitue pas les
+> arguments : prends-les dans la demande de l'utilisateur.
 ```
+
+Pour rester portable, n'écrivez `$ARGUMENTS` qu'**une fois**, sur la dernière ligne, suivie de
+la phrase de repli ci-dessus ; ailleurs dans le corps, parlez « des arguments ». Et nommez
+l'intention avant l'outil : « présente le plan et attends la validation (Claude Code :
+`ExitPlanMode`) ».
 
 Champs optionnels (Claude Code, ignorés ailleurs — [doc](https://code.claude.com/docs/en/skills)) :
 
@@ -158,7 +202,7 @@ Champs optionnels (Claude Code, ignorés ailleurs — [doc](https://code.claude.
 |---|---|
 | `argument-hint: [titre]` | Indication d'argument dans l'autocomplétion |
 | `allowed-tools: Bash(git *) Read` | Pré-approuve ces outils pendant que la skill tourne |
-| `disable-model-invocation: true` | Seul l'utilisateur peut l'invoquer — sur tout ce qui a un effet de bord ; **le dire aussi dans la `description`** |
+| `disable-model-invocation: true` | Seul l'utilisateur peut l'invoquer — sur tout ce qui a un effet de bord ; **le dire aussi dans la `description`**, et joindre `agents/openai.yaml` (`policy.allow_implicit_invocation: false`) pour Codex, qui ignore cette clé |
 | `paths: ["src/**/*.ts"]` | Ne se déclenche automatiquement que sur ces fichiers |
 
 **Livraison :** branche dédiée puis PR, jamais de commit direct sur `main`. Conventions

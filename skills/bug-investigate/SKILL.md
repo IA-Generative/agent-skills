@@ -39,3 +39,6 @@ Si l'hypothèse #1 est invalidée, quelle est la suivante et comment on bascule 
 ---
 
 **Symptôme à investiguer** : $ARGUMENTS
+
+> Si la ligne ci-dessus montre encore un nom de variable, ton agent ne substitue pas les
+> arguments : prends-les dans la demande de l'utilisateur.

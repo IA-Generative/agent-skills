@@ -27,7 +27,7 @@ regrette toujours de ne pas avoir posées avant le premier commit : git, un
 
 ## Étapes
 
-1. **Cible** = `$ARGUMENTS` ou répertoire courant. Détecter le type de projet
+1. **Cible** = l'argument passé, ou le répertoire courant. Détecter le type de projet
    (présence de `package.json`, `pyproject.toml`, `go.mod`…) pour adapter les
    ignores ; sinon « générique ».
 
@@ -125,3 +125,6 @@ regrette toujours de ne pas avoir posées avant le premier commit : git, un
 ---
 
 **Cible / type** : $ARGUMENTS
+
+> Si la ligne ci-dessus montre encore un nom de variable, ton agent ne substitue pas les
+> arguments : prends-les dans la demande de l'utilisateur.

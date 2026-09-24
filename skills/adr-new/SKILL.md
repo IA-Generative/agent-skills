@@ -74,3 +74,6 @@ contrepartie.
 ---
 
 **Sujet de l'ADR** : $ARGUMENTS
+
+> Si la ligne ci-dessus montre encore un nom de variable, ton agent ne substitue pas les
+> arguments : prends-les dans la demande de l'utilisateur.
