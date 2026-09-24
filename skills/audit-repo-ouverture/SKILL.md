@@ -1,4 +1,5 @@
 ---
+name: audit-repo-ouverture
 description: Vérifie qu'une base de code peut être ouverte / travaillée sans risque AVANT de s'y plonger. Trois contrôles — (1) ouverture sûre (aucun exécutable auto au open : hooks git, tâches VSCode, scripts de lifecycle, devcontainer) ; (2) anti-leak en place (gitleaks/pre-commit, .gitignore durci) ; (3) rien de sensible n'a fuité (secrets & infos privées dans le working tree, l'historique et les messages/heads de commit). Lecture seule : produit un rapport et le PLAN de remédiation exécutable en mode plan.
 when_to_use: ouvrir un repo, cloner un dépôt inconnu, "est-ce safe d'ouvrir", reprendre un repo, avant de bosser dessus, mettre en place anti-leak / gitleaks / pre-commit, vérifier qu'aucun secret n'a été poussé, infos sensibles dans les commits, hygiène repo, avant push, avant de rendre public
 argument-hint: [--check (défaut, lecture seule + plan) | --setup (applique l'anti-leak après validation)] [chemin du repo — sinon repo courant]
@@ -23,7 +24,7 @@ en mode plan** :
 - **`--check` — DÉFAUT** : **lecture seule stricte**. Tu n'écris **aucun** fichier dans le repo, tu ne
   lances **aucune** commande qui modifie l'état (pas d'install, pas de hook posé, pas de commit). Tu
   collectes les findings, tu rédiges le rapport, puis tu **présentes le plan de remédiation via le mode
-  plan** (`ExitPlanMode`) pour que l'humain valide les actions avant qu'elles ne s'exécutent. C'est ça,
+  plan** (sous Claude Code : `ExitPlanMode` ; ailleurs : plan affiché, puis attendre la validation explicite) pour que l'humain valide les actions avant qu'elles ne s'exécutent. C'est ça,
   le « rapport exécutable en mode plan ».
 - **`--setup`** : après un `--check` validé, **applique** uniquement les garde-fous anti-leak **sûrs et
   réversibles** (config gitleaks/pre-commit, durcissement `.gitignore`, hook local), step-by-step, en
@@ -144,7 +145,7 @@ l'historique → **NON**, avec remédiation (rotation + `git filter-repo`/scrub 
      config), impact, action recommandée — **sans jamais la valeur d'un secret** ;
    - section dédiée **« secrets / infos sensibles & heads de commit »** avec le statut *poussé ou non*.
 2. **Plan de remédiation exécutable en mode plan** — c'est le cœur du livrable. En fin de `--check`,
-   appelle **`ExitPlanMode`** avec un plan **ordonné** (Critique → Faible) où chaque étape est concrète
+   présente (mode plan, ou `ExitPlanMode` sous Claude Code) un plan **ordonné** (Critique → Faible) où chaque étape est concrète
    et actionnable : neutraliser un auto-exec, durcir `.gitignore`, poser le hook anti-leak, ouvrir un
    ticket de rotation, préparer le scrub d'historique. Sépare clairement :
    - ✅ **actions sûres auto-applicables** en `--setup` (anti-leak, `.gitignore`, `private/`) ;
@@ -159,7 +160,7 @@ l'historique → **NON**, avec remédiation (rotation + `git filter-repo`/scrub 
 
 - Si **SAFE-TO-OPEN : OUI** → dis-le clairement, rappelle les éventuels garde-fous manquants, et propose
   `--setup` pour poser l'anti-leak.
-- Si **NON** → présente le plan via `ExitPlanMode` et **n'exécute rien** tant qu'il n'est pas validé.
+- Si **NON** → présente le plan (mode plan) et **n'exécute rien** tant qu'il n'est pas validé.
   Pour tout secret **déjà poussé**, rappelle : *retirer ne suffit pas — rotation d'abord, scrub ensuite.*
 
 ---

@@ -1,13 +1,13 @@
 # Prompt générique — Coding assistant : remplissage d'un DAT MirAI
 
-> À copier dans un agent de code disposant d'un accès au dépôt du projet (Claude Code, Cowork, etc.).
+> À copier dans un agent de code disposant d'un accès au dépôt du projet (Claude Code, Codex, OpenCode, Gemini CLI, Cursor, etc.).
 > Remplacer les valeurs entre `«…»` avant exécution.
 
 ## Source de référence (toujours la dernière version)
 
 Le modèle de DAT **et** la dernière version de ce prompt sont maintenus dans le dépôt de skills partagé :
 
-**https://github.com/IA-Generative/skills-claude** — dossier `skills/dat-generation/`
+**https://github.com/IA-Generative/agent-skills** — dossier `skills/dat-generation/`
 
 Les artefacts vivent à côté de ce prompt (mêmes chemins relatifs) :
 
@@ -30,7 +30,7 @@ Tu es architecte technique au sein de la DTNUM (programme MirAI, ministère de l
 Pré-remplir le modèle de DAT pour le service suivant, en t'appuyant **uniquement sur des faits vérifiables dans le dépôt**.
 
 - **Service / projet :** «NOM DU SERVICE»
-- **Modèle DAT :** `dat/MODELE_DAT_MirAI.docx` (depuis `IA-Generative/skills-claude`, `skills/dat-generation/`, dernière version)
+- **Modèle DAT :** `dat/MODELE_DAT_MirAI.docx` (depuis `IA-Generative/agent-skills`, `skills/dat-generation/`, dernière version)
 - **Dépôt(s) source du service :** `«chemin ou URL du dépôt»` (ex. `IA-Generative/«repo»`)
 - **Sortie attendue :** `«chemin/vers/DAT_«service»_v0.1.docx»` (sinon, du Markdown fidèle à la structure du modèle)
 

@@ -1,0 +1,21 @@
+name: check
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  skills:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Conformité des SKILL.md
+        run: ./install.sh --check
+      - name: Installation dans un HOME vierge, deux fois (idempotence)
+        run: |
+          export HOME="$(mktemp -d)"
+          mkdir -p "$HOME/.claude"
+          ./install.sh --offline
+          ./install.sh --offline | tee second.log
+          grep -q ' 0 ajouté(s)' second.log

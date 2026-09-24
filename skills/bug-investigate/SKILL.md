@@ -1,4 +1,5 @@
 ---
+name: bug-investigate
 description: Force 2-3 hypothèses de cause + plan B avant tout fix de bug. Utiliser sur tout bug signalé, régression, comportement inattendu, ou avant de toucher au code "pour corriger". Inspiré du guide Karpathy §1.
 when_to_use: bug, regression, ne marche pas, ne fonctionne plus, crash, erreur, 500, "ça plante", "ça bloque"
 argument-hint: [description du symptôme — optionnel si déjà dans le contexte]
