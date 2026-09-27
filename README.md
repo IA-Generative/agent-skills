@@ -106,6 +106,7 @@ Ce qui change d'un agent à l'autre, et comment les skills d'ici s'en accommoden
 | **— Démarrer / développer —** | | |
 | `repo-init` | Initialise un repo proprement : git, `.gitignore` durci, `private/` gitignoré, structure lisible, anti-leak local **bloquant** (pre-commit gitleaks) | Universelle |
 | `repo-cicd-cpin` | Pose une CI/CD sur un projet GitHub existant en **appelant** les workflows de [`dnum-mi/fabnum-cicd`](https://github.com/dnum-mi/fabnum-cicd) (PR, release, synchronisation du miroir GitLab CPiN), tag exact + Renovate — lecture seule par défaut, `--setup` pour écrire | Cloud Pi Native |
+| `repo-version-json` | Fait porter à l'image son journal de version (ADR-0004, format Dockerflow) : `scripts/version_json.py`, bloc Dockerfile, route `GET /__version__` dans le langage du projet, test, build-args CI et contrôle « l'image dit la même chose que le tag » — lecture seule par défaut, `--setup` pour écrire ; mode d'emploi développeur embarqué | Universelle |
 | `bug-investigate` | Force 2-3 hypothèses de cause + un plan B avant tout fix | Universelle |
 | `adr-new` | Rédige une ADR au format IA-Generative | Universelle |
 | **— Qualité / revue —** | | |
