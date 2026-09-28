@@ -65,6 +65,16 @@ Après le build et le push, un job local (pas de `${{ }}` dans le `run:`, tout p
 Sans `scripts/verif-version.sh` dans le dépôt, l'équivalent inline :
 `docker run --rm --entrypoint cat "$IMAGE:$VERSION" /app/version.json | jq -e --arg v "$VERSION" --arg c "$COMMIT" '.version == $v and .commit == $c'`.
 
+### Le contrôle du CHANGELOG, dans le pipeline de pull request
+
+Un CHANGELOG qui fuite ne doit pas atteindre une image. Étape à ajouter au job de tests ou de lint
+de la PR (le script est copié dans le dépôt avec `version_json.py`) :
+
+```yaml
+      - name: Le CHANGELOG peut être servi à tout le monde
+        run: python3 scripts/verif-changelog.py CHANGELOG.md
+```
+
 ## 2. GitHub Actions maison (`docker/build-push-action` ou `docker build`)
 
 ```yaml

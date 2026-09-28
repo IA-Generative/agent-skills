@@ -101,12 +101,28 @@ le dépôt. Deux conséquences :
   fait exactement cela ;
 - **un dépôt sans CHANGELOG démarre avec `history: []`**. Pour ne pas perdre le passé, on le
   reconstitue une fois depuis git : une section par montée du fichier de version (`git log -- VERSION`),
-  commits entre deux montées groupés par type conventionnel, puis relecture humaine. C'est ce qui a
-  été fait sur device-management (18 versions, un commit).
+  commits entre deux montées groupés par type conventionnel, **puis reformulation** pour un lecteur
+  extérieur et relecture humaine : les sujets bruts sont un brouillon. C'est ce qui a été fait sur
+  device-management (17 versions, un commit).
 
 La borne par défaut est de 50 versions (`--history-max N` dans le `RUN` du Dockerfile). Chaque
 entrée pèse quelques centaines d'octets : un projet à 50 versions rend ~20 Ko, ce que la route
 sert sans peine toutes les 10 minutes.
+
+## Le CHANGELOG est public : écrivez-le pour quelqu'un d'extérieur
+
+Tout ce que vous mettez dans `CHANGELOG.md` est servi tel quel sur `/__version__`, sans
+authentification. Donc **rien de sensible** (hôtes, adresses, secrets, personnes, noms
+d'environnements ou de clients), et **pas de détail technique précis** (fichiers, fonctions,
+colonnes, codes de lint) : une phrase par changement, du point de vue de la personne qui utilise
+le service ; le détail va dans le corps du commit ou la PR. Avec release-please, la ligne du
+CHANGELOG est le sujet de votre commit : c'est lui qu'il faut écrire ainsi.
+
+```bash
+python3 scripts/verif-changelog.py CHANGELOG.md          # échec si sensible, avertit si trop technique
+```
+
+Consigne complète et exemples avant/après : [`changelog.md`](changelog.md).
 
 ## Sans `CHANGELOG.md`, sans release-please
 
