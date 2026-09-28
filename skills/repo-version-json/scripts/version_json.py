@@ -25,7 +25,8 @@ import json
 import pathlib
 import re
 
-TITRE = re.compile(r"^##\s+\[?v?(?P<version>\d[^\]\s(]*)\]?(?:[^\d]*(?P<date>\d{4}-\d{2}-\d{2}))?")
+TITRE = re.compile(r"^##\s+\[?v?(?P<version>\d[^\]\s(]*)\]?")
+DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
 
 
 def _nettoyer(lignes: list[str]) -> list[str]:
@@ -46,7 +47,8 @@ def sections(changelog: str) -> list[dict]:
                 courante["changes"] = _nettoyer(courante["changes"])
                 resultat.append(courante)
             m = TITRE.match(ligne)
-            courante = {"version": m.group("version"), "date": m.group("date") or "", "changes": []} if m else None
+            d = DATE.search(ligne[m.end():]) if m else None
+            courante = {"version": m.group("version"), "date": d.group(0) if d else "", "changes": []} if m else None
             continue
         if courante is not None:
             courante["changes"].append(ligne)
