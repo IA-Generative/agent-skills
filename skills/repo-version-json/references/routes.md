@@ -6,7 +6,7 @@
 |---|---|
 | Méthode et chemin | `GET /__version__` (deux tirets bas de chaque côté, singulier) |
 | Réponse | `200`, `Content-Type: application/json`, le contenu de `/app/version.json` tel quel |
-| Hors image (tests, poste) | le fichier manque → `{"source":"","version":"dev","commit":"","build":"","code_date":"","changes":[]}` — **jamais** une erreur |
+| Hors image (tests, poste) | le fichier manque → `{"source":"","version":"dev","commit":"","build":"","code_date":"","changes":[],"history":[]}` — **jamais** une erreur |
 | Authentification | aucune : le noteur l'appelle par le Service interne, sans session |
 | Schéma OpenAPI | exclue (`include_in_schema=False` ou équivalent) |
 | Logs d'accès | exclue, comme les sondes de santé : elle est appelée toutes les 10 minutes |
@@ -33,7 +33,7 @@ from pathlib import Path
 from fastapi import APIRouter
 
 VERSION_JSON = Path("/app/version.json")
-DEV = {"source": "", "version": "dev", "commit": "", "build": "", "code_date": "", "changes": []}
+DEV = {"source": "", "version": "dev", "commit": "", "build": "", "code_date": "", "changes": [], "history": []}
 
 router = APIRouter()
 
@@ -51,11 +51,11 @@ Dans le fichier d'entrée : `app.include_router(version_router)` **hors** de tou
 de mode (chaque pod, quel que soit son rôle, répond). Exclusions à compléter : filtre du logger
 `uvicorn.access`, allowlists de mode, exemptions de readiness gate, `dependencies=` d'auth globale.
 
-Test (`pytest`, `TestClient`) : (1) hors image → six clés et `version == "dev"` ; (2) fichier
+Test (`pytest`, `TestClient`) : (1) hors image → sept clés et `version == "dev"` ; (2) fichier
 temporaire + `monkeypatch.setattr(version, "VERSION_JSON", tmp)` → contenu rendu tel quel ;
 (3) gate ou mode restrictif actif → toujours `200` ; (4) `"/__version__"` présent dans chaque
-tuple d'exclusion du projet ; (5) le script : section de cette version seule, `[]` sans CHANGELOG
-(motif : `tests/test_version.py` de `IA-Generative/gpu-warden`).
+tuple d'exclusion du projet ; (5) le script : `changes` = section de cette version seule,
+`history` = toutes les sections dans l'ordre du fichier, `[]` pour les deux sans CHANGELOG.
 
 ### Python — Flask
 
@@ -82,7 +82,7 @@ Avant les routers protégés et l'auth globale :
 
 ```js
 const fs = require('fs');
-const DEV = { source: '', version: 'dev', commit: '', build: '', code_date: '', changes: [] };
+const DEV = { source: '', version: 'dev', commit: '', build: '', code_date: '', changes: [], history: [] };
 app.get('/__version__', (_req, res) => {
   try { res.type('application/json').send(fs.readFileSync('/app/version.json', 'utf8')); }
   catch { res.json(DEV); }
@@ -105,7 +105,7 @@ Contrôleur `VersionController`, `@Get('__version__')`, marqué public si un gua
 import { readFileSync } from 'node:fs';
 import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
-const DEV = { source: '', version: 'dev', commit: '', build: '', code_date: '', changes: [] };
+const DEV = { source: '', version: 'dev', commit: '', build: '', code_date: '', changes: [], history: [] };
 export async function GET() {
   try { return new NextResponse(readFileSync('/app/version.json', 'utf8'), { headers: { 'content-type': 'application/json' } }); }
   catch { return NextResponse.json(DEV); }
@@ -125,7 +125,7 @@ Un site **généré** (`nuxt generate`) n'a pas de serveur : c'est le bloc nginx
 
 ```go
 const versionJSON = "/app/version.json"
-var dev = []byte(`{"source":"","version":"dev","commit":"","build":"","code_date":"","changes":[]}`)
+var dev = []byte(`{"source":"","version":"dev","commit":"","build":"","code_date":"","changes":[],"history":[]}`)
 
 mux.HandleFunc("GET /__version__", func(w http.ResponseWriter, _ *http.Request) {
     w.Header().Set("Content-Type", "application/json")

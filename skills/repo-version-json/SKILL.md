@@ -1,6 +1,6 @@
 ---
 name: repo-version-json
-description: Fait porter à une image applicative son propre journal de version — convention ADR-0004 MirAI next, format Dockerflow de Mozilla — quel que soit le langage (Python, Node, Go, Java, image nginx statique…). Pose dans le dépôt cible : le script scripts/version_json.py copié tel quel, le bloc Dockerfile qui écrit /app/version.json AU BUILD depuis cinq build-args (VERSION, COMMIT, BUILD, CODE_DATE, SOURCE ; champs source, version, commit, build, code_date, changes), la route GET /__version__ dans le langage du projet (JSON, 200, sans authentification, hors logs d'accès, « dev » hors image), un test minimal, le câblage CI ou du script de build, et le contrôle « l'image dit la même chose que le tag ». Embarque un mode d'emploi pour le développeur. Lecture seule par défaut (--check : détection, plan, fichiers proposés) ; n'écrit qu'avec --setup, jamais par écrasement ; ne pousse rien, n'ouvre aucune PR.
+description: Fait porter à une image applicative son propre journal de version — convention ADR-0004 MirAI next, format Dockerflow de Mozilla — quel que soit le langage (Python, Node, Go, Java, image nginx statique…). Pose dans le dépôt cible : le script scripts/version_json.py copié tel quel, le bloc Dockerfile qui écrit /app/version.json AU BUILD depuis cinq build-args (VERSION, COMMIT, BUILD, CODE_DATE, SOURCE ; champs source, version, commit, build, code_date, changes, history = tout le CHANGELOG), la route GET /__version__ dans le langage du projet (JSON, 200, sans authentification, hors logs d'accès, « dev » hors image), un test minimal, le câblage CI ou du script de build, et le contrôle « l'image dit la même chose que le tag ». Embarque un mode d'emploi pour le développeur. Lecture seule par défaut (--check : détection, plan, fichiers proposés) ; n'écrit qu'avec --setup, jamais par écrasement ; ne pousse rien, n'ouvre aucune PR.
 when_to_use: version.json, /__version__, __version__, Dockerflow, ADR-0004, note de version, noteur de versions, "l'image porte sa version", quelle version tourne en prod, exposer la version et le changelog de l'image, changelog dans l'image, build-args VERSION COMMIT BUILD CODE_DATE SOURCE, verify-version, version "dev" en prod, service d'exposition de version
 argument-hint: '[--check (défaut, lecture seule + plan) | --setup (écrit après validation)] [--tag X.Y.Z (version attendue par le contrôle ; défaut = détectée)] [chemin du projet — sinon repo courant]'
 allowed-tools: Read Grep Glob Bash(git status --short) Bash(git rev-parse HEAD) Bash(git log -1 --format=%cI) Bash(git describe --tags --always) Bash(git remote get-url origin) Bash(git check-ignore private/)
@@ -28,15 +28,16 @@ des testeurs — sans parler à GitHub. Sans la route, la version en service n'a
 
 ## Règles
 
-1. **`scripts/version_json.py` est copié tel quel** depuis le dossier de cette skill, jamais
-   adapté ni réécrit : un seul script partout, c'est ce qui rend le noteur fiable. S'il existe
-   déjà et diffère : signaler, ne pas écraser.
+1. **`scripts/version_json.py` est copié tel quel** depuis le dossier de cette skill, qui en est la
+   source de référence — jamais adapté ni réécrit : un seul script partout, c'est ce qui rend le
+   noteur fiable. S'il existe déjà et diffère (version antérieure du script) : proposer la mise à
+   jour, ne pas écraser sans accord.
 2. **Les cinq `ARG` s'appellent `VERSION` (défaut `dev`), `COMMIT`, `BUILD`, `CODE_DATE`,
    `SOURCE`** (défaut vide). Jamais renommés : la CI de la plateforme les passe sous ces noms.
    Un `ARG` maison existant (`APP_TAG`, `IMAGE_TAG`…) se garde et s'**aliase** :
    `ARG VERSION=${ARG_EXISTANT}`.
-3. **Hors image, la route répond l'objet « dev » à six clés** (`version: "dev"`, listes et
-   chaînes vides). Jamais une erreur : une version inconnue n'est pas une panne.
+3. **Hors image, la route répond l'objet « dev » à sept clés** (`version: "dev"`, listes et
+   chaînes vides : `changes` et `history` valent `[]`). Jamais une erreur : une version inconnue n'est pas une panne.
 4. **La route est sans authentification, hors schéma OpenAPI, hors logs d'accès, hors toute
    liste blanche ou barrière de middleware** (mode d'exécution, readiness gate, matcher d'auth).
    Lire CHAQUE liste de chemins du projet et la compléter — c'est là que ça casse en production.
@@ -70,11 +71,11 @@ des testeurs — sans parler à GitHub. Sans la route, la version en service n'a
 ## Vérifications de fin (toutes doivent passer)
 
 - `docker build` du projet avec les cinq `--build-arg` (commande composée à l'étape 2).
-- `bash <skill>/scripts/verif-version.sh --image <img> --tag <X.Y.Z> --commit <sha>` : six clés,
+- `bash <skill>/scripts/verif-version.sh --image <img> --tag <X.Y.Z> --commit <sha>` : sept clés,
   `version` et `commit` égaux à l'attendu.
 - Le test ajouté passe **avec la suite complète** du projet, pas seul.
 - Si l'application démarre sans dépendance : `verif-version.sh --url http://localhost:<port>`
-  → 200, `application/json`, six clés. Sinon le test unitaire fait foi, et le rapport le dit.
+  → 200, `application/json`, sept clés. Sinon le test unitaire fait foi, et le rapport le dit.
 - `git status --short` : uniquement les fichiers annoncés.
 
 ---

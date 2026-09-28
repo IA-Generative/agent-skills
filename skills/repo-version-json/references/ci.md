@@ -116,14 +116,17 @@ Un remote dérivé doit être nettoyé de tout `user:token@` : `sed -E 's#https:
 
 ## Sources de version, et ce que donne `changes`
 
-| Source | `VERSION` | `changes` |
+| Source | `VERSION` | `changes` et `history` |
 |---|---|---|
-| release-please + `CHANGELOG.md` | output `version` du workflow de release | la section `## [X.Y.Z]` de cette version : **rempli** |
+| release-please + `CHANGELOG.md` | output `version` du workflow de release | `changes` = la section `## [X.Y.Z]` de cette version ; `history` = toutes les sections : **remplis** |
 | fichier `VERSION` / `version.txt` | `$(cat VERSION)` | `[]` sauf si un `CHANGELOG.md` à titres `## [X.Y.Z]` ou `## X.Y.Z` existe |
 | `package.json` / `pyproject.toml` | `jq -r .version` / `python -c …` | idem |
 | tag git seul | `git describe --tags --always \| sed 's/^v//'` | idem |
 | rien | `dev` | `[]` |
 
 `changes: []` n'est pas un échec : le noteur affiche la version comme « note à écrire ». Pour que
-`changes` se remplisse sans release-please, amorcer un `CHANGELOG.md` dont les titres de section
-sont `## [X.Y.Z] - AAAA-MM-JJ` : le script ne lit que le titre.
+`changes` et `history` se remplissent sans release-please, amorcer un `CHANGELOG.md` dont les
+titres de section sont `## [X.Y.Z] - AAAA-MM-JJ` : le script ne lit que le titre. L'historique
+se reconstitue depuis git (une section par montée du fichier de version, commits groupés par
+type conventionnel), puis se relit à la main. `history` est bornée à 50 versions
+(`--history-max`, à passer dans le `RUN` du Dockerfile si le projet en veut plus ou moins).

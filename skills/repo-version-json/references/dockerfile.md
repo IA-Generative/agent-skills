@@ -40,7 +40,9 @@ RUN python /tmp/version/version_json.py --version "$VERSION" --commit "$COMMIT" 
 ```
 
 - `CHANGELOG.md*` : le glob rend la copie tolérante à l'absence du fichier (le premier motif
-  matche toujours, donc `COPY` ne casse pas). Sans CHANGELOG, `changes` vaut `[]`.
+  matche toujours, donc `COPY` ne casse pas). Sans CHANGELOG, `changes` et `history` valent `[]`.
+  Avec : `history` porte tout le fichier, section par section (50 versions au plus par défaut,
+  `--history-max N` pour changer la borne).
 - Placer le bloc **après** les `COPY` du code et **avant** `USER` / `useradd`.
 - `chmod 0644` : sur un poste où les fichiers sont en `600`, `COPY` garde le mode et l'utilisateur
   du conteneur ne peut plus lire le fichier (« Permission denied »).
