@@ -15,6 +15,7 @@ Le `README.md` s'adresse aux humains ; ce fichier énonce ce qu'il ne faut pas c
 ```
 skills/<nom>/SKILL.md   une skill = un dossier ; le nom du DOSSIER est le nom de la skill
 hooks/<nom>.md          hooks Claude Code à coller dans un settings.json (non installés)
+docs/                   documentation du dépôt (sources externes reprises ou citées)
 install.sh              installe / met à jour : symlinks vers ~/.agents/skills et ~/.claude/skills
 .github/                CI (./install.sh --check) et modèles d'issue
 ```

@@ -26,7 +26,17 @@ Laquelle on instruit en premier et pourquoi (coût d'instruction × probabilité
 ## 4. Plan B
 Si l'hypothèse #1 est invalidée, quelle est la suivante et comment on bascule sans repartir de zéro.
 
-## 5. Avant de coder
+## 5. Reproduire avant de corriger
+Écrire un test qui **échoue** et reproduit le symptôme, le voir échouer, puis corriger jusqu'au
+vert. Sans test rouge, on ne sait pas si on a corrigé le bug ou seulement changé le comportement.
+Repro impossible en test automatisé → consigner la procédure manuelle et le signal observé.
+
+## 6. Chercher les échecs silencieux voisins
+Autour du chemin incriminé : `except`/`catch` vides, erreur convertie en `None`/`[]` sans trace,
+valeur par défaut qui masque une panne, trace d'origine perdue au relancement, appel réseau / fichier /
+base sans timeout. Les signaler même s'ils ne sont pas la cause : ce sont eux qui ont caché le bug.
+
+## 7. Avant de coder
 - Vérifier dans `docs/chantier-resilience-batch-processing.md` (si pipeline mirai) ou équivalent : ce bug appartient-il à une classe déjà cataloguée ?
 - Si oui : appliquer le pattern documenté avant d'inventer.
 

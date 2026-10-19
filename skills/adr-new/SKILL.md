@@ -1,7 +1,7 @@
 ---
 name: adr-new
-description: Rédige une nouvelle ADR (Architecture Decision Record) au format IA-Generative. Utiliser quand une décision d'archi a été prise et doit être tracée (choix de backend, refonte, breaking change, trade-off entre options).
-when_to_use: ADR, decision record, on a décidé, on tranche, choix architectural, trade-off
+description: Rédige une nouvelle ADR (Architecture Decision Record) au format IA-Generative et tient l'index des ADR à jour. Utiliser quand une décision d'archi a été prise et doit être tracée (choix de backend, refonte, breaking change, trade-off entre options), ou pour répondre à « pourquoi a-t-on choisi X ? » à partir des ADR existantes.
+when_to_use: ADR, decision record, on a décidé, on tranche, choix architectural, trade-off, pourquoi a-t-on choisi
 argument-hint: [titre court de la décision]
 allowed-tools: Bash(ls *) Bash(find * -name *ADR*) Read Write
 ---
@@ -13,7 +13,10 @@ Trouve le dossier ADR du repo :
 
 !`find . -type d \( -iname "adr" -o -iname "adrs" \) -not -path "*/node_modules/*" -not -path "*/.git/*" 2>/dev/null | head -3`
 
-Si aucun n'existe : créer `docs/adr/` à la racine.
+Si aucun n'existe : proposer de créer `docs/adr/` (avec un `README.md` d'index) et attendre l'accord.
+
+**Question « pourquoi a-t-on choisi X ? »** : lire l'index puis les ADR concernées et restituer
+Contexte et Décision. Aucune ADR ne couvre le sujet → le dire, et proposer d'en rédiger une.
 
 ## 2. Numérotation
 Lire les ADR existantes pour le prochain numéro (`ADR-NNNN`). Format 4 chiffres, zéro-paddé.
@@ -36,6 +39,7 @@ incident déclencheur. Pas de solution ici.
 ### Option A — <nom>
 - Description
 - Pros / Cons
+- **Pourquoi pas** (si rejetée) : la raison précise du rejet
 
 ### Option B — <nom>
 - Description
@@ -67,9 +71,17 @@ contrepartie.
 - Une ADR ≠ un runbook. Si ça devient un mode d'emploi, déporter dans `docs/runbooks/`.
 - Lier l'ADR à la mémoire / aux commits / aux issues GitHub associés.
 
-## 5. Statut initial
+## 5. Index
+Ajouter une ligne à `docs/adr/README.md` (le créer s'il manque) :
+`| [NNNN](NNNN-titre.md) | Titre | Statut | Date |`. Une ADR remplacée renvoie vers sa remplaçante,
+et l'index le montre.
+
+## 6. Statut initial
 - `Proposed` si la décision est en cours de validation.
 - `Accepted` si déjà actée et appliquée.
+- Décision passée consignée après coup : le dire dans le Contexte et donner la date d'origine.
+
+Présenter le brouillon et attendre la validation avant d'écrire le fichier.
 
 ---
 

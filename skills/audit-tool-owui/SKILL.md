@@ -104,14 +104,24 @@ OpenWebUI ne forwarde **rien** par défaut. Vérifie l'un de ces trois leviers :
 - ❌ Anti-pattern : session partagée / process-wide en mode multi-user → fuite entre comptes.
 - Stockage chiffré au repos ; clé maître persistée (sinon sessions perdues au redémarrage).
 
+### 7. Frontière d'action du tool
+- Chaque effet de bord (écriture, envoi, suppression, appel d'API) a **un** validateur en code
+  juste avant lui ; une consigne de prompt n'est pas une garde.
+- Action irréversible : autorisation du `sub` pour cette opération **et** cette ressource, plus
+  confirmation ; sinon aucun effet.
+- Appels sortants : SSRF, redirections et DNS rebinding contrôlés à chaque saut ; credential retiré
+  si l'origine change.
+- Sortie du tool bornée, typée, sans secret ; une erreur n'est jamais un succès vide.
+- Détail et barrière de vérification : [`references/frontiere-action.md`](references/frontiere-action.md).
+
 ## Sortie
 
 ### `--audit`
-1. **Tableau de findings** (les 6 sections, ✅/⚠️/❌ + preuve).
+1. **Tableau de findings** (les 7 sections, ✅/⚠️/❌ + preuve).
 2. **Verdict** : l'identité est-elle prouvée et continue jusqu'au coffre, sans mélange ?
 3. **Plan de remédiation** vers le sub-canonique, présenté en mode plan (rien n'est modifié sans
    validation). Priorise : (a) forwarder une identité *prouvée*, (b) authentifier les surfaces d'auth,
-   (c) lookup coffre par sub, (d) access_grants/visibilité, (e) hygiène de session.
+   (c) lookup coffre par sub, (d) access_grants/visibilité, (e) hygiène de session, (f) frontière d'action du tool.
 
 ### `--design`
 1. **Architecture de référence** (schéma ci-dessus) adaptée au tool visé.
