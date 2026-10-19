@@ -111,6 +111,7 @@ Ce qui change d'un agent à l'autre, et comment les skills d'ici s'en accommoden
 | `adr-new` | Rédige une ADR au format IA-Generative et tient l'index `docs/adr/README.md` | Universelle |
 | `repo-impact` | Analyse d'impact avant un changement risqué (appelants, données, contrats, retour arrière) et alignement prévu / diff réel après — lecture seule | Universelle |
 | **— Qualité / revue —** | | |
+| `repo-perimetre` | Avant un push ou une PR : chaque hunk du diff sert l'intention, lui est nécessaire, ou est hors périmètre (refactor au passage, formatage, correction d'un autre bug, abstraction non demandée) ; chiffre ce qui « bave », repère la sur-ingénierie et dit quoi retirer ou sortir en PR séparée — lecture seule | Universelle |
 | `controle-qualite-code` | Grille de revue du code — en particulier généré par IA — avec verdict motivé, plus un rituel d'hygiène qui mesure et dégonfle la dette | Universelle |
 | **— Audit / sécurité —** | | |
 | `audit-repo-ouverture` | Vérifie qu'un repo s'ouvre sans risque avant d'y travailler (auto-exécution à l'ouverture — y compris hooks d'agent et serveurs MCP du dépôt —, anti-leak, aucun secret dans le code ni l'historique) — lecture seule | Universelle |
