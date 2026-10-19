@@ -7,7 +7,9 @@ sécurité, réviser du code, produire un dossier d'homologation — dans des mo
 l'agent charge à la demande, plutôt que recollés à chaque session.
 
 Elles fonctionnent avec **Claude Code, Codex, OpenCode, Gemini CLI, Cursor, GitHub
-Copilot** et tout agent qui lit le standard.
+Copilot, Kimi Code CLI (Moonshot), Deep Code (DeepSeek)** et tout agent qui lit le standard.
+Un modèle tiers (DeepSeek, GLM de Z.AI, Kimi…) branché derrière l'un de ces agents ne change
+rien : c'est l'agent qui lit les skills, pas le modèle.
 
 > **État des tests.** Ces skills ont été écrites et éprouvées **surtout avec Claude Code**.
 > Sur les autres agents, elles sont installées et découvertes, mais leur comportement
@@ -48,9 +50,9 @@ Il ne touche jamais une skill personnelle (dossier réel) ni un lien vers une au
 
 | Dossier cible | Lu par | Installé |
 |---|---|---|
-| `~/.agents/skills/` | Codex, Gemini CLI, Cursor, GitHub Copilot, OpenCode | toujours |
+| `~/.agents/skills/` | Codex, Gemini CLI, Cursor, GitHub Copilot, OpenCode, Kimi Code CLI, Deep Code | toujours |
 | `~/.claude/skills/` | Claude Code (CLI, VSCode, desktop) | si Claude Code est détecté |
-| `~/.config/opencode/skills/`, `~/.gemini/skills/`, `~/.cursor/skills/`, `~/.copilot/skills/` | versions d'agent qui ne lisent pas encore `~/.agents/skills` | sur demande : `--target opencode` … |
+| `~/.config/opencode/skills/`, `~/.gemini/skills/`, `~/.cursor/skills/`, `~/.copilot/skills/`, `~/.kimi/skills/`, `~/.deepcode/skills/` | versions d'agent qui ne lisent pas encore `~/.agents/skills` | sur demande : `--target opencode` … |
 
 | Besoin | Commande |
 |---|---|
@@ -65,7 +67,7 @@ Il ne touche jamais une skill personnelle (dossier réel) ni un lien vers une au
 > à jour et vos sessions voient *vos* skills en cours, pas celles de l'équipe.
 > Windows : utiliser WSL (les symlinks natifs ne sont pas gérés).
 
-Certains agents (OpenCode, Copilot) lisent **aussi** `~/.claude/skills` : ils voient alors
+Certains agents (OpenCode, Copilot, Kimi Code CLI) lisent **aussi** `~/.claude/skills` : ils voient alors
 chaque skill deux fois, sous le même nom et vers le même dossier. Si c'est gênant et que
 vous n'utilisez pas Claude Code : `./install.sh --uninstall --target claude`.
 
@@ -73,21 +75,27 @@ vous n'utilisez pas Claude Code : `./install.sh --uninstall --target claude`.
 
 Tous les agents chargent une skill **automatiquement** quand sa `description` correspond
 à la demande. Pour l'appeler explicitement : `/<nom>` dans Claude Code, Cursor et Copilot,
-`$<nom>` ou `/skills` dans Codex, `/skills` dans Gemini CLI, ou simplement « utilise la
-skill `<nom>` » partout.
+`$<nom>` ou `/skills` dans Codex, `/skills` dans Gemini CLI, `/skill:<nom>` dans Kimi Code CLI,
+`/<nom>` dans Deep Code, ou simplement « utilise la skill `<nom>` » partout.
 
 ### Autres agents
 
 Deux limites à connaître :
 
 - **Les symlinks ne sont garantis par leur documentation que chez Codex et Roo Code.**
-  Copilot CLI et Cursor les ont corrigés début 2026 ; pour les autres, vérifiez que la skill
+  Copilot CLI et Cursor les ont corrigés début 2026 ; Deep Code les accepte explicitement et
+  Kimi Code CLI les suit (lu dans leur code, octobre 2026) ; pour les autres, vérifiez que la skill
   apparaît, et sinon copiez le dossier à la main. Ne faites jamais du répertoire *parent*
   (`~/.agents/skills`) lui-même un symlink : c'est le cas qui échoue.
 - **Le frontmatter porte des clés propres à Claude Code** (`when_to_use`, `argument-hint`,
   `disable-model-invocation`) que la spec ne connaît pas. Les agents les ignorent, mais le
   validateur de référence `skills-ref validate` les refuse : c'est un écart assumé, Claude
-  Code ne lirait plus ces clés si on les rangeait sous `metadata`.
+  Code ne lirait plus ces clés si on les rangeait sous `metadata`. Kimi Code CLI et Deep Code
+  ne lisent que `name` et `description` : `disable-model-invocation` n'y protège rien, seule
+  la mention « sur demande explicite » dans la `description` compte.
+- **Z.AI (GLM)** n'a pas d'agent à skills documenté : le GLM Coding Plan se consomme via
+  Claude Code, Codex, OpenCode, Cursor, Pi, Roo… et c'est cet agent hôte qui lit les skills.
+  ZCode, leur environnement graphique, n'a pas de documentation `SKILL.md` : non vérifié.
 
 Ce qui change d'un agent à l'autre, et comment les skills d'ici s'en accommodent :
 
