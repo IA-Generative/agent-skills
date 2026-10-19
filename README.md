@@ -106,15 +106,17 @@ Ce qui change d'un agent à l'autre, et comment les skills d'ici s'en accommoden
 | **— Démarrer / développer —** | | |
 | `repo-init` | Initialise un repo proprement : git, `.gitignore` durci, `private/` gitignoré, structure lisible, anti-leak local **bloquant** (pre-commit gitleaks) | Universelle |
 | `repo-cicd-cpin` | Pose une CI/CD sur un projet GitHub existant en **appelant** les workflows de [`dnum-mi/fabnum-cicd`](https://github.com/dnum-mi/fabnum-cicd) (PR, release, synchronisation du miroir GitLab CPiN), tag exact + Renovate — lecture seule par défaut, `--setup` pour écrire | Cloud Pi Native |
-| `bug-investigate` | Force 2-3 hypothèses de cause + un plan B avant tout fix | Universelle |
-| `adr-new` | Rédige une ADR au format IA-Generative | Universelle |
+| `bug-investigate` | Force 2-3 hypothèses de cause + un plan B, puis un test rouge qui reproduit le bug, avant tout fix | Universelle |
+| `adr-new` | Rédige une ADR au format IA-Generative et tient l'index `docs/adr/README.md` | Universelle |
+| `repo-impact` | Analyse d'impact avant un changement risqué (appelants, données, contrats, retour arrière) et alignement prévu / diff réel après — lecture seule | Universelle |
 | **— Qualité / revue —** | | |
 | `controle-qualite-code` | Grille de revue du code — en particulier généré par IA — avec verdict motivé, plus un rituel d'hygiène qui mesure et dégonfle la dette | Universelle |
 | **— Audit / sécurité —** | | |
-| `audit-repo-ouverture` | Vérifie qu'un repo s'ouvre sans risque avant d'y travailler (auto-exécution à l'ouverture, anti-leak, aucun secret dans le code ni l'historique) — lecture seule | Universelle |
+| `audit-repo-ouverture` | Vérifie qu'un repo s'ouvre sans risque avant d'y travailler (auto-exécution à l'ouverture — y compris hooks d'agent et serveurs MCP du dépôt —, anti-leak, aucun secret dans le code ni l'historique) — lecture seule | Universelle |
 | `audit-pentest-prep` | Audit sécurité (OWASP + prompt injection) avant pen-test — lecture seule, `--fix` pour corriger ; sorties en `private/` | Universelle |
 | `audit-redteam` | Campagne red-team / prompt-injection (LLM01) contre un service LLM ; mesure si la garde tient ; rapports en `private/redteam-reports/` | Universelle |
-| `audit-tool-owui` | Audite l'identité SSO et le coffre de credentials des tools per-user derrière OpenWebUI / MCP | OWUI/MCP |
+| `audit-tool-owui` | Audite l'identité SSO, le coffre de credentials et la frontière d'action des tools per-user derrière OpenWebUI / MCP | OWUI/MCP |
+| `audit-rag` | Revue d'un pipeline RAG (découpage, reranking, citations, « contexte insuffisant ») avec évaluation mesurée exigée — lecture seule | Universelle |
 | **— Homologation —** | | |
 | `dat-generation` | Pré-remplit un document d'homologation MirAI (DAT…) depuis le code — modèle et prompt embarqués ; sortie en `private/` | MirAI/DTNUM |
 | `dat-word` | Rend un DAT (Markdown) en `.docx` ministériel sur le modèle officiel ; sortie en `private/` | MirAI/DTNUM |
@@ -165,6 +167,7 @@ déclenchement), et `$ARGUMENTS` n'est pas substitué.
 | Hook | Ce qu'il bloque | Doc |
 |---|---|---|
 | `kustomize-guard` | `kubectl apply -f` sur un manifest `base/` (écrase les variables d'environnement de l'overlay) | [hooks/kustomize-guard.md](hooks/kustomize-guard.md) |
+| `destructive-guard` | commandes destructrices ou irréversibles (`git reset --hard`, `push --force`, `DROP TABLE`, `kubectl delete ns`…) | [hooks/destructive-guard.md](hooks/destructive-guard.md) |
 
 ## Ajouter ou modifier une skill
 
@@ -221,6 +224,8 @@ détaillées : [AGENTS.md](AGENTS.md) ; processus : [CONTRIBUTING.md](CONTRIBUTI
 > confiance.
 
 ## Liens
+
+- Sources externes reprises ou citées (dont ECC) : [docs/sources-externes.md](docs/sources-externes.md)
 
 - Standard Agent Skills : https://agentskills.io
 - Claude Code : https://code.claude.com/docs/en/skills

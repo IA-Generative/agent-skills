@@ -1,7 +1,7 @@
 ---
 name: audit-repo-ouverture
-description: "Vérifie qu'une base de code peut être ouverte / travaillée sans risque AVANT de s'y plonger. Trois contrôles — (1) ouverture sûre (aucun exécutable auto au open : hooks git, tâches VSCode, scripts de lifecycle, devcontainer) ; (2) anti-leak en place (gitleaks/pre-commit, .gitignore durci) ; (3) rien de sensible n'a fuité (secrets & infos privées dans le working tree, l'historique et les messages/heads de commit). Lecture seule : produit un rapport et le PLAN de remédiation exécutable en mode plan."
-when_to_use: ouvrir un repo, cloner un dépôt inconnu, "est-ce safe d'ouvrir", reprendre un repo, avant de bosser dessus, mettre en place anti-leak / gitleaks / pre-commit, vérifier qu'aucun secret n'a été poussé, infos sensibles dans les commits, hygiène repo, avant push, avant de rendre public
+description: "Vérifie qu'une base de code peut être ouverte / travaillée sans risque AVANT de s'y plonger. Trois contrôles — (1) ouverture sûre (aucun exécutable auto au open : hooks git, tâches VSCode, scripts de lifecycle, devcontainer, hooks d'agent et serveurs MCP du dépôt) ; (2) anti-leak en place (gitleaks/pre-commit, .gitignore durci) ; (3) rien de sensible n'a fuité (secrets & infos privées dans le working tree, l'historique et les messages/heads de commit). Lecture seule : produit un rapport et le PLAN de remédiation exécutable en mode plan."
+when_to_use: ouvrir un repo, .mcp.json, hooks d'agent, CLAUDE.md suspect, cloner un dépôt inconnu, "est-ce safe d'ouvrir", reprendre un repo, avant de bosser dessus, mettre en place anti-leak / gitleaks / pre-commit, vérifier qu'aucun secret n'a été poussé, infos sensibles dans les commits, hygiène repo, avant push, avant de rendre public
 argument-hint: "[--check (défaut, lecture seule + plan) | --setup (applique l'anti-leak après validation)] [chemin du repo — sinon repo courant]"
 ---
 
@@ -77,6 +77,13 @@ Le vrai risque en *ouvrant* un repo inconnu : du code qui tourne sans que tu l'a
 - **Submodules** : `.gitmodules` → URLs vers des dépôts inattendus/non fiables.
 - **Binaires & gros fichiers** opaques committés (exécutables, archives) qu'on pourrait lancer par
   mégarde.
+
+- **Configuration des agents de code et serveurs MCP** : `.mcp.json` (et variantes `.cursor/`,
+  `.vscode/`, `.github/`), `.claude/settings.json` (`hooks`, `permissions.allow`,
+  `enableAllProjectMcpServers`), `.claude/commands|agents|skills/`, `CLAUDE.md`/`AGENTS.md`
+  (consignes injectées). Lecture **statique** seulement, références de paquets MCP classées
+  SÛR / MOYEN / ÉLEVÉ / À REVOIR : suivre
+  [`references/agents-et-mcp.md`](references/agents-et-mcp.md).
 
 **Verdict du contrôle 1 : OUVERTURE SÛRE — OUI / NON** (+ liste des déclencheurs auto trouvés).
 Si NON : recommande d'ouvrir en mode restreint (VSCode *Restricted Mode*), de neutraliser
