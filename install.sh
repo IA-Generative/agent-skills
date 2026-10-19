@@ -14,8 +14,9 @@
 # Cibles (--target) : agents  ~/.agents/skills          Codex, Gemini CLI, Cursor, Copilot, OpenCode
 #                     claude  ~/.claude/skills          Claude Code (ne lit pas ~/.agents/skills)
 #                     opencode ~/.config/opencode/skills, gemini ~/.gemini/skills,
-#                     cursor ~/.cursor/skills, copilot ~/.copilot/skills — pour les versions
-#                     d'agent qui ne lisent pas encore ~/.agents/skills ; ou un chemin absolu.
+#                     cursor ~/.cursor/skills, copilot ~/.copilot/skills, kimi ~/.kimi/skills,
+#                     deepcode ~/.deepcode/skills — pour les versions d'agent qui ne lisent pas
+#                     encore ~/.agents/skills ; ou un chemin absolu.
 # Défaut : agents, plus claude si Claude Code est détecté.
 #
 # Hors d'un clone (ex. `curl -fsSL …/install.sh | bash`), le script clone le dépôt dans
@@ -127,13 +128,15 @@ target_path() {
     gemini)   echo "$HOME/.gemini/skills" ;;
     cursor)   echo "$HOME/.cursor/skills" ;;
     copilot)  echo "$HOME/.copilot/skills" ;;
+    kimi)     echo "$HOME/.kimi/skills" ;;
+    deepcode) echo "$HOME/.deepcode/skills" ;;
     /*)       echo "$1" ;;
     *) echo "Cible inconnue : $1 (voir --help)" >&2; exit 2 ;;
   esac
 }
 if [[ -z "${TARGETS// }" ]]; then
   if [[ $UNINSTALL -eq 1 ]]; then
-    TARGETS="agents claude opencode gemini cursor copilot"
+    TARGETS="agents claude opencode gemini cursor copilot kimi deepcode"
   else
     TARGETS="agents"
     if [[ -d "$HOME/.claude" ]] || command -v claude >/dev/null 2>&1; then TARGETS="$TARGETS claude"; fi
