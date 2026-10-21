@@ -83,6 +83,12 @@ jour une machine existante. À chaque passage, il :
 Il ne touche jamais une skill personnelle (dossier réel) ni un lien vers une autre copie
 (il avertit ; `--force` pour le remplacer).
 
+> **Portée de `install.sh` vs plugins.** La voie `install.sh` crée un symlink par **skill**
+> uniquement : les `index.json` et `instructions.md` des groupes (catalogue et consignes de
+> session) ne sont pas installés ici. C'est le plugin OpenCode et le marketplace Claude qui
+> chargent les `instructions.md`. Les autres agents, via `install.sh`, voient donc les skills
+> mais pas les consignes de groupe — à garder en tête quand vous rédigez ces fichiers.
+
 | Dossier cible | Lu par | Installé |
 |---|---|---|
 | `~/.agents/skills/` | Codex, Gemini CLI, Cursor, GitHub Copilot, OpenCode, Kimi Code CLI, Deep Code | toujours |
