@@ -1,0 +1,17 @@
+{
+  "skills": [
+    {
+      "name": "mirai-check-service-names",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "mirai-smoke-test",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ]
+    }
+  ]
+}

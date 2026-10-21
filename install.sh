@@ -68,7 +68,8 @@ SKILLS_DIR="$REPO_DIR/skills"
 # --- 1. Validation des SKILL.md (standard Agent Skills : name + description) --------------
 validate() {
   local errors=0 dir name f fname desc_len
-  for dir in "$SKILLS_DIR"/*/; do
+  # Structure : skills/<groupe>/<skill>/SKILL.md — index.json et instructions.md au niveau groupe sont ignorés.
+  for dir in "$SKILLS_DIR"/*/*/; do
     name="$(basename "$dir")"; f="$dir/SKILL.md"
     if [[ ! -f "$f" ]]; then warn "$name : pas de SKILL.md"; errors=$((errors+1)); continue; fi
     if [[ "$(head -1 "$f")" != "---" ]]; then warn "$name : SKILL.md doit commencer par ---"; errors=$((errors+1)); continue; fi
@@ -172,8 +173,8 @@ for t in $TARGETS; do
   done
   [[ $UNINSTALL -eq 1 ]] && continue
 
-  # 4b. Un lien par skill.
-  for skill in "$SKILLS_DIR"/*/; do
+  # 4b. Un lien par skill (skills/<groupe>/<skill>/SKILL.md).
+  for skill in "$SKILLS_DIR"/*/*/; do
     skill="${skill%/}"; name="$(basename "$skill")"; link="$dir/$name"
     [[ -f "$skill/SKILL.md" ]] || continue
     if [[ -L "$link" ]]; then

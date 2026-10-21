@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "agent-skills",
+  "description": "Skills partagées IA-Generative, au format ouvert Agent Skills, pour tous les agents de code",
+  "owner": {
+    "name": "IA-Generative",
+    "url": "https://github.com/IA-Generative/agent-skills"
+  },
+  "plugins": [
+    {
+      "name": "skills",
+      "source": "./",
+      "description": "Skills réutilisables groupées par domaine : dev, audit, repo, dat, mirai",
+      "skills": [
+        "./skills"
+      ],
+      "hooks": {
+        "SessionStart": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "for f in \"${CLAUDE_PLUGIN_ROOT}\"/skills/*/instructions.md; do cat \"$f\"; echo; done"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

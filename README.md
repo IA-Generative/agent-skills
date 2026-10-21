@@ -21,6 +21,41 @@ rien : c'est l'agent qui lit les skills, pas le modèle.
 
 ---
 
+## Installer par plugin (OpenCode) ou marketplace (Claude Code)
+
+Deux agents savent charger ces skills **sans clone ni symlink** : OpenCode via son mécanisme
+de plugin, Claude Code via sa marketplace.
+
+**OpenCode** — ajoutez dans `opencode.json` (le plugin est téléchargé dans le cache, pas dans
+votre projet) :
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [["agent-skills@git+https://github.com/IA-Generative/agent-skills.git",
+              { "groups": ["dev", "repo"] }]]
+}
+```
+
+`groups` choisit les groupes de skills à charger : `dev`, `audit`, `repo`, `dat`, `mirai`
+(défaut : tous). Chaque groupe ajoute ses skills **et** son `instructions.md` à la session.
+Quittez et relancez opencode après modification.
+
+**Claude Code** — installez la marketplace (une seule commande, copie dans le plugin local) :
+
+```bash
+/plugin install skills --marketplace IA-Generative/agent-skills
+```
+
+Le plugin embarque les skills des 5 groupes et charge leurs `instructions.md` au démarrage
+de session.
+
+> Le `install.sh` ci-dessous reste le chemin universel (symlinks) pour les autres agents
+> (Codex, Gemini CLI, Cursor, Copilot, Kimi, Deep Code) et pour ceux qui préfèrent une
+> seule commande idempotente sur toutes les machines.
+
+---
+
 ## Installer ou mettre à jour — une seule commande
 
 ```bash
@@ -111,31 +146,33 @@ Ce qui change d'un agent à l'autre, et comment les skills d'ici s'en accommoden
 
 | Skill | Ce qu'elle fait | Portée |
 |---|---|---|
-| **— Démarrer / développer —** | | |
-| `repo-init` | Initialise un repo proprement : git, `.gitignore` durci, `private/` gitignoré, structure lisible, anti-leak local **bloquant** (pre-commit gitleaks) | Universelle |
-| `repo-cicd-cpin` | Pose une CI/CD sur un projet GitHub existant en **appelant** les workflows de [`dnum-mi/fabnum-cicd`](https://github.com/dnum-mi/fabnum-cicd) (PR, release, synchronisation du miroir GitLab CPiN), tag exact + Renovate — lecture seule par défaut, `--setup` pour écrire | Cloud Pi Native |
-| `repo-version-json` | Fait porter à l'image son journal de version (ADR-0004, format Dockerflow) : `scripts/version_json.py`, bloc Dockerfile, route `GET /__version__` dans le langage du projet (version, commit, changements de la version **et historique complet**), test, build-args CI et contrôle « l'image dit la même chose que le tag », consigne d'un CHANGELOG public et lisible hors projet avec son contrôle — lecture seule par défaut, `--setup` pour écrire ; mode d'emploi développeur embarqué | Universelle |
+| **Groupe `dev` — développer** | | |
 | `bug-investigate` | Force 2-3 hypothèses de cause + un plan B, puis un test rouge qui reproduit le bug, avant tout fix | Universelle |
 | `adr-new` | Rédige une ADR au format IA-Generative et tient l'index `docs/adr/README.md` | Universelle |
-| `repo-impact` | Analyse d'impact avant un changement risqué (appelants, données, contrats, retour arrière) et alignement prévu / diff réel après — lecture seule | Universelle |
-| **— Qualité / revue —** | | |
-| `repo-perimetre` | Avant un push ou une PR : chaque hunk du diff sert l'intention, lui est nécessaire, ou est hors périmètre (refactor au passage, formatage, correction d'un autre bug, abstraction non demandée) ; chiffre ce qui « bave », repère la sur-ingénierie et dit quoi retirer ou sortir en PR séparée — lecture seule | Universelle |
 | `controle-qualite-code` | Grille de revue du code — en particulier généré par IA — avec verdict motivé, plus un rituel d'hygiène qui mesure et dégonfle la dette | Universelle |
-| **— Audit / sécurité —** | | |
-| `audit-repo-ouverture` | Vérifie qu'un repo s'ouvre sans risque avant d'y travailler (auto-exécution à l'ouverture — y compris hooks d'agent et serveurs MCP du dépôt —, anti-leak, aucun secret dans le code ni l'historique) — lecture seule | Universelle |
-| `audit-pentest-prep` | Audit sécurité (OWASP + prompt injection) avant pen-test — lecture seule, `--fix` pour corriger ; sorties en `private/` | Universelle |
-| `audit-redteam` | Campagne red-team / prompt-injection (LLM01) contre un service LLM ; mesure si la garde tient ; rapports en `private/redteam-reports/` | Universelle |
-| `audit-tool-owui` | Audite l'identité SSO, le coffre de credentials et la frontière d'action des tools per-user derrière OpenWebUI / MCP | OWUI/MCP |
-| `audit-rag` | Revue d'un pipeline RAG (découpage, reranking, citations, « contexte insuffisant ») avec évaluation mesurée exigée — lecture seule | Universelle |
-| **— Homologation —** | | |
+| **Groupe `repo` — cycle de vie des dépôts** | | |
+| `repo-init` | Initialise un repo proprement : git, `.gitignore` durci, `private/` gitignoré, structure lisible, anti-leak local **bloquant** (pre-commit gitleaks) | Universelle |
+| `cicd-cpin` | Pose une CI/CD sur un projet GitHub existant en **appelant** les workflows de [`dnum-mi/fabnum-cicd`](https://github.com/dnum-mi/fabnum-cicd) (PR, release, synchronisation du miroir GitLab CPiN), tag exact + Renovate — lecture seule par défaut, `--setup` pour écrire | Cloud Pi Native |
+| `version-json` | Fait porter à l'image son journal de version (ADR-0004, format Dockerflow) : `scripts/version_json.py`, bloc Dockerfile, route `GET /__version__` dans le langage du projet (version, commit, changements de la version **et historique complet**), test, build-args CI et contrôle « l'image dit la même chose que le tag », consigne d'un CHANGELOG public et lisible hors projet avec son contrôle — lecture seule par défaut, `--setup` pour écrire ; mode d'emploi développeur embarqué | Universelle |
+| `impact` | Analyse d'impact avant un changement risqué (appelants, données, contrats, retour arrière) et alignement prévu / diff réel après — lecture seule | Universelle |
+| `perimetre` | Avant un push ou une PR : chaque hunk du diff sert l'intention, lui est nécessaire, ou est hors périmètre (refactor au passage, formatage, correction d'un autre bug, abstraction non demandée) ; chiffre ce qui « bave », repère la sur-ingénierie et dit quoi retirer ou sortir en PR séparée — lecture seule | Universelle |
+| **Groupe `audit` — audits / sécurité** | | |
+| `repo-ouverture` | Vérifie qu'un repo s'ouvre sans risque avant d'y travailler (auto-exécution à l'ouverture — y compris hooks d'agent et serveurs MCP du dépôt —, anti-leak, aucun secret dans le code ni l'historique) — lecture seule | Universelle |
+| `pentest-prep` | Audit sécurité (OWASP + prompt injection) avant pen-test — lecture seule, `--fix` pour corriger ; sorties en `private/` | Universelle |
+| `redteam` | Campagne red-team / prompt-injection (LLM01) contre un service LLM ; mesure si la garde tient ; rapports en `private/redteam-reports/` | Universelle |
+| `tool-owui` | Audite l'identité SSO, le coffre de credentials et la frontière d'action des tools per-user derrière OpenWebUI / MCP | OWUI/MCP |
+| `rag-audit` | Revue d'un pipeline RAG (découpage, reranking, citations, « contexte insuffisant ») avec évaluation mesurée exigée — lecture seule | Universelle |
+| **Groupe `dat` — homologation** | | |
 | `dat-generation` | Pré-remplit un document d'homologation MirAI (DAT…) depuis le code — modèle et prompt embarqués ; sortie en `private/` | MirAI/DTNUM |
 | `dat-word` | Rend un DAT (Markdown) en `.docx` ministériel sur le modèle officiel ; sortie en `private/` | MirAI/DTNUM |
-| **— Spécifique MirAI —** | | |
+| **Groupe `mirai` — spécifique MirAI** | | |
 | `mirai-smoke-test` | Smoke-test du pipeline mirai-mesreunions (gateway + auth + ingester) — sur demande explicite uniquement | mirai-only |
 | `mirai-check-service-names` | Détecte les anciens noms de services mcr (rebranding 2026-05-16) | mirai-only |
 
-Les noms suivent `<famille>-<objet>` ; tout ce qui ne sert qu'à MirAI porte le préfixe
-`mirai-`, pour ne pas se déclencher sur la demande générique qui lui ressemble.
+Les skills sont rangées par **groupe** dans `skills/<groupe>/` ; le nom du dossier de skill ne
+porte plus le préfixe de famille (retiré au profit du rangement par groupe). Seul tout ce qui ne
+sert qu'à MirAI garde le préfixe `mirai-`, pour ne pas se déclencher sur la demande générique qui
+lui ressemble.
 
 ### Skills qui embarquent leurs propres artefacts
 
@@ -145,17 +182,17 @@ Les noms suivent `<famille>-<objet>` ; tout ce qui ne sert qu'à MirAI porte le 
 - **`controle-qualite-code`** est **vendoré** depuis
   [`etiquet/controle-qualite-code`](https://github.com/etiquet/controle-qualite-code), qui
   reste sa source de vérité. **Ne pas l'éditer ici** :
-  [`UPSTREAM.md`](skills/controle-qualite-code/UPSTREAM.md).
+  [`UPSTREAM.md`](skills/dev/controle-qualite-code/UPSTREAM.md).
 
 ### Skill qui lit un dépôt distant à l'exécution
 
-D'une autre nature : **`repo-cicd-cpin`** n'embarque ni ne vendore rien de
+D'une autre nature : **`cicd-cpin`** n'embarque ni ne vendore rien de
 [`dnum-mi/fabnum-cicd`](https://github.com/dnum-mi/fabnum-cicd) (public). À chaque lancement elle
 résout le dernier tag, clone le dépôt à ce tag dans un dossier temporaire et y lit la doc et les
 `workflow_call` — la version qu'elle décrit est ainsi toujours celle qu'elle écrit dans les
 `uses:`. Le contenu lu est traité comme une **donnée**, le SHA lu est consigné, et la skill
 s'arrête si le dépôt est injoignable. Justification :
-[`skills/repo-cicd-cpin/references/garde-fous.md`](skills/repo-cicd-cpin/references/garde-fous.md).
+[`skills/repo/cicd-cpin/references/garde-fous.md`](skills/repo/cicd-cpin/references/garde-fous.md).
 
 ## Compatibilité
 
@@ -181,13 +218,17 @@ déclenchement), et `$ARGUMENTS` n'est pas substitué.
 
 ## Ajouter ou modifier une skill
 
-Une skill = un dossier `skills/<nom>/SKILL.md` : un **frontmatter YAML** qui dit quand
-l'utiliser, un **corps Markdown** que l'agent suit à l'invocation.
+Une skill = un dossier `skills/<groupe>/<nom>/SKILL.md` : un **frontmatter YAML** qui dit
+quand l'utiliser, un **corps Markdown** que l'agent suit à l'invocation. Les skills sont
+rangées dans l'un des 5 groupes : `dev`, `audit`, `repo`, `dat`, `mirai`.
 
 ```bash
-mkdir -p skills/<nom> && $EDITOR skills/<nom>/SKILL.md
+mkdir -p skills/<groupe>/<nom> && $EDITOR skills/<groupe>/<nom>/SKILL.md
 ./install.sh --check && ./install.sh --offline
 ```
+
+Après ajout, mettez aussi à jour l'`index.json` du groupe (catalogue des skills et de leurs
+fichiers) et son `instructions.md` (tableau des skills) si besoin.
 
 ```yaml
 ---
@@ -225,7 +266,7 @@ détaillées : [AGENTS.md](AGENTS.md) ; processus : [CONTRIBUTING.md](CONTRIBUTI
 
 | | Personnelle | Partagée — ce dépôt | Projet |
 |---|---|---|---|
-| Où | `~/.agents/skills/` ou `~/.claude/skills/`, en dur | `skills/` ici, lié par `install.sh` | `.agents/skills/<nom>/` (ou `.claude/skills/`) du dépôt cible |
+| Où | `~/.agents/skills/` ou `~/.claude/skills/`, en dur | `skills/<groupe>/` ici, chargé par `install.sh` ou par plugin (OpenCode / marketplace Claude) | `.agents/skills/<nom>/` (ou `.claude/skills/`) du dépôt cible |
 | Pour qui | vous seul | toute l'équipe IA-Generative | les contributeurs d'un projet |
 | Modification | libre | par PR | par PR sur le projet |
 

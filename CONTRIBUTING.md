@@ -20,7 +20,7 @@ Toute contribution est attendue, de tout utilisateur, quel que soit son agent :
    dossier, et une `description` qui suffit seule à déclencher la skill.
 3. `./install.sh --check` doit passer (la CI le rejoue).
 4. Dans la description de la PR, dire **avec quel(s) agent(s)** la skill a été testée.
-5. Ne pas modifier `skills/controle-qualite-code/` ici : contribuer
+5. Ne pas modifier `skills/dev/controle-qualite-code/` ici : contribuer
    [en amont](https://github.com/etiquet/controle-qualite-code).
 
 ## Renommer une skill
