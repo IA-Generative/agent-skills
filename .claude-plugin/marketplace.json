@@ -12,7 +12,11 @@
       "source": "./",
       "description": "Skills réutilisables groupées par domaine : dev, audit, repo, dat, mirai",
       "skills": [
-        "./skills"
+        "./skills/audit",
+        "./skills/repo",
+        "./skills/dat",
+        "./skills/mirai",
+        "./skills/dev"
       ],
       "hooks": {
         "SessionStart": [
