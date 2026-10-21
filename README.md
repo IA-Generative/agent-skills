@@ -57,8 +57,13 @@ Quittez et relancez opencode après modification.
 
 `IA-Generative/agent-skills` est la **source** (le repo GitHub) ; `mishell` est le **nom**
 sous lequel la marketplace s'enregistre (champ `name` de `marketplace.json` — nécessairement
-différent de `agent-skills`, réservé par Anthropic). Le plugin embarque les skills des
-5 groupes et charge leurs `instructions.md` au démarrage de session.
+différent de `agent-skills`, réservé par Anthropic).
+
+- `marketplace add` n'enregistre que le **catalogue** : tant qu'un `install` n'a pas eu lieu, `/plugin`
+  liste les plugins de la marketplace (onglet *Discover*) mais **aucune skill n'est chargée**.
+- Après l'installation : `/reload-plugins`, puis `claude plugin list` doit afficher
+  `skills@mishell` comme `enabled`. Les skills se lancent alors sous `/skills:<nom>`.
+- Le plugin embarque les skills des 5 groupes et charge leurs `instructions.md` au démarrage de session.
 
 > Le `install.sh` ci-dessous reste le chemin universel (symlinks) pour les autres agents
 > (Codex, Gemini CLI, Cursor, Copilot, Kimi, Deep Code) et pour ceux qui préfèrent une
