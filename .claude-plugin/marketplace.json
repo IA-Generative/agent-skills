@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
-  "name": "agent-skills",
+  "name": "mishell",
   "description": "Skills partagées IA-Generative, au format ouvert Agent Skills, pour tous les agents de code",
   "owner": {
     "name": "IA-Generative",

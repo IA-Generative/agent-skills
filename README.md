@@ -41,14 +41,24 @@ votre projet) :
 (défaut : tous). Chaque groupe ajoute ses skills **et** son `instructions.md` à la session.
 Quittez et relancez opencode après modification.
 
-**Claude Code** — installez la marketplace (une seule commande, copie dans le plugin local) :
+**Claude Code** — installez la marketplace puis le plugin (une seule commande avec
+`--marketplace` depuis v2.1.275) :
 
 ```bash
 /plugin install skills --marketplace IA-Generative/agent-skills
 ```
 
-Le plugin embarque les skills des 5 groupes et charge leurs `instructions.md` au démarrage
-de session.
+Équivalent en deux étapes, pour les versions antérieures à v2.1.275 :
+
+```bash
+/plugin marketplace add IA-Generative/agent-skills
+/plugin install skills@mishell
+```
+
+`IA-Generative/agent-skills` est la **source** (le repo GitHub) ; `mishell` est le **nom**
+sous lequel la marketplace s'enregistre (champ `name` de `marketplace.json` — nécessairement
+différent de `agent-skills`, réservé par Anthropic). Le plugin embarque les skills des
+5 groupes et charge leurs `instructions.md` au démarrage de session.
 
 > Le `install.sh` ci-dessous reste le chemin universel (symlinks) pour les autres agents
 > (Codex, Gemini CLI, Cursor, Copilot, Kimi, Deep Code) et pour ceux qui préfèrent une
