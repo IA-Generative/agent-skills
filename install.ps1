@@ -115,8 +115,9 @@ foreach ($t in $Target) {
   }
   if ($Uninstall) { continue }
 
-  # 3b. Un lien par skill.
-  foreach ($skill in @(Get-ChildItem -LiteralPath $SkillsDir -Directory)) {
+  # 3b. Un lien par skill (skills/<groupe>/<skill>/SKILL.md).
+  $skills = @(Get-ChildItem -LiteralPath $SkillsDir -Directory | ForEach-Object { Get-ChildItem -LiteralPath $_.FullName -Directory })
+  foreach ($skill in $skills) {
     if (-not (Test-Path (P $skill.FullName 'SKILL.md'))) { continue }
     $link = P $dir $skill.Name
     $item = Get-Item -LiteralPath $link -Force -ErrorAction SilentlyContinue
