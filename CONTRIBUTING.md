@@ -28,8 +28,7 @@ Toute contribution est attendue, de tout utilisateur, quel que soit son agent :
 Les skills sont rangées dans un groupe (`skills/<groupe>/<skill>/`). Pour renommer :
 
 - renommez le dossier **et** le `name:` ;
-- mettez à jour l'`index.json` du groupe (`name` + `files` du catalogue) ;
-- mettez à jour son `instructions.md` (tableau des skills) si le nom y figure ;
+- régénérez le catalogue du groupe : `node scripts/skills-index.mjs` ;
 - mettez à jour le README et les éventuelles références croisées (`/ancien-nom`) ;
 - mentionnez l'ancien nom dans la PR : `./install.sh` retire de lui-même les liens
   orphelins sur chaque machine.

@@ -12,6 +12,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Conformité des SKILL.md
         run: ./install.sh --check
+      - name: Catalogues index.json à jour (node scripts/skills-index.mjs pour les régénérer)
+        run: node scripts/skills-index.mjs --check
       - name: Installation dans un HOME vierge, deux fois (idempotence)
         run: |
           export HOME="$(mktemp -d)"
