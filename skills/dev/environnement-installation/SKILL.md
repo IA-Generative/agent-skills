@@ -83,12 +83,7 @@ sudo usermod -aG docker $USER
 
 ## Proto Setup
 
-Create `.prototools` at project root:
-
-```
-node 24.13.1
-pnpm 10.0.0
-```
+Create `.prototools` at project root with the Node and pnpm versions pinned in the socle conventions (`socle/conventions.md`).
 
 Proto auto-switches versions on directory change.
 
