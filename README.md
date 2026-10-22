@@ -23,25 +23,42 @@ rien : c'est l'agent qui lit les skills, pas le modèle.
 
 ## Installer ou mettre à jour — une seule commande
 
-**Prérequis.** Le dépôt est **interne** à l'organisation GitHub IA-Generative : il faut un
-compte membre et un `git` authentifié. Sur un Mac neuf :
+Le dépôt est **interne** à l'organisation GitHub IA-Generative : il faut en être membre.
+
+**1. Une fois par machine : `git` et `gh`, puis se connecter.**
+
+| Système | Installer `git` et `gh` |
+|---|---|
+| macOS | `xcode-select --install` (attendre la fin), puis `brew install gh` — sans Homebrew : l'installeur `.pkg` de [cli.github.com](https://cli.github.com) |
+| Windows | `winget install --id Git.Git -e` puis `winget install --id GitHub.cli -e`, et **rouvrir** le terminal |
+| Linux | `git` par le gestionnaire de paquets ; `gh` selon [la page d'installation de gh](https://github.com/cli/cli#installation) (`apt`, `dnf`…) |
 
 ```bash
-xcode-select --install     # fournit git ; accepter la fenêtre, attendre la fin, puis continuer
-brew install gh            # ou https://cli.github.com
-gh auth login              # GitHub.com, HTTPS, « Authenticate Git with your GitHub credentials » : oui
+gh auth login --web -p https
 ```
 
-Puis :
+**2. Installer — et plus tard mettre à jour : la même ligne.**
+
+macOS et Linux (terminal) :
 
 ```bash
-gh repo clone IA-Generative/agent-skills ~/Documents/GitHub/agent-skills \
-  && ~/Documents/GitHub/agent-skills/install.sh
+gh api repos/IA-Generative/agent-skills/contents/install.sh -H "Accept: application/vnd.github.raw" | bash
 ```
 
-`git clone https://github.com/IA-Generative/agent-skills.git …` marche aussi une fois `git`
-authentifié. Un `curl` sur `raw.githubusercontent.com` répond **404** : ce domaine ne sert pas
-les dépôts internes sans jeton.
+Windows (PowerShell, sans droits administrateur) :
+
+```powershell
+& ([scriptblock]::Create((gh api repos/IA-Generative/agent-skills/contents/install.ps1 -H "Accept: application/vnd.github.raw" | Out-String)))
+```
+
+Le dépôt est cloné dans `~/.local/share/agent-skills` au premier passage, mis à jour aux
+suivants, et chaque skill est liée dans les dossiers que lisent les agents (une **jonction**
+sous Windows, un lien symbolique ailleurs). Relancer ensuite la session de l'agent.
+
+> Contributeur, vous avez déjà un clone ? Lancez `./install.sh` (ou
+> `powershell -ExecutionPolicy Bypass -File install.ps1`) depuis celui-ci : il devient la
+> source des liens. Un `curl` sur `raw.githubusercontent.com` répond **404** : ce domaine ne
+> sert pas les dépôts internes, d'où `gh api`.
 
 `install.sh` est **idempotent** : la même commande installe une machine neuve et met à
 jour une machine existante. À chaque passage, il :
@@ -74,7 +91,8 @@ Il ne touche jamais une skill personnelle (dossier réel) ni un lien vers une au
 
 > ⚠️ **Votre clone doit être sur `main`.** Sur une branche de travail, le script ne met pas
 > à jour et vos sessions voient *vos* skills en cours, pas celles de l'équipe.
-> Windows : utiliser WSL (les symlinks natifs ne sont pas gérés).
+> Windows : `install.ps1` accepte les mêmes options sous la forme `-DryRun`, `-Offline`,
+> `-Force`, `-Uninstall`, `-Target agents,claude`.
 
 Certains agents (OpenCode, Copilot, Kimi Code CLI) lisent **aussi** `~/.claude/skills` : ils voient alors
 chaque skill deux fois, sous le même nom et vers le même dossier. Si c'est gênant et que

@@ -29,12 +29,13 @@ function P { [IO.Path]::Combine([string[]]$args) }
 function Has([string]$cmd) { [bool](Get-Command $cmd -ErrorAction SilentlyContinue) }
 function AccessHint {
   Say "  Le depot est interne a l'organisation IA-Generative : il faut en etre membre et que git"
-  Say "  soit authentifie. Verifiez avec 'gh auth status', sinon 'gh auth login --web -p https'"
-  Say "  puis 'gh auth setup-git'."
+  Say "  soit authentifie. Verifiez avec 'gh auth status', sinon 'gh auth login --web -p https'."
 }
 
 # --- 0. Le clone : celui qui contient ce script, sinon ~\.local\share\agent-skills ----------
-$RepoDir = $null
+$RepoDir = $null; $JustCloned = $false
+# Si gh est la, git emprunte son jeton : ni 'gh auth setup-git' ni gestionnaire d'identifiants requis.
+$GitAuth = if (Has 'gh') { @('-c', 'credential.helper=', '-c', 'credential.helper=!gh auth git-credential') } else { @() }
 if ($PSCommandPath -and (Test-Path (P (Split-Path $PSCommandPath) 'skills'))) {
   $RepoDir = Split-Path $PSCommandPath
 } else {
@@ -50,12 +51,13 @@ if ($PSCommandPath -and (Test-Path (P (Split-Path $PSCommandPath) 'skills'))) {
     New-Item -ItemType Directory -Force -Path (Split-Path $RepoDir) | Out-Null
     if (Has 'gh') { gh repo clone $RepoUrl $RepoDir -- --quiet } else { git clone --quiet "https://github.com/$RepoUrl.git" $RepoDir }
     if ($LASTEXITCODE -ne 0) { Warn 'le clonage a echoue.'; AccessHint; throw 'installation interrompue : clonage refuse' }
+    $JustCloned = $true
   }
 }
 $SkillsDir = (Resolve-Path (P $RepoDir 'skills')).Path
 
 # --- 1. Mise a jour du clone, s'il est sur sa branche par defaut ----------------------------
-if (-not $Offline -and -not $Uninstall -and (Test-Path (P $RepoDir '.git'))) {
+if (-not $Offline -and -not $Uninstall -and -not $JustCloned -and (Test-Path (P $RepoDir '.git'))) {
   $branch  = (git -C $RepoDir symbolic-ref --quiet --short HEAD 2>$null)
   $default = (git -C $RepoDir symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>$null)
   $default = if ($default) { $default -replace '^origin/', '' } else { 'main' }
@@ -64,7 +66,7 @@ if (-not $Offline -and -not $Uninstall -and (Test-Path (P $RepoDir '.git'))) {
   } elseif ($DryRun) {
     Say '(simulation) git pull --ff-only'
   } else {
-    git -C $RepoDir pull --ff-only --quiet
+    git -C $RepoDir @GitAuth pull --ff-only --quiet
     if ($LASTEXITCODE -ne 0) { Warn 'git pull --ff-only a echoue -- synchronisation avec le clone tel quel.'; AccessHint }
     else { Say 'Clone a jour.' }
   }
@@ -138,3 +140,4 @@ else {
   Say "Relancez la session de votre agent si une skill n'apparait pas."
 }
 if ($DryRun) { Say '(simulation : rien n''a ete modifie)' }
+$global:LASTEXITCODE = 0   # un git pull en echec n'est qu'un avertissement
