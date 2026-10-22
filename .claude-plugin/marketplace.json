@@ -8,16 +8,90 @@
   },
   "plugins": [
     {
+      "name": "socle",
+      "source": "./",
+      "description": "Socle commun des conventions Fabrique Numérique et garde-fou des permissions des agents (dev-agents, dso-agents)",
+      "skills": [],
+      "hooks": {
+        "SessionStart": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "cat \"${CLAUDE_PLUGIN_ROOT}/socle/conventions.md\""
+              }
+            ]
+          }
+        ],
+        "PreToolUse": [
+          {
+            "matcher": "*",
+            "hooks": [
+              {
+                "type": "command",
+                "command": "node \"${CLAUDE_PLUGIN_ROOT}/claude/permissions.mjs\""
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "name": "mishell-skills",
       "source": "./",
-      "description": "Skills réutilisables groupées par domaine : dev, audit, repo, dat, mirai",
+      "description": "Skills réutilisables groupées par domaine : dev, audit, repo, dat, mirai, dso",
       "skills": [
         "./skills/audit",
         "./skills/repo",
         "./skills/dat",
         "./skills/mirai",
-        "./skills/dev"
+        "./skills/dev",
+        "./skills/dso"
       ]
+    },
+    {
+      "name": "dev-agents",
+      "source": "./",
+      "description": "Agents et commande du groupe dev : dev-verif-plan, dev-review, /livrer",
+      "dependencies": [
+        "socle",
+        "mishell-skills"
+      ],
+      "skills": [],
+      "agents": [
+        "./claude/agents/dev/dev-review.md",
+        "./claude/agents/dev/dev-verif-plan.md"
+      ],
+      "commands": "./claude/commands/dev"
+    },
+    {
+      "name": "dso-agents",
+      "source": "./",
+      "description": "Agents et commande du groupe dso : orchestrateur de déploiement Cloud Pi Native (cpin-*), /deployer-cpin",
+      "dependencies": [
+        "socle",
+        "mishell-skills"
+      ],
+      "skills": [],
+      "hooks": {
+        "SessionStart": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "echo \"<dépôt> (scripts cpin-console, cpin-debug, doctor.sh) : ${CLAUDE_PLUGIN_ROOT}\""
+              }
+            ]
+          }
+        ]
+      },
+      "agents": [
+        "./claude/agents/dso/cpin-build.md",
+        "./claude/agents/dso/cpin-orchestrateur.md",
+        "./claude/agents/dso/cpin-plan.md",
+        "./claude/agents/dso/cpin-review.md"
+      ],
+      "commands": "./claude/commands/dso"
     }
   ]
 }

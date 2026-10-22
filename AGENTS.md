@@ -18,8 +18,13 @@ skills/<groupe>/<skill>/SKILL.md une skill = un dossier ; le nom du DOSSIER est 
 hooks/<nom>.md          hooks Claude Code à coller dans un settings.json (non installés)
 docs/                   documentation du dépôt (sources externes reprises ou citées)
 install.sh              installe / met à jour : symlinks vers ~/.agents/skills et ~/.claude/skills
-plugin/agent-skills.js  plugin OpenCode : injecte les skills par groupe, sans clone ni symlink
-.claude-plugin/         marketplace Claude Code (skills embarquées)
+plugin/agent-skills.js  plugin OpenCode : injecte skills, agents et commandes par groupe, sans clone ni symlink
+.claude-plugin/         marketplace Claude Code : plugins socle, mishell-skills, dev-agents, dso-agents
+opencode/agents/<groupe>/, opencode/commands/<groupe>/   agents et commandes (source, format natif OpenCode)
+claude/                 GÉNÉRÉ depuis opencode/ (agents, commandes, permissions.json) + hook permissions.mjs/shell.mjs
+socle/conventions.md    conventions communes, chargées par le plugin OpenCode et par le plugin Claude `socle`
+scripts/                claude-plugin.mjs (générateur), skills-index.mjs, doctor.sh, cpin-console, cpin-debug
+tests/                  hook des permissions, plugin OpenCode, check-cpin-rules
 opencode.jsonc          config OpenCode du dépôt (charge le plugin local)
 .github/                CI (./install.sh --check) et modèles d'issue
 ```
@@ -27,10 +32,24 @@ opencode.jsonc          config OpenCode du dépôt (charge le plugin local)
 ## Groupes
 
 Les skills sont rangées par **groupe** dans `skills/<groupe>/` : `dev`, `audit`, `repo`, `dat`,
-`mirai`. Chaque groupe porte un `index.json` (catalogue), **généré** par
-`node scripts/skills-index.mjs` et vérifié par la CI. Aucune consigne n'est injectée en
+`mirai`, `dso`. Chaque groupe porte un `index.json` (catalogue), **généré** par
+`node scripts/skills-index.mjs` et vérifié par la CI. Aucune consigne de groupe n'est injectée en
 session : une skill ne se charge que quand sa description correspond à la demande. Le groupe n'est **pas** un espace de nommage pour les agents — les noms de skills
 restent uniques à l'échelle de la machine (voir invariant 1).
+
+## Agents, commandes et plugin Claude Code
+
+- Un agent ou une commande d'un groupe : `opencode/agents/<groupe>/<nom>.md` ou `opencode/commands/<groupe>/<nom>.md`,
+  format markdown natif d'OpenCode, préfixé par le groupe ou son domaine (`cpin-`).
+- `claude/agents/`, `claude/commands/` et `claude/permissions.json` sont **générés** : ne jamais les éditer. Après toute
+  modification d'un agent ou d'une commande : `make claude-plugin`, puis `make check` et `make test-claude`.
+- Dans `.claude-plugin/marketplace.json`, le générateur possède les clés `agents` et `commands` des plugins
+  `<groupe>-agents` et le `matcher` du hook des permissions ; le reste s'écrit à la main.
+- Jamais de dossier `agents/`, `commands/` ou `hooks/` à la racine : le plugin Claude Code (`source: "./"`) le chargerait.
+- `socle/conventions.md` reste sous 10 000 caractères : Claude Code tronque au-delà.
+- Un nouveau groupe s'ajoute dans `skills/<groupe>/`, dans `ALL_GROUPS` (`plugin/agent-skills.js`) et dans
+  `.claude-plugin/marketplace.json` (`skills` du plugin `mishell-skills`, plus un plugin `<groupe>-agents` s'il a des agents).
+- Après avoir ajouté ou retiré un fichier de skill : `make skills-index`.
 
 ## Invariants
 
@@ -64,7 +83,8 @@ restent uniques à l'échelle de la machine (voir invariant 1).
 ## Écrire une skill
 
 - **Français**, sauf si le dépôt cible est anglophone.
-- **Moins de 100 lignes** par `SKILL.md`. Au-delà, sortir les développements dans
+- **Moins de 100 lignes** par `SKILL.md` (les skills des groupes `dev` et `dso` issues de starter-kit, plus longues,
+  sont tolérées jusqu'à leur découpage). Au-delà, sortir les développements dans
   `references/` ou `examples/`, chargés à la demande.
 - **Un mode d'emploi reproductible** : étapes, commandes exactes, critères d'arrêt.
 - **Neutre vis-à-vis de l'agent.** Ne pas nommer un outil propre à un agent sans
@@ -80,6 +100,7 @@ restent uniques à l'échelle de la machine (voir invariant 1).
 ## Vérifications avant de proposer une PR
 
 ```bash
+make check                          # frontmatter conforme, index.json, version Claude Code à jour, hook
 ./install.sh --check                # frontmatter conforme, name == dossier, description ≤ 1024
 ./install.sh --dry-run --offline    # liens attendus, sans rien changer
 git status --short                  # rien d'inattendu, pas de private/ ni de __pycache__

@@ -37,8 +37,10 @@ votre projet) :
 }
 ```
 
-`groups` choisit les groupes de skills à charger : `dev`, `audit`, `repo`, `dat`, `mirai`
-(défaut : tous). Le plugin ne fait qu'exposer les skills : rien n'est injecté en session.
+`groups` choisit les groupes à charger : `dev`, `audit`, `repo`, `dat`, `mirai`, `dso`
+(défaut : tous). Chaque groupe ajoute ses skills **et** ses agents et commandes
+(`opencode/agents/<groupe>/`, `opencode/commands/<groupe>/`) à la session ; le socle de conventions
+(`socle/conventions.md`) est toujours chargé.
 Quittez et relancez opencode après modification.
 
 **Claude Code** — installez la marketplace puis le plugin (une seule commande avec
@@ -46,6 +48,9 @@ Quittez et relancez opencode après modification.
 
 ```bash
 /plugin install mishell-skills --marketplace IA-Generative/agent-skills
+/plugin install dev-agents --marketplace IA-Generative/agent-skills   # + socle, mishell-skills
+/plugin install dso-agents --marketplace IA-Generative/agent-skills   # + socle, mishell-skills
+/plugin install socle --marketplace IA-Generative/agent-skills        # conventions + hook seuls
 ```
 
 Équivalent en deux étapes, pour les versions antérieures à v2.1.275 :
@@ -63,8 +68,14 @@ différent de `agent-skills`, réservé par Anthropic).
   liste les plugins de la marketplace (onglet *Discover*) mais **aucune skill n'est chargée**.
 - Après l'installation : `/reload-plugins`, puis `claude plugin list` doit afficher
   `mishell-skills@mishell` comme `enabled`. Les skills se lancent alors sous `/mishell-skills:<nom>`.
-- Le plugin embarque les skills des 5 groupes ; rien n'est injecté au démarrage de session.
-- Le plugin s'appelait `skills` : déjà installé, le retirer (`/plugin uninstall skills@mishell`) avant d'installer `mishell-skills`.
+- Le plugin `mishell-skills` embarque les skills des 6 groupes ; aucune consigne de groupe n'est injectée au démarrage.
+- Les **agents et commandes** sont dans des plugins à part, un par groupe : `dev-agents` (`dev-verif-plan`,
+  `dev-review`, `/dev-agents:livrer`) et `dso-agents` (`cpin-orchestrateur`, `cpin-plan`, `cpin-build`, `cpin-review`,
+  `/dso-agents:deployer-cpin`). Ils dépendent de `mishell-skills` et de `socle`, installés avec eux.
+- `socle` charge les conventions communes (`socle/conventions.md`) et le **hook de permissions** : il applique
+  aux agents ci-dessus les règles `permission` d'OpenCode (un agent de plugin Claude Code ignore ses propres
+  hooks et `permissionMode`). Il ne dit rien hors de ces agents.
+- `cpin-orchestrateur` est un agent **principal** : `claude --agent dso-agents:cpin-orchestrateur`, jamais en sous-agent.
 
 > **Un seul canal pour Claude Code.** Avec le plugin **et** `install.sh`, chaque skill apparaît
 > deux fois (`/repo-perimetre` et `/mishell-skills:repo-perimetre`). Si vous passez au plugin, retirez
@@ -279,7 +290,7 @@ déclenchement), et `$ARGUMENTS` n'est pas substitué.
 
 Une skill = un dossier `skills/<groupe>/<nom>/SKILL.md` : un **frontmatter YAML** qui dit
 quand l'utiliser, un **corps Markdown** que l'agent suit à l'invocation. Les skills sont
-rangées dans l'un des 5 groupes : `dev`, `audit`, `repo`, `dat`, `mirai`.
+rangées dans l'un des 6 groupes : `dev`, `audit`, `repo`, `dat`, `mirai`, `dso`.
 
 ```bash
 mkdir -p skills/<groupe>/<nom> && $EDITOR skills/<groupe>/<nom>/SKILL.md
