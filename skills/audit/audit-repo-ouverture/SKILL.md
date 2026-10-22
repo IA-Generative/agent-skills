@@ -1,5 +1,5 @@
 ---
-name: repo-ouverture
+name: audit-repo-ouverture
 description: "Vérifie qu'une base de code peut être ouverte / travaillée sans risque AVANT de s'y plonger. Trois contrôles — (1) ouverture sûre (aucun exécutable auto au open : hooks git, tâches VSCode, scripts de lifecycle, devcontainer, hooks d'agent et serveurs MCP du dépôt) ; (2) anti-leak en place (gitleaks/pre-commit, .gitignore durci) ; (3) rien de sensible n'a fuité (secrets & infos privées dans le working tree, l'historique et les messages/heads de commit). Lecture seule : produit un rapport et le PLAN de remédiation exécutable en mode plan."
 when_to_use: ouvrir un repo, .mcp.json, hooks d'agent, CLAUDE.md suspect, cloner un dépôt inconnu, "est-ce safe d'ouvrir", reprendre un repo, avant de bosser dessus, mettre en place anti-leak / gitleaks / pre-commit, vérifier qu'aucun secret n'a été poussé, infos sensibles dans les commits, hygiène repo, avant push, avant de rendre public
 argument-hint: "[--check (défaut, lecture seule + plan) | --setup (applique l'anti-leak après validation)] [chemin du repo — sinon repo courant]"
@@ -143,7 +143,7 @@ l'historique → **NON**, avec remédiation (rotation + `git filter-repo`/scrub 
 
 ## Livrables
 
-1. **Rapport** `private/repo-ouverture.md` (créé seulement si tu peux garantir `private/` gitignoré ;
+1. **Rapport** `private/audit-repo-ouverture.md` (créé seulement si tu peux garantir `private/` gitignoré ;
    en `--check` strict, si tu ne dois rien écrire, présente le rapport **inline** + via le plan) :
    - en-tête : repo inspecté, mode, date ;
    - **3 verdicts** : `OUVERTURE SÛRE : OUI/NON`, `ANTI-LEAK EN PLACE : OUI/NON`, `AUCUNE FUITE : OUI/NON` ;

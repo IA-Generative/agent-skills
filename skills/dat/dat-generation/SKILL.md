@@ -48,7 +48,7 @@ même convention.
 - **Aucune valeur réelle** dans le document : pas d'IP/port d'écoute réel/hôte/clé/token/bucket ;
   désigner par nom de composant ; matrice des flux = **port standard** du protocole (443/5432/4318…).
 - **LLM01 (injection de prompt) APPLICABLE** dès que le service transmet du contenu non maîtrisé à un
-  LLM, même s'il n'héberge aucun modèle. (cf. skill `/pentest-prep` pour l'audit technique.)
+  LLM, même s'il n'héberge aucun modèle. (cf. skill `/audit-pentest-prep` pour l'audit technique.)
 - **Tracer les sources** (`# source: helm/values.yaml`) en annexe « Provenance » supprimable.
 
 ## Maintenance du contenu de référence

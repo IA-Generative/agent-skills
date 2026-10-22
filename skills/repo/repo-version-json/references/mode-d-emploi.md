@@ -132,7 +132,7 @@ Consigne complète et exemples avant/après : [`changelog.md`](changelog.md).
   et quelqu'un la rédige à la main. Pour qu'ils se remplissent, tenez un `CHANGELOG.md` dont
   chaque section s'intitule `## [X.Y.Z] - AAAA-MM-JJ` (ou `## X.Y.Z`) : le script ne regarde que
   le titre, et prend la date entre parenthèses ou après un tiret.
-- Le jour où release-please arrive (skill `cicd-cpin`), il tient ce fichier pour vous.
+- Le jour où release-please arrive (skill `repo-cicd-cpin`), il tient ce fichier pour vous.
 
 ## Pièges — symptôme, cause, remède
 

@@ -13,7 +13,7 @@ Les cinq build-args ont une source de vérité chacun. Les noms ne changent jama
 ## 1. CI fabnum-cicd (workflow réutilisable `build-docker`)
 
 Le nom de l'input qui porte les build-args se **lit** dans le `cd.yml` existant ou dans le
-`workflow_call` du tag appelé (règle « rien par cœur » de `cicd-cpin`) ; au tag v0.19.3 il
+`workflow_call` du tag appelé (règle « rien par cœur » de `repo-cicd-cpin`) ; au tag v0.19.3 il
 s'appelle `BUILD_ARGS`. Extrait du `cd.yml` de `IA-Generative/mirai-apps-menu` :
 
 ```yaml
@@ -30,7 +30,7 @@ s'appelle `BUILD_ARGS`. Extrait du `cd.yml` de `IA-Generative/mirai-apps-menu` :
 
 `head_commit.timestamp` n'existe que sur `push` : sur `workflow_dispatch`, calculer la date dans un
 job amont (`git log -1 --format=%cI`) et la passer en output. Sans `cd.yml` : renvoyer vers
-`cicd-cpin`, qui pose la chaîne ; cette skill n'écrit pas de pipeline de release.
+`repo-cicd-cpin`, qui pose la chaîne ; cette skill n'écrit pas de pipeline de release.
 
 ### Le job de contrôle « l'image dit la même chose que le tag »
 

@@ -1,5 +1,5 @@
 ---
-name: impact
+name: repo-impact
 description: Analyse d'impact fondée sur des preuves AVANT un changement transverse ou risqué (API publique, schéma et migration de données, authentification, déploiement, format de message), puis comparaison du prévu avec le diff réel APRÈS implémentation. Couvre appelants, données, contrats, tests, documentation et ADR, ordre de déploiement, retour arrière et effets irréversibles. Lecture seule par défaut. Utiliser pour « qu'est-ce que ça casse ? », rayon d'impact, risque de migration, ou avant de fusionner un changement multi-modules.
 when_to_use: impact, rayon d'impact, blast radius, qu'est-ce que ça casse, migration, breaking change, changement d'API, rollback, retour arrière, avant de fusionner
 argument-hint: "[--avant (défaut) | --apres] [description du changement ou référence de PR]"

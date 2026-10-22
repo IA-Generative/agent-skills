@@ -44,11 +44,12 @@ restent uniques à l'échelle de la machine (voir invariant 1).
    seule quoi et quand. `when_to_use`, `argument-hint`, `allowed-tools`,
    `disable-model-invocation` et `$ARGUMENTS` sont des extensions Claude Code, ignorées
    ailleurs — utiles, jamais suffisantes.
-3. **Le rangement par groupe fait foi ; `mirai-*` reste préfixé.** Les skills sont rangées
-   dans `skills/<groupe>/` (`dev`, `audit`, `repo`, `dat`, `mirai`) et le nom du dossier de
-   skill n'est plus préfixé par sa famille (`pentest-prep`, `impact`…). Seules les skills
-   `mirai-*` **gardent leur préfixe** : elles ne servent qu'aux projets MirAI et ne doivent
-   pas se déclencher sur la demande générique qui leur ressemble.
+3. **Préfixe de famille dans le nom, rangement par groupe sur le disque.** Les skills sont
+   rangées dans `skills/<groupe>/` (`dev`, `audit`, `repo`, `dat`, `mirai`), mais le groupe
+   n'est pas un espace de noms pour les agents : le nom garde son préfixe (`audit-*`, `dat-*`,
+   `repo-*`…, et **`mirai-*` pour tout ce qui ne sert qu'aux projets MirAI**), afin qu'une
+   skill ne se déclenche pas sur la demande générique qui lui ressemble et n'entre pas en
+   collision avec une skill d'un autre catalogue (`impact`, `redteam`… sont trop communs).
 4. **`skills/dev/controle-qualite-code/` est une copie vendorée.** Ne jamais éditer
    `SKILL.md` ni `references/` ici : l'amont est https://github.com/etiquet/controle-qualite-code
    et la copie doit rester identique à l'octet près. Lire

@@ -12,7 +12,7 @@ regrette toujours de ne pas avoir posées avant le premier commit : git, un
 `.gitignore` durci, un `private/` gitignoré, une arborescence lisible, et un
 **garde anti-secret local qui BLOQUE le commit** (pas seulement un avertissement).
 
-> Pendant de la skill `/repo-ouverture` (qui *vérifie* un repo existant) :
+> Pendant de la skill `/audit-repo-ouverture` (qui *vérifie* un repo existant) :
 > ici on *crée* les bonnes conditions dès le départ.
 
 ## Garde-fous

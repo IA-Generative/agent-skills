@@ -1,5 +1,5 @@
 ---
-name: perimetre
+name: repo-perimetre
 description: Vérifie, avant un push ou une PR, que le diff tient dans le périmètre de l'intention annoncée et prend l'approche la plus simple (principes Karpathy — simplicité d'abord, changement chirurgical). Classe chaque fichier puis chaque hunk en « sert l'intention », « nécessaire pour l'intention » ou « hors périmètre » (refactor opportuniste, formatage, correction au passage, dépendance ou abstraction non demandée), chiffre la part hors périmètre, repère la sur-ingénierie et dit précisément quoi retirer ou sortir dans une PR séparée. Lecture seule — ne modifie rien, ne pousse rien. Utiliser à la demande avant de pousser, à l'ouverture ou à la revue d'une PR, ou quand un relecteur dit que la PR « bave » hors de son sujet.
 when_to_use: avant push, avant PR, périmètre de la PR, scope creep, "ça bave", surface de modification, diff trop gros, PR trop grosse, découper la PR, approche la plus simple, sur-ingénierie, over-engineering, changement chirurgical, Karpathy, diff minimal
 argument-hint: "[--base <branche>] [--pr <numéro>] [intention de la PR en une phrase]"
@@ -78,7 +78,7 @@ Critère d'arrêt : chaque hunk a une classe et une justification ; un relecteur
 chaque ligne du tableau sans relire tout le diff.
 
 ## Ce que cette skill ne fait pas
-- Dire ce que le changement **casse** : c'est `/impact`.
+- Dire ce que le changement **casse** : c'est `/repo-impact`.
 - Juger le **fond** du code (duplication, justesse, sécurité) : c'est `/controle-qualite-code`.
 Les trois se chaînent : périmètre d'abord, impact ensuite, fond enfin.
 

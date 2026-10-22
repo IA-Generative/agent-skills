@@ -1,5 +1,5 @@
 ---
-name: cicd-cpin
+name: repo-cicd-cpin
 description: Pose une CI/CD « Cloud Pi Native » sur un projet GitHub existant en APPELANT les workflows réutilisables du dépôt public dnum-mi/fabnum-cicd — pipeline de pull request (lint, scans, build), pipeline de release (release-please, image, synchronisation du miroir GitLab CPiN), épinglage par tag exact et règle Renovate. Ne recopie rien de fabnum-cicd et ne connaît aucun input par cœur — il lit le dépôt au tag résolu à chaque lancement. Lecture seule par défaut — rapport + plan ; n'écrit qu'avec --setup. Ne crée aucun secret, ne pousse rien, n'ouvre aucune PR.
 when_to_use: mettre une CI/CD sur ce projet, "on n'a pas de pipeline", starting kit CI/CD, github actions, workflows réutilisables, fabnum-cicd, cloud pi native, CPiN, DSO, miroir gitlab, sync-cpin, release-please, build et scan d'image, brancher un projet existant sur Cloud Pi Native
 argument-hint: '[--check (défaut, lecture seule + plan) | --setup (écrit les fichiers après validation)] [--ref vX.Y.Z (défaut = dernière release)] [chemin du projet — sinon repo courant]'
@@ -7,7 +7,7 @@ disable-model-invocation: true
 allowed-tools: Read Grep Glob Bash(git ls-remote --tags --sort=-v:refname https://github.com/dnum-mi/fabnum-cicd) Bash(git status --short) Bash(git check-ignore private/)
 ---
 
-# cicd-cpin — brancher un projet existant sur la CI/CD Cloud Pi Native
+# repo-cicd-cpin — brancher un projet existant sur la CI/CD Cloud Pi Native
 
 Tu mets en place, dans le projet cible, des workflows GitHub Actions qui **appellent par
 référence** ceux de `dnum-mi/fabnum-cicd`. Le côté Cloud Pi Native (pipeline du miroir GitLab,
@@ -70,7 +70,7 @@ Détail et justification : [`references/garde-fous.md`](references/garde-fous.md
   un plan soumis à validation séparant ✅ fichiers à écrire et 🔐 actions réservées à l'humain.
 - `--setup` : les fichiers écrits + la même liste.
 - Dans les deux cas : le **tag et le SHA** lus, et la liste explicite de **ce qui n'a PAS été fait**.
-- Rapport : inline en `--check`. En `--setup`, écrit dans `private/cicd-cpin.md` (dossier
+- Rapport : inline en `--check`. En `--setup`, écrit dans `private/repo-cicd-cpin.md` (dossier
   créé au besoin) **si** `git check-ignore private/` réussit ; sinon inline, et la ligne
   `private/` à ajouter au `.gitignore` est proposée, pas appliquée.
 

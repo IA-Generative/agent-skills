@@ -1,5 +1,5 @@
 ---
-name: rag-audit
+name: audit-rag
 description: Revue d'un pipeline RAG (recherche augmentée) — découpage, embeddings, top-k, reranking, filtrage de pertinence, citations, comportement « contexte insuffisant » et surtout présence d'une évaluation mesurée (fidélité, rappel et précision du contexte) avec base de référence, seuils et garde de régression. Lecture seule ; verdict APPROUVER / APPROUVER SOUS CONDITIONS / BLOQUER. Utiliser quand on construit, modifie ou débogue un RAG, une collection vectorielle, ou quand la qualité des réponses sourcées est mise en doute.
 when_to_use: RAG, retrieval, collection, vector store, embeddings, chunking, reranker, top-k, hallucination sur documents, réponses mal sourcées, RAGAS, évaluation de la recherche
 argument-hint: "[chemin du repo ou composant — sinon repo courant]"
@@ -50,10 +50,10 @@ Pas d'évaluation exécutable → **constat bloquant**, pas un point à sauter.
    présent / partiel / absent.
 4. **Constats** : les 1 à 3 plus importants, CRITIQUE / ÉLEVÉ / MOYEN / FAIBLE, avec preuve
    (`fichier:ligne`), impact usager et plus petit correctif utile.
-5. **Relais** : injection via documents ou droits d'accès → `/redteam`, `/pentest-prep` ;
-   identité et coffre côté tool → `/tool-owui`.
+5. **Relais** : injection via documents ou droits d'accès → `/audit-redteam`, `/audit-pentest-prep` ;
+   identité et coffre côté tool → `/audit-tool-owui`.
 
-Rapport détaillé éventuel dans `private/rag-audit.md` (gitignoré), jamais d'extrait de document
+Rapport détaillé éventuel dans `private/audit-rag.md` (gitignoré), jamais d'extrait de document
 sensible.
 
 ---

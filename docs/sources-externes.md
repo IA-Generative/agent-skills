@@ -11,17 +11,17 @@ manque réel, avec mention de la source ; le reste est **cité** ici pour qui en
 - **Installation du plugin complet déconseillée** pour l'équipe (`/plugin install ecc@ecc`) :
   centaines de descriptions chargées en contexte qui se concurrencent au déclenchement, hooks
   actifs sur chaque outil, contenu très orienté JS/TS et SaaS, et une référence de plugin non
-  figée — précisément ce que `repo-ouverture` signale comme mutable. Préférer lire et
+  figée — précisément ce que `audit-repo-ouverture` signale comme mutable. Préférer lire et
   reprendre skill par skill.
 
 ### Repris et adaptés ici
 
 | Source ECC | Devenu | Apport |
 |---|---|---|
-| `mcp-dependency-review` | `repo-ouverture` → `references/agents-et-mcp.md` | hooks d'agent, `.mcp.json`, consignes injectées, classement des références MCP mutables |
-| `agent-security-hardening` | `tool-owui` §7 → `references/frontiere-action.md` | frontière d'action des tools : irréversible, redirections, sortie bornée, test sentinelle |
-| agent `rag-pipeline-reviewer` | nouvelle skill `rag-audit` | revue RAG avec évaluation mesurée obligatoire |
-| `change-impact` | nouvelle skill `impact` | analyse d'impact avant / alignement après |
+| `mcp-dependency-review` | `audit-repo-ouverture` → `references/agents-et-mcp.md` | hooks d'agent, `.mcp.json`, consignes injectées, classement des références MCP mutables |
+| `agent-security-hardening` | `audit-tool-owui` §7 → `references/frontiere-action.md` | frontière d'action des tools : irréversible, redirections, sortie bornée, test sentinelle |
+| agent `rag-pipeline-reviewer` | nouvelle skill `audit-rag` | revue RAG avec évaluation mesurée obligatoire |
+| `change-impact` | nouvelle skill `repo-impact` | analyse d'impact avant / alignement après |
 | `architecture-decision-records` | `adr-new` | index, « pourquoi pas », mode lecture, ADR rétroactive |
 | `orch-fix-defect`, agent `silent-failure-hunter` | `bug-investigate` §5-6 | test rouge avant correctif, échecs silencieux |
 | `safety-guard` | `hooks/destructive-guard.md` | blocage des commandes destructrices |

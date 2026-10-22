@@ -1,11 +1,11 @@
 ---
-name: redteam
+name: audit-redteam
 description: Mène une campagne red-team / prompt-injection (OWASP LLM01) contre un service adossé à un LLM — wizard, route /api, agent, connecteur MCP. Mesure si la garde bloque les attaques (entrée ET sortie), avec un modèle-juge, et écrit TOUS les rapports dans private/redteam-reports/ (jamais committés). Lecture seule sur le code ; n'exécute que des requêtes de test contre une cible autorisée.
 when_to_use: red-team, redteam, prompt injection, tester la garde anti-injection, LLM01, jailbreak, "est-ce que la garde tient", évaluer un prompt-guard, campagne d'attaques sur un agent/route LLM, benchmark de garde, matrice d'attaques, modèle juge
 argument-hint: [cible — ex. "route /api/ab/prompt/validate" ou "wizard étape 2" — + corpus optionnel]
 ---
 
-# redteam — éprouver la garde d'un service LLM, sans rien faire fuiter
+# audit-redteam — éprouver la garde d'un service LLM, sans rien faire fuiter
 
 Lance une campagne d'attaques (prompt injection / jailbreak / exfiltration) contre
 un service adossé à un LLM et **mesure si la garde bloque** — en entrée (le prompt
@@ -13,7 +13,7 @@ hostile) **et** en sortie (canary / exfiltration). Un **modèle-juge** tranche l
 cas ambigus. **Tous les artefacts sensibles** (payloads, réponses brutes du modèle,
 synthèses) atterrissent dans **`private/redteam-reports/` (gitignoré)**.
 
-> Complète `/pentest-prep` (durcissement OWASP large) et `/tool-owui`
+> Complète `/audit-pentest-prep` (durcissement OWASP large) et `/audit-tool-owui`
 > (identité des tools) : ici on se concentre sur **LLM01 — injection de prompt**.
 
 ## Garde-fous

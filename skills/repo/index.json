@@ -1,7 +1,7 @@
 {
   "skills": [
     {
-      "name": "cicd-cpin",
+      "name": "repo-cicd-cpin",
       "files": [
         "SKILL.md",
         "agents/openai.yaml",
@@ -14,13 +14,13 @@
       ]
     },
     {
-      "name": "impact",
+      "name": "repo-impact",
       "files": [
         "SKILL.md"
       ]
     },
     {
-      "name": "perimetre",
+      "name": "repo-perimetre",
       "files": [
         "SKILL.md"
       ]
@@ -32,7 +32,7 @@
       ]
     },
     {
-      "name": "version-json",
+      "name": "repo-version-json",
       "files": [
         "SKILL.md",
         "references/changelog.md",

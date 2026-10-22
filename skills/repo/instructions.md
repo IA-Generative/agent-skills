@@ -9,11 +9,11 @@ Skills dans `skills/repo/` :
 
 | Skill | Quand l'utiliser |
 |-------|-----------------|
-| `cicd-cpin` | Poser une CI/CD Cloud Pi Native (fabnum-cicd, release-please, sync-cpin) |
-| `impact` | Analyse d'impact fondée sur des preuves avant un changement transverse ou risqué |
-| `perimetre` | Vérifier avant push/PR que le diff tient dans l'intention annoncée (Karpathy) |
+| `repo-cicd-cpin` | Poser une CI/CD Cloud Pi Native (fabnum-cicd, release-please, sync-cpin) |
+| `repo-impact` | Analyse d'impact fondée sur des preuves avant un changement transverse ou risqué |
+| `repo-perimetre` | Vérifier avant push/PR que le diff tient dans l'intention annoncée (Karpathy) |
 | `repo-init` | Initialiser un repo avec les précautions d'usage (git, .gitignore, private/, anti-leak) |
-| `version-json` | Faire porter à une image son journal de version (Dockerflow, /__version__) |
+| `repo-version-json` | Faire porter à une image son journal de version (Dockerflow, /__version__) |
 
 ## Invariants
 

@@ -62,6 +62,6 @@ poussée par un humain, publiera des images et déclenchera un déploiement.
 
 ## Sorties sur disque
 
-Rapport dans `private/cicd-cpin.md` **uniquement** si `git check-ignore private/` réussit
+Rapport dans `private/repo-cicd-cpin.md` **uniquement** si `git check-ignore private/` réussit
 dans le projet cible. Sinon : rapport inline, et l'ajout de `private/` au `.gitignore` est une
 ligne du plan, pas une action silencieuse.

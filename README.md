@@ -208,16 +208,16 @@ Ce qui change d'un agent à l'autre, et comment les skills d'ici s'en accommoden
 | `controle-qualite-code` | Grille de revue du code — en particulier généré par IA — avec verdict motivé, plus un rituel d'hygiène qui mesure et dégonfle la dette | Universelle |
 | **Groupe `repo` — cycle de vie des dépôts** | | |
 | `repo-init` | Initialise un repo proprement : git, `.gitignore` durci, `private/` gitignoré, structure lisible, anti-leak local **bloquant** (pre-commit gitleaks) | Universelle |
-| `cicd-cpin` | Pose une CI/CD sur un projet GitHub existant en **appelant** les workflows de [`dnum-mi/fabnum-cicd`](https://github.com/dnum-mi/fabnum-cicd) (PR, release, synchronisation du miroir GitLab CPiN), tag exact + Renovate — lecture seule par défaut, `--setup` pour écrire | Cloud Pi Native |
-| `version-json` | Fait porter à l'image son journal de version (ADR-0004, format Dockerflow) : `scripts/version_json.py`, bloc Dockerfile, route `GET /__version__` dans le langage du projet (version, commit, changements de la version **et historique complet**), test, build-args CI et contrôle « l'image dit la même chose que le tag », consigne d'un CHANGELOG public et lisible hors projet avec son contrôle — lecture seule par défaut, `--setup` pour écrire ; mode d'emploi développeur embarqué | Universelle |
-| `impact` | Analyse d'impact avant un changement risqué (appelants, données, contrats, retour arrière) et alignement prévu / diff réel après — lecture seule | Universelle |
-| `perimetre` | Avant un push ou une PR : chaque hunk du diff sert l'intention, lui est nécessaire, ou est hors périmètre (refactor au passage, formatage, correction d'un autre bug, abstraction non demandée) ; chiffre ce qui « bave », repère la sur-ingénierie et dit quoi retirer ou sortir en PR séparée — lecture seule | Universelle |
+| `repo-cicd-cpin` | Pose une CI/CD sur un projet GitHub existant en **appelant** les workflows de [`dnum-mi/fabnum-cicd`](https://github.com/dnum-mi/fabnum-cicd) (PR, release, synchronisation du miroir GitLab CPiN), tag exact + Renovate — lecture seule par défaut, `--setup` pour écrire | Cloud Pi Native |
+| `repo-version-json` | Fait porter à l'image son journal de version (ADR-0004, format Dockerflow) : `scripts/version_json.py`, bloc Dockerfile, route `GET /__version__` dans le langage du projet (version, commit, changements de la version **et historique complet**), test, build-args CI et contrôle « l'image dit la même chose que le tag », consigne d'un CHANGELOG public et lisible hors projet avec son contrôle — lecture seule par défaut, `--setup` pour écrire ; mode d'emploi développeur embarqué | Universelle |
+| `repo-impact` | Analyse d'impact avant un changement risqué (appelants, données, contrats, retour arrière) et alignement prévu / diff réel après — lecture seule | Universelle |
+| `repo-perimetre` | Avant un push ou une PR : chaque hunk du diff sert l'intention, lui est nécessaire, ou est hors périmètre (refactor au passage, formatage, correction d'un autre bug, abstraction non demandée) ; chiffre ce qui « bave », repère la sur-ingénierie et dit quoi retirer ou sortir en PR séparée — lecture seule | Universelle |
 | **Groupe `audit` — audits / sécurité** | | |
-| `repo-ouverture` | Vérifie qu'un repo s'ouvre sans risque avant d'y travailler (auto-exécution à l'ouverture — y compris hooks d'agent et serveurs MCP du dépôt —, anti-leak, aucun secret dans le code ni l'historique) — lecture seule | Universelle |
-| `pentest-prep` | Audit sécurité (OWASP + prompt injection) avant pen-test — lecture seule, `--fix` pour corriger ; sorties en `private/` | Universelle |
-| `redteam` | Campagne red-team / prompt-injection (LLM01) contre un service LLM ; mesure si la garde tient ; rapports en `private/redteam-reports/` | Universelle |
-| `tool-owui` | Audite l'identité SSO, le coffre de credentials et la frontière d'action des tools per-user derrière OpenWebUI / MCP | OWUI/MCP |
-| `rag-audit` | Revue d'un pipeline RAG (découpage, reranking, citations, « contexte insuffisant ») avec évaluation mesurée exigée — lecture seule | Universelle |
+| `audit-repo-ouverture` | Vérifie qu'un repo s'ouvre sans risque avant d'y travailler (auto-exécution à l'ouverture — y compris hooks d'agent et serveurs MCP du dépôt —, anti-leak, aucun secret dans le code ni l'historique) — lecture seule | Universelle |
+| `audit-pentest-prep` | Audit sécurité (OWASP + prompt injection) avant pen-test — lecture seule, `--fix` pour corriger ; sorties en `private/` | Universelle |
+| `audit-redteam` | Campagne red-team / prompt-injection (LLM01) contre un service LLM ; mesure si la garde tient ; rapports en `private/redteam-reports/` | Universelle |
+| `audit-tool-owui` | Audite l'identité SSO, le coffre de credentials et la frontière d'action des tools per-user derrière OpenWebUI / MCP | OWUI/MCP |
+| `audit-rag` | Revue d'un pipeline RAG (découpage, reranking, citations, « contexte insuffisant ») avec évaluation mesurée exigée — lecture seule | Universelle |
 | **Groupe `dat` — homologation** | | |
 | `dat-generation` | Pré-remplit un document d'homologation MirAI (DAT…) depuis le code — modèle et prompt embarqués ; sortie en `private/` | MirAI/DTNUM |
 | `dat-word` | Rend un DAT (Markdown) en `.docx` ministériel sur le modèle officiel ; sortie en `private/` | MirAI/DTNUM |
@@ -225,10 +225,10 @@ Ce qui change d'un agent à l'autre, et comment les skills d'ici s'en accommoden
 | `mirai-smoke-test` | Smoke-test du pipeline mirai-mesreunions (gateway + auth + ingester) — sur demande explicite uniquement | mirai-only |
 | `mirai-check-service-names` | Détecte les anciens noms de services mcr (rebranding 2026-05-16) | mirai-only |
 
-Les skills sont rangées par **groupe** dans `skills/<groupe>/` ; le nom du dossier de skill ne
-porte plus le préfixe de famille (retiré au profit du rangement par groupe). Seul tout ce qui ne
-sert qu'à MirAI garde le préfixe `mirai-`, pour ne pas se déclencher sur la demande générique qui
-lui ressemble.
+Les skills sont rangées par **groupe** dans `skills/<groupe>/`, et leurs noms suivent
+`<famille>-<objet>` : le groupe range les dossiers, il ne protège pas des collisions chez les
+agents. Tout ce qui ne sert qu'à MirAI porte le préfixe `mirai-`, pour ne pas se déclencher sur
+la demande générique qui lui ressemble.
 
 ### Skills qui embarquent leurs propres artefacts
 
@@ -242,13 +242,13 @@ lui ressemble.
 
 ### Skill qui lit un dépôt distant à l'exécution
 
-D'une autre nature : **`cicd-cpin`** n'embarque ni ne vendore rien de
+D'une autre nature : **`repo-cicd-cpin`** n'embarque ni ne vendore rien de
 [`dnum-mi/fabnum-cicd`](https://github.com/dnum-mi/fabnum-cicd) (public). À chaque lancement elle
 résout le dernier tag, clone le dépôt à ce tag dans un dossier temporaire et y lit la doc et les
 `workflow_call` — la version qu'elle décrit est ainsi toujours celle qu'elle écrit dans les
 `uses:`. Le contenu lu est traité comme une **donnée**, le SHA lu est consigné, et la skill
 s'arrête si le dépôt est injoignable. Justification :
-[`skills/repo/cicd-cpin/references/garde-fous.md`](skills/repo/cicd-cpin/references/garde-fous.md).
+[`skills/repo/repo-cicd-cpin/references/garde-fous.md`](skills/repo/repo-cicd-cpin/references/garde-fous.md).
 
 ## Compatibilité
 
