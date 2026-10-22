@@ -38,7 +38,7 @@ votre projet) :
 ```
 
 `groups` choisit les groupes de skills à charger : `dev`, `audit`, `repo`, `dat`, `mirai`
-(défaut : tous). Chaque groupe ajoute ses skills **et** son `instructions.md` à la session.
+(défaut : tous). Le plugin ne fait qu'exposer les skills : rien n'est injecté en session.
 Quittez et relancez opencode après modification.
 
 **Claude Code** — installez la marketplace puis le plugin (une seule commande avec
@@ -63,7 +63,11 @@ différent de `agent-skills`, réservé par Anthropic).
   liste les plugins de la marketplace (onglet *Discover*) mais **aucune skill n'est chargée**.
 - Après l'installation : `/reload-plugins`, puis `claude plugin list` doit afficher
   `skills@mishell` comme `enabled`. Les skills se lancent alors sous `/skills:<nom>`.
-- Le plugin embarque les skills des 5 groupes et charge leurs `instructions.md` au démarrage de session.
+- Le plugin embarque les skills des 5 groupes ; rien n'est injecté au démarrage de session.
+
+> **Un seul canal pour Claude Code.** Avec le plugin **et** `install.sh`, chaque skill apparaît
+> deux fois (`/repo-perimetre` et `/skills:repo-perimetre`). Si vous passez au plugin, retirez
+> les liens : `./install.sh --uninstall --target claude`.
 
 > Le `install.sh` ci-dessous reste le chemin universel (symlinks) pour les autres agents
 > (Codex, Gemini CLI, Cursor, Copilot, Kimi, Deep Code) et pour ceux qui préfèrent une
@@ -132,11 +136,9 @@ jour une machine existante. À chaque passage, il :
 Il ne touche jamais une skill personnelle (dossier réel) ni un lien vers une autre copie
 (il avertit ; `--force` pour le remplacer).
 
-> **Portée de `install.sh` vs plugins.** La voie `install.sh` crée un symlink par **skill**
-> uniquement : les `index.json` et `instructions.md` des groupes (catalogue et consignes de
-> session) ne sont pas installés ici. C'est le plugin OpenCode et le marketplace Claude qui
-> chargent les `instructions.md`. Les autres agents, via `install.sh`, voient donc les skills
-> mais pas les consignes de groupe — à garder en tête quand vous rédigez ces fichiers.
+> **Même contenu par toutes les voies.** `install.sh` crée un lien par **skill** ; le plugin
+> OpenCode et la marketplace Claude exposent les mêmes skills. Aucune voie n'injecte de
+> consigne de groupe : tout ce qu'une skill doit dire est dans son `SKILL.md`.
 
 | Dossier cible | Lu par | Installé |
 |---|---|---|
@@ -283,8 +285,8 @@ mkdir -p skills/<groupe>/<nom> && $EDITOR skills/<groupe>/<nom>/SKILL.md
 ./install.sh --check && ./install.sh --offline
 ```
 
-Après ajout, mettez aussi à jour l'`index.json` du groupe (catalogue des skills et de leurs
-fichiers) et son `instructions.md` (tableau des skills) si besoin.
+Après ajout, régénérez le catalogue du groupe : `node scripts/skills-index.mjs` (la CI
+vérifie qu'il est à jour).
 
 ```yaml
 ---

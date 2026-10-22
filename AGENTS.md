@@ -13,8 +13,7 @@ Le `README.md` s'adresse aux humains ; ce fichier énonce ce qu'il ne faut pas c
 ## Structure
 
 ```
-skills/<groupe>/index.json       catalogue du groupe (skills + fichiers embarqués)
-skills/<groupe>/instructions.md  instructions chargées en session (une par groupe)
+skills/<groupe>/index.json       catalogue du groupe, GÉNÉRÉ : node scripts/skills-index.mjs
 skills/<groupe>/<skill>/SKILL.md une skill = un dossier ; le nom du DOSSIER est le nom de la skill
 hooks/<nom>.md          hooks Claude Code à coller dans un settings.json (non installés)
 docs/                   documentation du dépôt (sources externes reprises ou citées)
@@ -28,8 +27,9 @@ opencode.jsonc          config OpenCode du dépôt (charge le plugin local)
 ## Groupes
 
 Les skills sont rangées par **groupe** dans `skills/<groupe>/` : `dev`, `audit`, `repo`, `dat`,
-`mirai`. Chaque groupe porte un `index.json` (catalogue) et un `instructions.md` (chargé en
-session). Le groupe n'est **pas** un espace de nommage pour les agents — les noms de skills
+`mirai`. Chaque groupe porte un `index.json` (catalogue), **généré** par
+`node scripts/skills-index.mjs` et vérifié par la CI. Aucune consigne n'est injectée en
+session : une skill ne se charge que quand sa description correspond à la demande. Le groupe n'est **pas** un espace de nommage pour les agents — les noms de skills
 restent uniques à l'échelle de la machine (voir invariant 1).
 
 ## Invariants

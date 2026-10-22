@@ -17,19 +17,7 @@
         "./skills/dat",
         "./skills/mirai",
         "./skills/dev"
-      ],
-      "hooks": {
-        "SessionStart": [
-          {
-            "hooks": [
-              {
-                "type": "command",
-                "command": "for f in \"${CLAUDE_PLUGIN_ROOT}\"/skills/*/instructions.md; do cat \"$f\"; echo; done"
-              }
-            ]
-          }
-        ]
-      }
+      ]
     }
   ]
 }

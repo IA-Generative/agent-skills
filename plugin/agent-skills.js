@@ -9,9 +9,9 @@
  *               { "groups": ["dev", "repo"] }]]
  *
  * Groupes disponibles : dev, audit, repo, dat, mirai (défaut : tous).
- * Pour chaque groupe, le plugin ajoute son instructions.md aux instructions et ses skills
- * (skills/<groupe>/ est découvert récursivement par OpenCode) à config.skills.paths.
- * Ce que l'utilisateur déclare lui-même (skill ou instruction du même nom) l'emporte.
+ * Pour chaque groupe, le plugin ajoute skills/<groupe>/ à config.skills.paths (découvert
+ * récursivement par OpenCode). Il n'injecte aucune instruction : chaque skill ne se charge
+ * que lorsque sa description correspond à la demande.
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -30,7 +30,6 @@ function installGroup(config, group) {
   const dir = path.join(SKILLS_DIR, group)
   if (!fs.existsSync(path.join(dir, 'index.json')))
     throw new Error(`agent-skills : groupe inconnu '${group}' (attendu : ${ALL_GROUPS.join(', ')})`)
-  addUnique(config.instructions, path.join(dir, 'instructions.md'))
   addUnique(config.skills.paths, dir)
 }
 
@@ -38,10 +37,11 @@ export const AgentSkillsPlugin = async (_input, options = {}) => ({
   config: async (config) => {
     if (!fs.existsSync(SKILLS_DIR))
       return
-    config.instructions ??= []
     config.skills ??= {}
     config.skills.paths ??= []
     const groups = options.groups ?? ALL_GROUPS
+    if (!Array.isArray(groups))
+      throw new Error(`agent-skills : "groups" doit être une liste, par exemple ["dev", "repo"] (reçu : ${JSON.stringify(groups)})`)
     for (const group of groups)
       installGroup(config, group)
   },
