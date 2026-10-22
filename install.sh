@@ -19,7 +19,7 @@
 #                     encore ~/.agents/skills ; ou un chemin absolu.
 # Défaut : agents, plus claude si Claude Code est détecté.
 #
-# Hors d'un clone (ex. `curl -fsSL …/install.sh | bash`), le script clone le dépôt dans
+# Hors d'un clone (ex. `gh api …/contents/install.sh -H "Accept: application/vnd.github.raw" | bash`), il clone dans
 # $AGENT_SKILLS_HOME (défaut ~/.local/share/agent-skills) puis s'y relance.
 
 set -euo pipefail
@@ -28,6 +28,7 @@ REPO_URL="${AGENT_SKILLS_REPO:-https://github.com/IA-Generative/agent-skills.git
 # Noms (ancien et actuel) du dépôt : un lien MORT vers un clone de ce nom est un reliquat à nettoyer.
 LEGACY_REPO_NAMES="skills-claude agent-skills"
 
+ORIG_ARGS=("$@")   # la boucle ci-dessous consomme "$@" ; l'amorçage doit relancer avec les mêmes options
 DRY_RUN=0 OFFLINE=0 FORCE=0 CHECK=0 UNINSTALL=0 TARGETS=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -49,6 +50,24 @@ warn() { printf 'ATTENTION : %s\n' "$*" >&2; }
 run()  { if [[ $DRY_RUN -eq 1 ]]; then say "  (simulation) $*"; else "$@"; fi; }
 
 # --- 0. Localiser le clone, ou l'amorcer ---------------------------------------------------
+# Si gh est là, git emprunte son jeton : ni « gh auth setup-git » ni trousseau à configurer.
+GIT_AUTH=()
+command -v gh >/dev/null 2>&1 && GIT_AUTH=(-c credential.helper= -c 'credential.helper=!gh auth git-credential')
+# Sur macOS, /usr/bin/git existe toujours : sans les outils Xcode, c'est un leurre qui ouvre
+# une fenêtre d'installation au lieu de cloner.
+need_git() {
+  if ! command -v git >/dev/null 2>&1 \
+     || { [[ "$(uname -s)" == Darwin && "$(command -v git)" == /usr/bin/git ]] && ! xcode-select -p >/dev/null 2>&1; }; then
+    warn "git est absent."
+    [[ "$(uname -s)" == Darwin ]] && say "  macOS : lancez « xcode-select --install », attendez la fin, puis relancez." \
+                                  || say "  Installez git avec le gestionnaire de paquets, puis relancez."
+    exit 1
+  fi
+}
+access_hint() {
+  say "  Le dépôt est interne à l'organisation IA-Generative : il faut en être membre et que git"
+  say "  soit authentifié. Vérifiez avec « gh auth status », sinon « gh auth login --web -p https »."
+}
 REPO_DIR=""
 if [[ -n "${BASH_SOURCE[0]:-}" && -f "${BASH_SOURCE[0]}" ]]; then
   REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
@@ -58,10 +77,11 @@ if [[ -z "$REPO_DIR" || ! -d "$REPO_DIR/skills" ]]; then
   if [[ ! -d "$HOME_DIR/.git" ]]; then
     say "Clonage de $REPO_URL dans $HOME_DIR"
     [[ $DRY_RUN -eq 1 ]] && { say "  (simulation) git clone"; exit 0; }
+    need_git
     mkdir -p "$(dirname "$HOME_DIR")"
-    git clone --quiet "$REPO_URL" "$HOME_DIR"
+    git ${GIT_AUTH[@]+"${GIT_AUTH[@]}"} clone --quiet "$REPO_URL" "$HOME_DIR" || { warn "le clonage a échoué."; access_hint; exit 1; }
   fi
-  exec bash "$HOME_DIR/install.sh" "$@"
+  exec bash "$HOME_DIR/install.sh" ${ORIG_ARGS[@]+"${ORIG_ARGS[@]}"}
 fi
 SKILLS_DIR="$REPO_DIR/skills"
 
@@ -105,7 +125,7 @@ if [[ $OFFLINE -eq 0 && $UNINSTALL -eq 0 && -d "$REPO_DIR/.git" && -z "${AGENT_S
     say "(simulation) git pull --ff-only"
   else
     before="$(git -C "$REPO_DIR" rev-parse HEAD)"
-    if git -C "$REPO_DIR" pull --ff-only --quiet; then
+    if git -C "$REPO_DIR" ${GIT_AUTH[@]+"${GIT_AUTH[@]}"} pull --ff-only --quiet; then
       if [[ "$(git -C "$REPO_DIR" rev-parse HEAD)" != "$before" ]]; then
         say "Clone mis à jour ($(git -C "$REPO_DIR" log --oneline "$before..HEAD" | wc -l | tr -d ' ') commit(s))."
         # Le script lui-même a pu changer : on relance la nouvelle version.
@@ -113,7 +133,8 @@ if [[ $OFFLINE -eq 0 && $UNINSTALL -eq 0 && -d "$REPO_DIR/.git" && -z "${AGENT_S
       fi
       say "Clone déjà à jour."
     else
-      warn "git pull --ff-only a échoué (hors ligne, modifications locales ?) — synchronisation avec le clone tel quel."
+      warn "git pull --ff-only a échoué (hors ligne, modifications locales, accès ?) — synchronisation avec le clone tel quel."
+      access_hint
     fi
   fi
 fi
