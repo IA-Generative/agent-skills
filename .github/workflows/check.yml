@@ -19,3 +19,44 @@ jobs:
           ./install.sh --offline
           ./install.sh --offline | tee second.log
           grep -q ' 0 ajouté(s)' second.log
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Installation avec le bash 3.2 de macOS, deux fois (idempotence)
+        run: |
+          export HOME="$(mktemp -d)"
+          mkdir -p "$HOME/.claude"
+          /bin/bash ./install.sh --offline
+          /bin/bash ./install.sh --offline | tee second.log
+          grep -q ' 0 ajouté(s)' second.log
+          test -L "$HOME/.claude/skills/repo-init"
+
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell   # Windows PowerShell 5.1, celle livrée avec Windows
+    steps:
+      - uses: actions/checkout@v4
+      - name: Installation depuis le clone, deux fois, puis désinstallation
+        run: |
+          New-Item -ItemType Directory -Force "$HOME\.claude" | Out-Null
+          .\install.ps1 -Offline
+          $second = .\install.ps1 -Offline 6>&1 | Out-String
+          if ($second -notmatch ' 0 ajoute\(s\)') { throw "pas idempotent : $second" }
+          $j = Get-Item "$HOME\.agents\skills\repo-init"
+          if ($j.LinkType -ne 'Junction') { throw "jonction attendue, obtenu : $($j.LinkType)" }
+          if (-not (Test-Path "$HOME\.claude\skills\repo-init\SKILL.md")) { throw 'skill illisible via la jonction' }
+          .\install.ps1 -Uninstall
+          if (Test-Path "$HOME\.agents\skills\repo-init") { throw 'desinstallation incomplete' }
+          if (-not (Test-Path "skills\repo-init\SKILL.md")) { throw 'la desinstallation a touche au depot' }
+      - name: Commande du README, sans clone (amorçage par gh)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AGENT_SKILLS_HOME: ${{ runner.temp }}\agent-skills
+        run: |
+          & ([scriptblock]::Create((gh api "repos/${{ github.repository }}/contents/install.ps1?ref=${{ github.sha }}" -H "Accept: application/vnd.github.raw" | Out-String)))
+          if (-not (Test-Path "$env:AGENT_SKILLS_HOME\skills\repo-init\SKILL.md")) { throw 'clone absent' }
+          if ((Get-Item "$HOME\.agents\skills\repo-init").LinkType -ne 'Junction') { throw 'jonction absente' }
