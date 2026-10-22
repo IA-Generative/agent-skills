@@ -55,6 +55,9 @@ Le dépôt est cloné dans `~/.local/share/agent-skills` au premier passage, mis
 suivants, et chaque skill est liée dans les dossiers que lisent les agents (une **jonction**
 sous Windows, un lien symbolique ailleurs). Relancer ensuite la session de l'agent.
 
+> Installez votre agent **avant** les skills. Si vous ajoutez Claude Code plus tard, relancez
+> la même ligne : il ne lit pas `~/.agents/skills` et n'est équipé que s'il est détecté.
+
 > Contributeur, vous avez déjà un clone ? Lancez `./install.sh` (ou
 > `powershell -ExecutionPolicy Bypass -File install.ps1`) depuis celui-ci : il devient la
 > source des liens. Un `curl` sur `raw.githubusercontent.com` répond **404** : ce domaine ne
