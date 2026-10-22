@@ -23,16 +23,25 @@ rien : c'est l'agent qui lit les skills, pas le modèle.
 
 ## Installer ou mettre à jour — une seule commande
 
-```bash
-git clone https://github.com/IA-Generative/agent-skills.git ~/Documents/GitHub/agent-skills
-~/Documents/GitHub/agent-skills/install.sh
-```
-
-Sans clone préalable, le script s'amorce seul (il clone dans `~/.local/share/agent-skills`) :
+**Prérequis.** Le dépôt est **interne** à l'organisation GitHub IA-Generative : il faut un
+compte membre et un `git` authentifié. Sur un Mac neuf :
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/IA-Generative/agent-skills/main/install.sh | bash
+xcode-select --install     # fournit git ; accepter la fenêtre, attendre la fin, puis continuer
+brew install gh            # ou https://cli.github.com
+gh auth login              # GitHub.com, HTTPS, « Authenticate Git with your GitHub credentials » : oui
 ```
+
+Puis :
+
+```bash
+gh repo clone IA-Generative/agent-skills ~/Documents/GitHub/agent-skills \
+  && ~/Documents/GitHub/agent-skills/install.sh
+```
+
+`git clone https://github.com/IA-Generative/agent-skills.git …` marche aussi une fois `git`
+authentifié. Un `curl` sur `raw.githubusercontent.com` répond **404** : ce domaine ne sert pas
+les dépôts internes sans jeton.
 
 `install.sh` est **idempotent** : la même commande installe une machine neuve et met à
 jour une machine existante. À chaque passage, il :

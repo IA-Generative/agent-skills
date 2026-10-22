@@ -19,7 +19,7 @@
 #                     encore ~/.agents/skills ; ou un chemin absolu.
 # Défaut : agents, plus claude si Claude Code est détecté.
 #
-# Hors d'un clone (ex. `curl -fsSL …/install.sh | bash`), le script clone le dépôt dans
+# Hors d'un clone (ex. `gh api …/contents/install.sh -H "Accept: application/vnd.github.raw" | bash`), il clone dans
 # $AGENT_SKILLS_HOME (défaut ~/.local/share/agent-skills) puis s'y relance.
 
 set -euo pipefail
