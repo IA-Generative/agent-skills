@@ -15,6 +15,10 @@ registre, déploiement) n'est pas généré : il est listé comme prérequis.
 
 > Pendant de `/repo-init` (qui pose les fondations d'un repo) : ici on pose sa chaîne de livraison.
 
+Principes CI/CD et pipeline de base sans fabnum-cicd : skill `ci-cd` (groupe `dev`). Gabarits `ci.yml`/`cd.yml`,
+dépôt d'infra séparé, chart Helm, mise en service sur Cloud Pi Native : groupe `dso` (`cicd-fabnum`,
+`deploiement-cpin`) ; cette skill s'arrête aux fichiers du dépôt applicatif.
+
 ## Mode d'exécution (lire les arguments AVANT toute action)
 
 - **`--check` — DÉFAUT** : lecture seule stricte sur le projet cible. Tu lis, tu composes, tu

@@ -35,6 +35,8 @@ miroir** sur le GitLab de la plateforme. Doivent donc préexister, et ne sont **
 - un **trigger token** de pipeline sur ce miroir, stocké en secret GitHub ;
 - côté plateforme : le pipeline du miroir, le registre d'images, le dépôt d'infrastructure et le
   déploiement. Leur configuration relève de la documentation Cloud Pi Native, pas de cette skill.
+  Le runbook de mise en service (console, miroir, jetons, valeurs, dépannage) est la skill `deploiement-cpin`
+  du groupe `dso`.
 
 Si l'un de ces éléments manque, le pipeline de release reste utilisable : proposer de livrer le
 job de synchronisation **conditionné à la présence de la variable** (`if:` sur `vars.<NOM>`

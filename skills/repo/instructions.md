@@ -19,3 +19,15 @@ Skills dans `skills/repo/` :
 
 - Lecture seule par défaut ; écriture uniquement avec `--setup` après validation.
 - `repo-init` à lancer au tout début, avant d'écrire du code ou de committer.
+
+## Renvois vers les autres groupes
+
+Un groupe n'est jamais supposé installé : ces renvois nomment le groupe, ils ne le chargent pas.
+
+| Besoin | Groupe et skill |
+|--------|-----------------|
+| Principes CI/CD, pipeline de base lint / tests / build, conventions de branches et de commits | groupe `dev` : `ci-cd`, `conventions-cofabnum` |
+| Dockerfile de production, durcissement du conteneur | groupe `dev` : `deploiement` |
+| Gabarits `ci.yml`/`cd.yml`, dépôt d'infra séparé, chart Helm, mise en service et dépannage Cloud Pi Native | groupe `dso` : `cicd-fabnum`, `helm-chart-cpin`, `deploiement-cpin` |
+
+`cicd-cpin` écrit les workflows du **dépôt applicatif** et s'arrête là ; la livraison (chart, infra, console CPiN) relève de `dso`.

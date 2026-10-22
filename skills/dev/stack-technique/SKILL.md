@@ -14,10 +14,10 @@ Official recommended tools for Fabrique Numérique projects.
 
 ## Version Management
 
-**proto** — multi-language version manager. Pin Node to 24.x LTS.
+**proto** — multi-language version manager. Pin Node to 24.x LTS; the exact versions live in `.prototools` (see the socle conventions).
 
 ```shell
-proto install node@24.13.1
+proto install
 ```
 
 Always also specify `"engines"` in `package.json`:

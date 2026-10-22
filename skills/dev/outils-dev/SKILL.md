@@ -16,23 +16,9 @@ Working with the tools used in Fabrique Numérique projects.
 
 ## Git
 
-### Branch naming
+### Branches et commits
 
-```
-<type>/<kebab-description>#<ticket>
-```
-
-Types: `feat`, `fix`, `hotfix`, `tech`, `docs`, `refactor`
-
-### Commit messages
-
-Conventional Commits. French acceptable.
-
-```
-feat: ajouter authentification JWT#123
-fix: corriger le nommage de la variable user#124
-tech: mise à jour des dépendances#125
-```
+Nommage des branches et Conventional Commits : voir `conventions-cofabnum`.
 
 ### zsh aliases
 
@@ -53,11 +39,7 @@ ding() {
 
 ### Container rules
 
-- Lightweight base: `*-alpine`, `*-slim`, `distroless`
-- Non-root user (UID ≥ 1000)
-- Multi-stage builds
-- Non-privileged port (≥ 1024)
-- **Never** use `latest` tag in production
+Image légère, non-root, multi-stage, port non privilégié, jamais `latest` en production : voir `deploiement` (détail et exemples) et `conventions-cofabnum`.
 
 ### Docker Compose
 
@@ -65,11 +47,7 @@ Default for local development. See [environnement-installation] for template.
 
 ### Kubernetes local (optional)
 
-| Tool | When to use |
-|------|-------------|
-| [Kind](https://kind.sigs.k8s.io/) | Test K8s manifests locally |
-| [k3d](https://k3d.io/) | Lightweight K8s in Docker |
-| [Minikube](https://minikube.sigs.k8s.io/) | Local cluster with GUI |
+Kind, k3d ou Minikube : tableau comparatif dans `deploiement`.
 
 ## pnpm
 
@@ -85,7 +63,7 @@ See [environnement-installation] for setup, [monorepo] for workspaces.
 ## proto
 
 ```shell
-proto install node@24.13.1
+proto install            # versions lues dans .prototools (voir le socle)
 proto install python@3.12
 proto ls                  # List installed
 ```

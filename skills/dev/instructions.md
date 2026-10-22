@@ -17,10 +17,21 @@ Skills dans `skills/dev/` :
 | `recettes-serveur` | Backend NestJS / Fastify / FastAPI — scaffolding, logging, OpenAPI |
 | `stack-technique` | Configurer les outils recommandés — ESLint antfu, Prisma, date-fns… |
 | `monorepo` | Monorepo pnpm workspaces + Turborepo |
-| `ci-cd` | Principes CI/CD et gabarit CI de base — pour fabnum-cicd, releases et Cloud Pi Native voir `cicd-fabnum` (groupe `dso`) |
+| `ci-cd` | Principes CI/CD et gabarit CI de base (jusqu'à l'image scannée, pas au déploiement) |
 | `deploiement` | Dockerfiles de production, durcissement des conteneurs (rootless, lecture seule, tags), dev local K8s — pour Helm et Cloud Pi Native voir le groupe `dso` |
 | `environnement-installation` | Setup poste dev — Windows/WSL, macOS, Ubuntu |
 | `outils-dev` | Git, Docker Compose, VS Code, GitHub CLI, pnpm, proto, zsh, uv |
+
+## Au-delà du développement : renvois
+
+Un groupe n'est jamais supposé installé : ces renvois nomment le groupe, ils ne le chargent pas.
+
+| Besoin | Groupe et skill |
+|--------|-----------------|
+| Brancher le dépôt sur fabnum-cicd (PR, release, scans, Renovate), poser `.gitignore` et anti-leak, journal de version de l'image | groupe `repo` : `cicd-cpin`, `repo-init`, `version-json` |
+| Chart Helm, dépôt d'infra, CI/CD de livraison, déploiement et dépannage Cloud Pi Native | groupe `dso` : `helm-chart-cpin`, `cicd-fabnum`, `deploiement-cpin` |
+
+Le développeur s'arrête à l'image construite et scannée ; le déploiement relève du groupe `dso`.
 
 ## Invariants
 
