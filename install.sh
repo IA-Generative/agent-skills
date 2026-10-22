@@ -28,6 +28,7 @@ REPO_URL="${AGENT_SKILLS_REPO:-https://github.com/IA-Generative/agent-skills.git
 # Noms (ancien et actuel) du dépôt : un lien MORT vers un clone de ce nom est un reliquat à nettoyer.
 LEGACY_REPO_NAMES="skills-claude agent-skills"
 
+ORIG_ARGS=("$@")   # la boucle ci-dessous consomme "$@" ; l'amorçage doit relancer avec les mêmes options
 DRY_RUN=0 OFFLINE=0 FORCE=0 CHECK=0 UNINSTALL=0 TARGETS=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -78,7 +79,7 @@ if [[ -z "$REPO_DIR" || ! -d "$REPO_DIR/skills" ]]; then
     mkdir -p "$(dirname "$HOME_DIR")"
     git clone --quiet "$REPO_URL" "$HOME_DIR" || { warn "le clonage a échoué."; access_hint; exit 1; }
   fi
-  exec bash "$HOME_DIR/install.sh" "$@"
+  exec bash "$HOME_DIR/install.sh" ${ORIG_ARGS[@]+"${ORIG_ARGS[@]}"}
 fi
 SKILLS_DIR="$REPO_DIR/skills"
 
