@@ -1,0 +1,7 @@
+{
+  "name": "agent-skills",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "plugin/agent-skills.js"
+}
