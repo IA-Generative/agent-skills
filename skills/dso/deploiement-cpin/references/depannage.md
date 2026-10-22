@@ -1,0 +1,57 @@
+# Dépannage Cloud Pi Native
+
+Chercher le message exact dans la colonne « Symptôme ». La colonne « Phase » renvoie au runbook
+(`SKILL.md`) : c'est là que le problème aurait dû être arrêté. Corriger à la source, puis ajouter la
+vérification manquante pour que le problème ne revienne pas.
+
+## Quel check de debug éclaire quel symptôme
+
+Les checks (`node <kit>/scripts/cpin-debug/check-*.mjs`, voir `SKILL.md`, phase 1 §6) ne renvoient que des
+**statuts HTTP** : ils prouvent qu'un service est joignable et que le jeton est accepté, pas pourquoi un pod
+échoue. Ils servent à **éliminer** une cause (jeton expiré, service injoignable) avant de chercher plus loin.
+
+| Symptôme | Check | Ce qu'un statut dit |
+|----------|-------|---------------------|
+| Synchro qui échoue, dépôt absent du GitLab interne | `check-gitlab` | 200 : GitLab joignable et `GITLAB_PAT` valide ; 401 : jeton refusé |
+| `ImagePullBackOff`, `401` au pull, image introuvable | `check-harbor` | 200 : Harbor joignable avec le jeton SSO ; 401/403 : session SSO expirée (relancer `login.mjs`) |
+| Application absente ou `OutOfSync`, rien ne se déploie | `check-argocd` | 200 : ArgoCD joignable et l'API répond ; 401 : session SSO expirée |
+| Projet, environnement ou dépôt qui ne se crée pas, quota | `check-console` | 200 : `DSO_TOKEN` valide ; 401 : jeton expiré ou révoqué |
+
+Routes d'API utiles par service, y compris Vault (pod en erreur au démarrage faute d'un secret) :
+[`api-debug.md`](api-debug.md).
+
+Un statut 200 ne dit **pas** que la cause est ailleurs : il restreint seulement les hypothèses. Le message
+exact des événements ArgoCD reste la preuve.
+
+## Vécu (premier déploiement complet, releases 0.1.1 → 0.1.7)
+
+| Symptôme | Cause | Phase | Correctif |
+|----------|-------|-------|-----------|
+| `pods ... forbidden: exceeded quota: dso-quota` | somme des `limits` > quota (500m/2Gi, puis 256Mi, pour un quota de 200m/0.2Gi) | 1, 3 | relever le quota **avec son unité** ; `--quota-cpu`/`--quota-memory` dans `check-cpin-rules.py` |
+| Le pod tire `docker.io/debian:<tag>` | `repository` placeholder du template resté dans `values.yaml` ; la surcharge était dans un fichier non chargé | 2, 3 | image Harbor dans `values.yaml` ; le script signale « image placeholder » |
+| Valeurs de `values-dev.yaml` sans effet | le chargement de `values-<env>.yaml` n'est pas garanti (aucun réglage de fichiers values sur une console 9.9.0) | 2 | mettre les valeurs vitales dans `values.yaml` |
+| Pod `Running` mais jamais `Ready`, ou `connection refused` | containerPort/probes sur 8080 alors que l'app écoute sur 3000 | 0, 3 | `--app-port <port>` dans le script |
+| 404 sur l'URL | `ingress.enabled: false` par défaut dans le template tobi, ou host d'exemple | 2, 3 | ingress activé avec le host réel dans `values.yaml` ; `--require-ingress` |
+| 503 sur l'URL | backend de l'Ingress sur le containerPort (3000) au lieu du **port du Service** (80) | 3 | `backend.service.port` = `Service.port` ; le script le signale |
+| `sync-cpin` : `GITLAB_URL must be a single https:// URL, got ''` | variables GitHub absentes | 1 | créer `GITLAB_URL`, `GITLAB_MIRROR_ID`, `GITLAB_PROJECT_NAME` (variables) et `GITLAB_TRIGGER_TOKEN` (secret) |
+| Synchro : `403 Write access to repository not granted` | token GitHub fine-grained en lecture seule | 1 | informations d'accès du dépôt privé : PAT avec le scope `repo` (doc officielle) |
+| Jobs `git-sync` : `No value found at …` | informations de synchro du dépôt absentes (dépôt privé déclaré sans accès) | 1 | l'humain complète les informations d'accès dans le formulaire du dépôt de la console ; ne pas chercher dans le Vault de la chaîne (pas d'accès utilisateur) |
+| Token introuvable dans GitLab (« Access Token → New ») | confusion PAT (`glpat-`) / pipeline trigger token (`glptt-`) | 1 | le token de déclenchement est un `glptt-` fourni par la console |
+
+## Plateforme (documentation CPiN)
+
+| Symptôme | Cause probable | Action |
+|----------|----------------|--------|
+| Rien ne se redéploie après un push | tag d'image inchangé : ArgoCD ne voit aucun diff | faire évoluer le tag ; vérifier que la synchro a bien été déclenchée |
+| Le pipeline GitLab ne se lance pas | pas de `.gitlab-ci-dso.yml`/`.yaml`, ou synchro non déclenchée | vérifier le nom du fichier ; relancer le pipeline `mirror` avec `PROJECT_NAME` et `GIT_BRANCH_DEPLOY` |
+| Le build échoue tout de suite | étape `read_secret` absente ou en échec | garder le job `.vault:read_secret` en premier stage |
+| Pod refusé en prod, accepté en dev | Kyverno en audit hors prod, **enforce en prod** | `check-cpin-rules.py` (skill `helm-chart-cpin`) |
+| `CreateContainerConfigError` / UID hors plage | `runAsUser`/`fsGroup` figés, SCC OpenShift | les mettre à `null` dans les values |
+| `ImagePullBackOff` / `401 Unauthorized` au pull | image absente de Harbor, tag erroné, pull secret non référencé, credentials invalides, ou **nom du projet Harbor incohérent** (ex. projet `icebreakerdemo` vs chemin `ice-breaker-demo` dans les values) | vérifier l'image dans Harbor ; lire le **message exact** (`unauthorized`/`pull access denied`/`no such host`) dans les **événements ArgoCD DSO** (pas un CLI) ; vérifier le **chemin complet** `<registry>/<projet>/<repo>` contre le `PROJECT_PATH` de la console (le projet peut différer du nom du dépôt, tirets) ; `--expected-image` de `check-cpin-rules.py` le garantit ; `imagePullSecrets: [{name: registry-pull-secret}]` |
+| Application injoignable (hors 404/503) | namespace en deny-all | `networkPolicy` pour les flux non couverts par les règles injectées par Kyverno |
+| Dépôt qui disparaît du GitLab interne | dépôt `plugin-managed` non déclaré dans la console | toujours passer par la console |
+| Réglages ArgoCD ignorés | la console est source de vérité (≥ 9.11.5) | révision et chemin dans la console, lorsque la version les expose |
+| Comportement documenté absent / chemin source ArgoCD figé sur une valeur inattendue | **version de la plateforme** diffère selon l'instance (`/api/v1/version`) | relever la **version réelle** de l'instance (`console.<instance>/swagger-ui`) ; considérer le chemin source ArgoCD, l'auto-sync, les « Déploiements » comme des **exemples par instance**, à vérifier dans la console |
+| Un environnement n'est plus régénéré | un « Déploiement » (beta ≥ 9.25.0) écrase la config des dépôts d'infra | reporter toute la config dans un déploiement par environnement |
+| Dérive (drift) détectée | paramètres saisis dans l'UI ArgoCD | tout mettre dans les values |
+| Application déployée mais pas à jour | auto-sync désactivé | *REFRESH* puis *SYNC* dans ArgoCD |

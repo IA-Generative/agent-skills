@@ -3,12 +3,12 @@
   // Pour l'installer chez vous sans clone, utilisez plutôt, dans votre opencode.json :
   //   "plugin": [["agent-skills@git+https://github.com/IA-Generative/agent-skills.git",
   //               { "groups": ["dev", "repo"] }]]
-  // Groupes disponibles : dev, audit, repo, dat, mirai (défaut : tous).
+  // Groupes disponibles : dev, audit, repo, dat, mirai, dso (défaut : tous).
   "$schema": "https://opencode.ai/config.json",
   "plugin": [
     [
       "./plugin/agent-skills.js",
-      { "groups": ["dev", "audit", "repo", "dat", "mirai"] }
+      { "groups": ["dev", "audit", "repo", "dat", "mirai", "dso"] }
     ]
   ]
 }

@@ -13,6 +13,12 @@
       ]
     },
     {
+      "name": "ci-cd",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
       "name": "controle-qualite-code",
       "files": [
         "SKILL.md",
@@ -21,6 +27,60 @@
         "references/evaluation-scenarios.md",
         "references/hygiene-log-format.md",
         "references/pr-template.md"
+      ]
+    },
+    {
+      "name": "conventions-cofabnum",
+      "files": [
+        "SKILL.md",
+        "scripts/check-folders.sh",
+        "scripts/validate-branch.sh"
+      ]
+    },
+    {
+      "name": "deploiement",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "environnement-installation",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "monorepo",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "outils-dev",
+      "files": [
+        "SKILL.md",
+        "scripts/check-environment.sh"
+      ]
+    },
+    {
+      "name": "recettes-client",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "recettes-serveur",
+      "files": [
+        "SKILL.md",
+        "scripts/scaffold-fastapi.sh",
+        "scripts/scaffold-fastify.sh",
+        "scripts/scaffold-nestjs.sh"
+      ]
+    },
+    {
+      "name": "stack-technique",
+      "files": [
+        "SKILL.md"
       ]
     }
   ]

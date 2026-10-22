@@ -1,0 +1,26 @@
+# Groupe `dso` : CI/CD, Helm, Cloud Pi Native
+
+> Chargé par le plugin OpenCode (`"groups": ["dso"]`) ou via la marketplace Claude
+> (`/plugin install skills --marketplace IA-Generative/agent-skills`). Voir le README.
+
+## Invariants
+
+- **Vérifier au PR, pas au déploiement** : chart rendu (`helm template`) et contrôlé par `check-cpin-rules.py` en CI avant toute merge.
+- **Suivre le runbook `deploiement-cpin` phase par phase**, sans sauter de porte.
+- **Rendre le suivi visible** (quel que soit l'agent) : dès qu'un déploiement CPiN commence, créer avec l'outil de liste de tâches (`todowrite` dans OpenCode) une todo par phase (`Phase 0 — Éligibilité` … `Phase 5 — Vérifier`), la tenir à jour, et commencer chaque message par `▶ Phase N/5 — <nom> · étape : <étape>` suivi de ce qui est fait, pourquoi, et ce que ça change. Détail : skill `deploiement-cpin`.
+- **Ne jamais demander, lire ni écrire la valeur d'un token ou d'un secret** : l'humain la saisit (console CPiN, GitHub, Vault) ; l'agent vérifie seulement que le nom existe.
+- **⚠️ Pas de `prod` sans accord explicite de l'humain** : un incident en prod remonte des alertes au support CPiN. La réserver à un déploiement déjà fonctionnel, avec des utilisateurs réels réguliers ; afficher l'avertissement du skill `deploiement-cpin` (§3) dès qu'il est question d'environnements, et ne passer `--allow-prod` qu'après un « oui ».
+- La **console CPiN** est la source de vérité ; l'UI ArgoCD et le GitLab interne ne se modifient pas à la main.
+
+## Skills
+
+| Skill | Quand l'utiliser |
+|-------|-----------------|
+| `deploiement-cpin` | **Point d'entrée** pour déployer sur Cloud Pi Native : runbook par phases (prérequis, values, vérification, livraison) et dépannage (quota, mauvaise image, 404, 503, synchro) |
+| `helm-chart-cpin` | Créer ou adapter un chart Helm pour CPiN : template tobi, checklist pré-PR, `check-cpin-rules.py` |
+| `cicd-fabnum` | Écrire ou relire un `ci.yml`/`cd.yml` avec fabnum-cicd, releases, `sync-cpin` et ses secrets |
+
+## Documentation interne (OKF)
+
+[`docs/okf/`](https://github.com/IA-Generative/agent-skills/tree/main/docs/okf) regroupe la connaissance CI/CD (fabnum-cicd), Helm et Cloud Pi Native au format OKF.
+Point d'entrée : `docs/okf/quickstart.md` (routage par intention). Les sources amont font autorité ; la doc n'est pas un skill.

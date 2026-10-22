@@ -1,0 +1,37 @@
+# Surcharge Cloud Pi Native (OpenShift + Kyverno). Ordre ArgoCD : values.yaml -> values-cpin.yaml -> values-<env>.yaml
+commonLabels:
+  app: monapp
+  env: dev          # dev|formation|qualif|test|preprod|prod
+  tier: backend     # frontend|backend|db|cache|auth
+  criticality: low  # high|medium|low
+  component: node   # nginx|node|postgres|redis|...
+api:
+  image:
+    registry: harbor.example.gouv.fr   # registre Harbor du projet
+    repository: mi-monprojet/monapp    # <ORG>-<PROJET>/<image>
+    tag: "1.2.3"                       # jamais latest
+  imagePullSecrets:
+  - name: registry-pull-secret
+  # OpenShift alloue l'UID/GID par namespace : ne rien figer (null supprime la clé du défaut du chart).
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: null
+    runAsGroup: null
+    fsGroup: null
+    fsGroupChangePolicy: null
+  securityContext:
+    runAsUser: null
+    runAsGroup: null
+  # Port écouté par l'application (EXPOSE du Dockerfile) : containerPort et probes doivent le suivre.
+  containerPort: 3000
+  # Le template tobi désactive l'ingress et met un host d'exemple (domain.local) : 404 si on les garde.
+  ingress:
+    enabled: true
+    hosts:
+    - name: monapp-dev.<domaine-apps-de-l-instance>   # host réel de l'environnement
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          serviceName: ""
+          portNumber: null   # null = port du Service (80) ; jamais le containerPort (503)

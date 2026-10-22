@@ -37,8 +37,10 @@ votre projet) :
 }
 ```
 
-`groups` choisit les groupes de skills à charger : `dev`, `audit`, `repo`, `dat`, `mirai`
-(défaut : tous). Chaque groupe ajoute ses skills **et** son `instructions.md` à la session.
+`groups` choisit les groupes à charger : `dev`, `audit`, `repo`, `dat`, `mirai`, `dso`
+(défaut : tous). Chaque groupe ajoute ses skills, son `instructions.md` **et** ses agents et commandes
+(`opencode/agents/<groupe>/`, `opencode/commands/<groupe>/`) à la session ; le socle de conventions
+(`socle/conventions.md`) est toujours chargé.
 Quittez et relancez opencode après modification.
 
 **Claude Code** — installez la marketplace puis le plugin (une seule commande avec
@@ -46,6 +48,9 @@ Quittez et relancez opencode après modification.
 
 ```bash
 /plugin install skills --marketplace IA-Generative/agent-skills
+/plugin install dev-agents --marketplace IA-Generative/agent-skills   # + socle, skills
+/plugin install dso-agents --marketplace IA-Generative/agent-skills   # + socle, skills
+/plugin install socle --marketplace IA-Generative/agent-skills        # conventions + hook seuls
 ```
 
 Équivalent en deux étapes, pour les versions antérieures à v2.1.275 :
@@ -63,7 +68,14 @@ différent de `agent-skills`, réservé par Anthropic).
   liste les plugins de la marketplace (onglet *Discover*) mais **aucune skill n'est chargée**.
 - Après l'installation : `/reload-plugins`, puis `claude plugin list` doit afficher
   `skills@mishell` comme `enabled`. Les skills se lancent alors sous `/skills:<nom>`.
-- Le plugin embarque les skills des 5 groupes et charge leurs `instructions.md` au démarrage de session.
+- Le plugin `skills` embarque les skills des 6 groupes et charge leurs `instructions.md` au démarrage de session.
+- Les **agents et commandes** sont dans des plugins à part, un par groupe : `dev-agents` (`dev-verif-plan`,
+  `dev-review`, `/dev-agents:livrer`) et `dso-agents` (`cpin-orchestrateur`, `cpin-plan`, `cpin-build`, `cpin-review`,
+  `/dso-agents:deployer-cpin`). Ils dépendent de `skills` et de `socle`, installés avec eux.
+- `socle` charge les conventions communes (`socle/conventions.md`) et le **hook de permissions** : il applique
+  aux agents ci-dessus les règles `permission` d'OpenCode (un agent de plugin Claude Code ignore ses propres
+  hooks et `permissionMode`). Il ne dit rien hors de ces agents.
+- `cpin-orchestrateur` est un agent **principal** : `claude --agent dso-agents:cpin-orchestrateur`, jamais en sous-agent.
 
 > Le `install.sh` ci-dessous reste le chemin universel (symlinks) pour les autres agents
 > (Codex, Gemini CLI, Cursor, Copilot, Kimi, Deep Code) et pour ceux qui préfèrent une
