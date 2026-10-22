@@ -30,8 +30,13 @@ Le dépôt est **interne** à l'organisation GitHub IA-Generative : il faut en �
 | Système | Installer `git` et `gh` |
 |---|---|
 | macOS | `xcode-select --install` (attendre la fin), puis `brew install gh` — sans Homebrew : l'installeur `.pkg` de [cli.github.com](https://cli.github.com) |
-| Windows | `winget install --id Git.Git -e` puis `winget install --id GitHub.cli -e`, et **rouvrir** le terminal |
+| Windows | `winget install --id Git.Git -e` puis `winget install --id GitHub.cli -e` (l'installeur de Git demande une élévation), puis recharger le `PATH` ci-dessous |
 | Linux | `git` par le gestionnaire de paquets ; `gh` selon [la page d'installation de gh](https://github.com/cli/cli#installation) (`apt`, `dnf`…) |
+
+```powershell
+# Windows seulement : la session ne voit pas encore gh ; recharger le PATH (ou rouvrir PowerShell)
+$env:Path = [Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [Environment]::GetEnvironmentVariable('Path','User')
+```
 
 ```bash
 gh auth login --web -p https
