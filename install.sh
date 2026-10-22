@@ -49,6 +49,22 @@ warn() { printf 'ATTENTION : %s\n' "$*" >&2; }
 run()  { if [[ $DRY_RUN -eq 1 ]]; then say "  (simulation) $*"; else "$@"; fi; }
 
 # --- 0. Localiser le clone, ou l'amorcer ---------------------------------------------------
+# Sur macOS, /usr/bin/git existe toujours : sans les outils Xcode, c'est un leurre qui ouvre
+# une fenêtre d'installation au lieu de cloner.
+need_git() {
+  if ! command -v git >/dev/null 2>&1 \
+     || { [[ "$(uname -s)" == Darwin && "$(command -v git)" == /usr/bin/git ]] && ! xcode-select -p >/dev/null 2>&1; }; then
+    warn "git est absent."
+    [[ "$(uname -s)" == Darwin ]] && say "  macOS : lancez « xcode-select --install », attendez la fin, puis relancez." \
+                                  || say "  Installez git avec le gestionnaire de paquets, puis relancez."
+    exit 1
+  fi
+}
+access_hint() {
+  say "  Le dépôt est interne à l'organisation IA-Generative : il faut en être membre et que git"
+  say "  soit authentifié. Vérifiez avec « gh auth status », sinon « gh auth login » (HTTPS,"
+  say "  « Authenticate Git with your GitHub credentials » : oui)."
+}
 REPO_DIR=""
 if [[ -n "${BASH_SOURCE[0]:-}" && -f "${BASH_SOURCE[0]}" ]]; then
   REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
@@ -58,8 +74,9 @@ if [[ -z "$REPO_DIR" || ! -d "$REPO_DIR/skills" ]]; then
   if [[ ! -d "$HOME_DIR/.git" ]]; then
     say "Clonage de $REPO_URL dans $HOME_DIR"
     [[ $DRY_RUN -eq 1 ]] && { say "  (simulation) git clone"; exit 0; }
+    need_git
     mkdir -p "$(dirname "$HOME_DIR")"
-    git clone --quiet "$REPO_URL" "$HOME_DIR"
+    git clone --quiet "$REPO_URL" "$HOME_DIR" || { warn "le clonage a échoué."; access_hint; exit 1; }
   fi
   exec bash "$HOME_DIR/install.sh" "$@"
 fi
@@ -112,7 +129,8 @@ if [[ $OFFLINE -eq 0 && $UNINSTALL -eq 0 && -d "$REPO_DIR/.git" && -z "${AGENT_S
       fi
       say "Clone déjà à jour."
     else
-      warn "git pull --ff-only a échoué (hors ligne, modifications locales ?) — synchronisation avec le clone tel quel."
+      warn "git pull --ff-only a échoué (hors ligne, modifications locales, accès ?) — synchronisation avec le clone tel quel."
+      access_hint
     fi
   fi
 fi
