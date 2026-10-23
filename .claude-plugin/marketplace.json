@@ -8,7 +8,7 @@
   },
   "plugins": [
     {
-      "name": "skills",
+      "name": "mishell-skills",
       "source": "./",
       "description": "Skills réutilisables groupées par domaine : dev, audit, repo, dat, mirai",
       "skills": [
