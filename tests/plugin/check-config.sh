@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Vérifie que le plugin installe socle, instructions, skills, agents et commandes du groupe demandé,
+# Vérifie que le plugin installe socle, skills, agents et commandes du groupe demandé,
 # et rien d'un groupe non demandé. N'appelle aucun modèle. Usage : tests/plugin/check-config.sh
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
@@ -15,8 +15,8 @@ JSON
 cd "$WORK"
 # Seuls les champs vérifiés sont extraits : la config globale peut contenir des secrets.
 opencode debug config | jq -e --arg root "$ROOT" '
-  (.instructions | index($root + "/socle/conventions.md") and index($root + "/skills/dso/instructions.md"))
-  and (.instructions | index($root + "/skills/dev/instructions.md") | not)
+  (.instructions | index($root + "/socle/conventions.md"))
+  and (.instructions | index($root + "/skills/dso/instructions.md") | not)
   and (.skills.paths | index($root + "/skills/dso"))
   and (.agent["cpin-orchestrateur"].mode == "primary")
   and ([.agent["cpin-plan", "cpin-build", "cpin-review"].mode] | all(. == "subagent"))
@@ -26,8 +26,8 @@ opencode debug config | jq -e --arg root "$ROOT" '
 
 cd "$WORK/dev"
 opencode debug config | jq -e --arg root "$ROOT" '
-  (.instructions | index($root + "/skills/dev/instructions.md"))
-  and (.instructions | index($root + "/skills/dso/instructions.md") | not)
+  (.instructions | index($root + "/socle/conventions.md"))
+  and (.instructions | index($root + "/skills/dev/instructions.md") | not)
   and ([.agent["dev-verif-plan", "dev-review"].mode] | all(. == "subagent"))
   and (.agent["cpin-orchestrateur"] == null)
   and (.command.livrer.agent == "build")
