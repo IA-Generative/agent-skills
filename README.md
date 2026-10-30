@@ -21,6 +21,21 @@ rien : c'est l'agent qui lit les skills, pas le modèle.
 
 ---
 
+## Par où commencer : quel canal, pour qui
+
+| Vous êtes… | Installez | Détail |
+|---|---|---|
+| **Développeur·se sous Claude Code** | le bundle `mishell-base` (socle Fabrique Numérique), plus `mishell-skills` si vous voulez aussi les skills de ce dépôt | [marketplace](#installer-par-plugin-opencode-ou-marketplace-claude-code) |
+| **Équipe sécurité, homologation ou déploiement Cloud Pi Native** | `mishell-more` : audits, DAT, guides ANSSI, RGAA, skills DSO | [bundles](#skills-dautres-dépôts--les-bundles-mishell-base-et-mishell-more) |
+| **Développeur·se sous OpenCode** | le plugin OpenCode, avec `groups` et/ou `bundles` | [plugin OpenCode](#installer-par-plugin-opencode-ou-marketplace-claude-code) |
+| **Codex, Gemini CLI, Cursor, Copilot, Kimi, Deep Code** | `install.sh` (liens symboliques vers `~/.agents/skills`) | [une seule commande](#installer-ou-mettre-à-jour--une-seule-commande) |
+| **Contributeur·rice** | un clone puis `./install.sh` : votre clone devient la source des liens | [Ajouter une skill](#ajouter-ou-modifier-une-skill) |
+
+Quel que soit le canal, ce dépôt est **interne** à l'organisation GitHub IA-Generative : il faut en être
+membre et connecté à GitHub (`gh auth login`). Les sources tierces des bundles sont publiques.
+Une méthode de développement générique (TDD, débogage, revue) n'est **pas** dans ces bundles :
+voir [la section dédiée](#recommandé-en-complément--une-méthode-de-développement-de-base).
+
 ## Installer par plugin (OpenCode) ou marketplace (Claude Code)
 
 Deux agents savent charger ces skills **sans clone ni symlink** : OpenCode via son mécanisme
@@ -70,9 +85,66 @@ différent de `agent-skills`, réservé par Anthropic).
 > deux fois (`/repo-perimetre` et `/mishell-skills:repo-perimetre`). Si vous passez au plugin, retirez
 > les liens : `./install.sh --uninstall --target claude`.
 
+### Skills d'autres dépôts : les bundles `mishell-base` et `mishell-more`
+
+Deux **bundles** regroupent des skills de ce dépôt et de dépôts tiers. Rien de tiers n'est copié
+ici : `.claude-plugin/marketplace.json` référence chaque source (dépôt, **commit figé**, skill ou dossier
+de skills), et chaque agent la télécharge chez GitHub à l'installation. Les bundles sont des
+méta-plugins qui n'ont que des `dependencies`.
+
+| Bundle | Contenu |
+|---|---|
+| `mishell-base` | skills CI/CD et transverses Fabrique Numérique (`dnum-mi/fabnum-cicd`, `dnum-mi/transversal-doc`) |
+| `mishell-more` | groupes `audit` et `dat` de ce dépôt, `anssi-guides` et `rgaa` (`etalab-ia/skills`), skills DSO (`dnum-mi/starter-kit-opencode`) |
+
+```bash
+/plugin install mishell-base --marketplace IA-Generative/agent-skills   # Claude Code
+/plugin install mishell-more --marketplace IA-Generative/agent-skills   # facultatif
+```
+
+OpenCode : le plugin lit ce même `marketplace.json`. `"bundles": ["mishell-base"]` se place à côté
+de `groups` (sans `groups`, seules les skills des bundles sont chargées ; sans `groups` ni
+`bundles`, tous les groupes le sont comme avant).
+Une source dont une skill porte le nom d'une skill déjà exposée est ignorée avec un avertissement,
+car les noms sont à plat sous OpenCode.
+
+- Le premier démarrage télécharge les sources dans `~/.cache/agent-skills/` (git requis) ; une
+  source injoignable est ignorée sans empêcher le reste de charger.
+- Testé avec OpenCode 1.18 (`skills.paths`). La V2 range les skills dans un tableau `skills` : non vérifié.
+- Pour les seules skills DSO, OpenCode sait aussi les charger **sans ce plugin**, par son catalogue HTTP
+  natif, figé sur un commit (le dépôt publie son `index.json`) ; ne pas combiner avec `mishell-more` :
+  ```json
+  { "skills": { "urls": ["https://raw.githubusercontent.com/dnum-mi/starter-kit-opencode/d10ffaa9b78ded708ad9e5b3fd40bccc35afc344/.agents/skills/dso/"] } }
+  ```
+- `install.sh` n'installe **pas** ces sources : il ne gère que les skills de ce dépôt.
+- `mishell-base` suit deux branches de travail encore ouvertes (`fabnum-cicd`, `transversal-doc`) :
+  repointer vers `main` ou un tag à leur fusion (champ `sha` des entrées de `marketplace.json`).
+
 > Le `install.sh` ci-dessous reste le chemin universel (symlinks) pour les autres agents
 > (Codex, Gemini CLI, Cursor, Copilot, Kimi, Deep Code) et pour ceux qui préfèrent une
 > seule commande idempotente sur toutes les machines.
+
+### Recommandé en complément : une méthode de développement de base
+
+Les skills d'ici couvrent le cycle de vie des dépôts, l'audit et l'homologation. Elles ne remplacent pas
+une **méthode de développement** de base (cadrer, tester d'abord, déboguer, faire relire). Trois dépôts
+tiers, publics, la couvrent ; ils ne sont **pas** inclus dans les bundles (rien n'est copié ici, et ils
+évoluent vite). À installer vous-même, sous Claude Code :
+
+| Source | Ce que c'est | Installer |
+|---|---|---|
+| [`mattpocock/skills`](https://github.com/mattpocock/skills) | skills à la carte pour développeur·se : TDD, diagnostic de bug, revue de code, interrogation d'un plan (`grilling`), modélisation du domaine… | `claude plugin install mattpocock-skills@claude-plugins-official` |
+| [`obra/superpowers`](https://github.com/obra/superpowers) | une méthode complète en skills : brainstorming, plan d'implémentation, TDD, débogage systématique, revue, vérification avant de conclure | `/plugin install superpowers@claude-plugins-official` |
+| [`forrestchang/andrej-karpathy-skills`](https://github.com/forrestchang/andrej-karpathy-skills) | quatre principes courts tirés d'un post public d'Andrej Karpathy : réfléchir avant de coder, simplicité d'abord, changements chirurgicaux, exécution guidée par un objectif vérifiable. Dépôt **tiers**, pas de Karpathy lui-même | `/plugin marketplace add forrestchang/andrej-karpathy-skills` puis `/plugin install andrej-karpathy-skills@karpathy-skills` |
+
+**Notre recommandation :** choisissez **une seule** des deux premières. Elles couvrent le même terrain
+(TDD, débogage, revue) et se déclencheraient sur les mêmes demandes : `mattpocock/skills` si vous voulez
+choisir skill par skill, `superpowers` si vous voulez un enchaînement complet déjà posé. Les principes
+Karpathy tiennent en peu de texte et se tentent en plus de l'une ou l'autre. Cette recommandation vient de
+la lecture de leurs dépôts, pas d'un test comparatif ici : retours bienvenus.
+
+Pour les autres agents, suivre le README de chaque dépôt (il s'installe séparément pour chaque agent).
+Revue, licences et recoupements avec nos skills : [docs/sources-externes.md](docs/sources-externes.md).
 
 ---
 

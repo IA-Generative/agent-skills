@@ -19,7 +19,10 @@ hooks/<nom>.md          hooks Claude Code à coller dans un settings.json (non i
 docs/                   documentation du dépôt (sources externes reprises ou citées)
 install.sh              installe / met à jour : symlinks vers ~/.agents/skills et ~/.claude/skills
 plugin/agent-skills.js  plugin OpenCode : injecte les skills par groupe, sans clone ni symlink
-.claude-plugin/         marketplace Claude Code (skills embarquées)
+plugin/external.js      sources externes du plugin OpenCode : fetch d'un commit figé dans ~/.cache/agent-skills
+.claude-plugin/         marketplace Claude Code, ÉCRIT À LA MAIN : skills embarquées, sources d'autres dépôts
+                        (github / git-subdir épinglés par sha) et bundles (mishell-base, mishell-more) ; lu aussi par le plugin OpenCode
+tests/*.test.mjs        plugin OpenCode et marketplace : node --test tests/*.test.mjs
 opencode.jsonc          config OpenCode du dépôt (charge le plugin local)
 .github/                CI (./install.sh --check) et modèles d'issue
 ```
@@ -80,6 +83,7 @@ restent uniques à l'échelle de la machine (voir invariant 1).
 ## Vérifications avant de proposer une PR
 
 ```bash
+node --test tests/*.test.mjs        # plugin OpenCode, sources externes du marketplace épinglées par sha
 ./install.sh --check                # frontmatter conforme, name == dossier, description ≤ 1024
 ./install.sh --dry-run --offline    # liens attendus, sans rien changer
 git status --short                  # rien d'inattendu, pas de private/ ni de __pycache__
