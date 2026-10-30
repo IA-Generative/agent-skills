@@ -20,10 +20,18 @@ Toute contribution est attendue, de tout utilisateur, quel que soit son agent :
    dossier, et une `description` qui suffit seule à déclencher la skill.
 3. `./install.sh --check` doit passer (la CI le rejoue).
 4. Dans la description de la PR, dire **avec quel(s) agent(s)** la skill a été testée.
-5. Ne pas modifier `skills/controle-qualite-code/` ici : contribuer
+5. Ne pas modifier `skills/dev/controle-qualite-code/` ici : contribuer
    [en amont](https://github.com/etiquet/controle-qualite-code).
 
 ## Renommer une skill
 
-Renommez le dossier **et** le `name:`, mettez à jour le README, et mentionnez l'ancien
-nom dans la PR : `./install.sh` retire de lui-même les liens orphelins sur chaque machine.
+Les skills sont rangées dans un groupe (`skills/<groupe>/<skill>/`). Pour renommer :
+
+- renommez le dossier **et** le `name:` ;
+- régénérez le catalogue du groupe : `node scripts/skills-index.mjs` ;
+- mettez à jour le README et les éventuelles références croisées (`/ancien-nom`) ;
+- mentionnez l'ancien nom dans la PR : `./install.sh` retire de lui-même les liens
+  orphelins sur chaque machine.
+
+Un renommage ne doit jamais sortir de son groupe : c'est le préfixe qui protège contre
+les collisions entre groupes (voir `AGENTS.md`).

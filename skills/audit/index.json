@@ -1,0 +1,36 @@
+{
+  "skills": [
+    {
+      "name": "audit-pentest-prep",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "audit-rag",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "audit-redteam",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "audit-repo-ouverture",
+      "files": [
+        "SKILL.md",
+        "references/agents-et-mcp.md"
+      ]
+    },
+    {
+      "name": "audit-tool-owui",
+      "files": [
+        "SKILL.md",
+        "references/frontiere-action.md"
+      ]
+    }
+  ]
+}

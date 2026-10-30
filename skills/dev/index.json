@@ -1,0 +1,27 @@
+{
+  "skills": [
+    {
+      "name": "adr-new",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "bug-investigate",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "controle-qualite-code",
+      "files": [
+        "SKILL.md",
+        "UPSTREAM.md",
+        "references/checklist.md",
+        "references/evaluation-scenarios.md",
+        "references/hygiene-log-format.md",
+        "references/pr-template.md"
+      ]
+    }
+  ]
+}

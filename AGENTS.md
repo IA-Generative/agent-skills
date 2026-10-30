@@ -13,12 +13,24 @@ Le `README.md` s'adresse aux humains ; ce fichier énonce ce qu'il ne faut pas c
 ## Structure
 
 ```
-skills/<nom>/SKILL.md   une skill = un dossier ; le nom du DOSSIER est le nom de la skill
+skills/<groupe>/index.json       catalogue du groupe, GÉNÉRÉ : node scripts/skills-index.mjs
+skills/<groupe>/<skill>/SKILL.md une skill = un dossier ; le nom du DOSSIER est le nom de la skill
 hooks/<nom>.md          hooks Claude Code à coller dans un settings.json (non installés)
 docs/                   documentation du dépôt (sources externes reprises ou citées)
 install.sh              installe / met à jour : symlinks vers ~/.agents/skills et ~/.claude/skills
+plugin/agent-skills.js  plugin OpenCode : injecte les skills par groupe, sans clone ni symlink
+.claude-plugin/         marketplace Claude Code (skills embarquées)
+opencode.jsonc          config OpenCode du dépôt (charge le plugin local)
 .github/                CI (./install.sh --check) et modèles d'issue
 ```
+
+## Groupes
+
+Les skills sont rangées par **groupe** dans `skills/<groupe>/` : `dev`, `audit`, `repo`, `dat`,
+`mirai`. Chaque groupe porte un `index.json` (catalogue), **généré** par
+`node scripts/skills-index.mjs` et vérifié par la CI. Aucune consigne n'est injectée en
+session : une skill ne se charge que quand sa description correspond à la demande. Le groupe n'est **pas** un espace de nommage pour les agents — les noms de skills
+restent uniques à l'échelle de la machine (voir invariant 1).
 
 ## Invariants
 
@@ -32,13 +44,16 @@ install.sh              installe / met à jour : symlinks vers ~/.agents/skills 
    seule quoi et quand. `when_to_use`, `argument-hint`, `allowed-tools`,
    `disable-model-invocation` et `$ARGUMENTS` sont des extensions Claude Code, ignorées
    ailleurs — utiles, jamais suffisantes.
-3. **Préfixe de famille dans le nom** : `audit-*`, `dat-*`, `repo-*`… et **`mirai-*` pour
-   tout ce qui ne sert qu'aux projets MirAI**, afin qu'une skill spécifique ne se
-   déclenche pas sur la demande générique qui lui ressemble.
-4. **`skills/controle-qualite-code/` est une copie vendorée.** Ne jamais éditer `SKILL.md`
-   ni `references/` ici : l'amont est https://github.com/etiquet/controle-qualite-code et
-   la copie doit rester identique à l'octet près. Lire
-   [`skills/controle-qualite-code/UPSTREAM.md`](skills/controle-qualite-code/UPSTREAM.md).
+3. **Préfixe de famille dans le nom, rangement par groupe sur le disque.** Les skills sont
+   rangées dans `skills/<groupe>/` (`dev`, `audit`, `repo`, `dat`, `mirai`), mais le groupe
+   n'est pas un espace de noms pour les agents : le nom garde son préfixe (`audit-*`, `dat-*`,
+   `repo-*`…, et **`mirai-*` pour tout ce qui ne sert qu'aux projets MirAI**), afin qu'une
+   skill ne se déclenche pas sur la demande générique qui lui ressemble et n'entre pas en
+   collision avec une skill d'un autre catalogue (`impact`, `redteam`… sont trop communs).
+4. **`skills/dev/controle-qualite-code/` est une copie vendorée.** Ne jamais éditer
+   `SKILL.md` ni `references/` ici : l'amont est https://github.com/etiquet/controle-qualite-code
+   et la copie doit rester identique à l'octet près. Lire
+   [`skills/dev/controle-qualite-code/UPSTREAM.md`](skills/dev/controle-qualite-code/UPSTREAM.md).
 5. **Pas de secrets.** Ce dépôt est partagé. Aucune URL interne sensible, aucun token,
    aucun nom de personne dans un exemple. Les sorties des skills d'audit vont dans
    `private/`, qui est gitignoré.

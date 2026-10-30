@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "mishell",
+  "description": "Skills partagées IA-Generative, au format ouvert Agent Skills, pour tous les agents de code",
+  "owner": {
+    "name": "IA-Generative",
+    "url": "https://github.com/IA-Generative/agent-skills"
+  },
+  "plugins": [
+    {
+      "name": "mishell-skills",
+      "source": "./",
+      "description": "Skills réutilisables groupées par domaine : dev, audit, repo, dat, mirai",
+      "skills": [
+        "./skills/audit",
+        "./skills/repo",
+        "./skills/dat",
+        "./skills/mirai",
+        "./skills/dev"
+      ]
+    }
+  ]
+}

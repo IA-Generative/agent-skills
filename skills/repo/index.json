@@ -1,0 +1,49 @@
+{
+  "skills": [
+    {
+      "name": "repo-cicd-cpin",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml",
+        "references/composition.md",
+        "references/garde-fous.md",
+        "references/lecture-fabnum-cicd.md",
+        "references/prerequis-cpin.md",
+        "references/renovate.md",
+        "scripts/verif-appels.py"
+      ]
+    },
+    {
+      "name": "repo-impact",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "repo-init",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "repo-perimetre",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "repo-version-json",
+      "files": [
+        "SKILL.md",
+        "references/changelog.md",
+        "references/ci.md",
+        "references/dockerfile.md",
+        "references/mode-d-emploi.md",
+        "references/routes.md",
+        "scripts/verif-changelog.py",
+        "scripts/verif-version.sh",
+        "scripts/version_json.py"
+      ]
+    }
+  ]
+}
