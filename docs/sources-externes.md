@@ -47,7 +47,7 @@ d'externe à l'installation, l'adapter plutôt que le copier, et citer la source
 
 ## Méthodes de développement de base — recommandées, non reprises
 
-Citées dans le README (commandes d'installation sous Claude Code), pas vendorées, hors des bundles. Revues le 2026-10-30.
+Citées dans le README (installation sous Claude Code), pas vendorées, hors des bundles. Revues le 2026-10-30.
 
 | Dépôt | Commit | Licence | Contenu |
 |---|---|---|---|
@@ -60,3 +60,17 @@ Citées dans le README (commandes d'installation sous Claude Code), pas vendoré
   changement chirurgical » des principes Karpathy), `controle-qualite-code` (revue). Les nôtres restent
   ciblées sur nos conventions (lecture seule, `private/`, neutralité vis-à-vis de l'agent).
 - Karpathy, sans licence détectée : on recommande leur plugin, on ne recopie pas leur texte.
+
+### Installation sous OpenCode
+
+```bash
+# Karpathy (commande de skills.sh, non documentée par le dépôt ; copie la skill dans le projet)
+npx skills@latest add multica-ai/andrej-karpathy-skills -a opencode
+# mattpocock/skills (copie dans le projet ; cocher setup-matt-pocock-skills)
+npx skills@latest add mattpocock/skills -a opencode
+```
+
+```json
+// superpowers : opencode.json (OpenCode 1.x ; clé "plugins" en 2.x)
+{ "plugin": ["superpowers@git+https://github.com/obra/superpowers.git"] }
+```

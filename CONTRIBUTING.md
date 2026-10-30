@@ -9,7 +9,7 @@ Toute contribution est attendue, de tout utilisateur, quel que soit son agent :
 
 | Vous avez… | Faites |
 |---|---|
-| essayé une skill avec un autre agent que Claude Code | ouvrez une issue **« Retour de test »** (modèle fourni) : agent, version, skill, ce qui a marché ou non. Un « ça marche » est aussi utile qu'un « ça casse » : il fait avancer le tableau de compatibilité du README. |
+| essayé une skill avec un autre agent que Claude Code | ouvrez une issue **« Retour de test »** (modèle fourni) : agent, version, skill, ce qui a marché ou non. Un « ça marche » est aussi utile qu'un « ça casse » : il fait avancer le tableau de compatibilité ([docs/agents.md](docs/agents.md#compatibilité)). |
 | trouvé un bug, une consigne ambiguë, un déclenchement raté | une issue, avec la demande exacte que vous avez tapée |
 | un correctif ou une nouvelle skill | une PR (voir ci-dessous) |
 
