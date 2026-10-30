@@ -51,6 +51,8 @@ export function validateManifest(manifest, groups, handWrittenNames) {
   const pluginNames = Object.keys(manifest.plugins)
   const generatedNames = [...pluginNames, ...Object.keys(manifest.bundles), ...groups.map(groupPlugin)]
   return [
+    ...[...new Set(generatedNames.filter((name, index) => generatedNames.indexOf(name) !== index))]
+      .map(name => `${name} : nom généré plusieurs fois (plugin, bundle ou groupe)`),
     ...generatedNames.filter(name => handWrittenNames.includes(name)).map(name => `${name} : nom déjà pris par un plugin écrit à la main`),
     ...Object.entries(manifest.plugins).flatMap(([name, plugin]) => pluginErrors(name, plugin)),
     ...Object.entries(manifest.bundles).flatMap(([name, bundle]) => bundleErrors(name, bundle, pluginNames, groups)),

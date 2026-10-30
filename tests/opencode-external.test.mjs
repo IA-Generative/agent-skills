@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawn } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -31,6 +31,7 @@ before(() => {
   git(repo, 'config', 'uploadpack.allowAnySHA1InWant', 'true')
   writeSkill(repo, 'skills/lint', 'lint')
   writeSkill(repo, 'skills/format', 'format')
+  writeSkill(repo, '..odd', 'odd')
   git(repo, 'add', '.')
   git(repo, 'commit', '-q', '-m', 'init')
   sha = git(repo, 'rev-parse', 'HEAD')
@@ -63,6 +64,29 @@ test('a skillsDir plugin exposes the whole directory of the pinned commit', () =
 test('a skill plugin exposes only that skill, not its siblings', () => {
   const dir = stagePlugin('acme-lint', { repo: 'acme/kit', sha, skill: 'skills/lint' }, options())
   assert.deepEqual(skillNames(dir), ['lint'])
+})
+
+test('a skill directory whose name starts with two dots is not mistaken for a path escape', () => {
+  const dir = stagePlugin('acme-odd', { repo: 'acme/kit', sha, skill: '..odd' }, options())
+  assert.deepEqual(skillNames(dir), ['..odd'])
+})
+
+test('a path escaping the repository is refused', () => {
+  assert.throws(() => stagePlugin('evil', { repo: 'acme/kit', sha, skillsDir: '../outside' }, options()), /hors du dépôt/)
+})
+
+test('two processes filling the same cache at once both succeed', async () => {
+  const cacheDir = join(workDir, 'race-cache')
+  const script = `import { stagePlugin } from ${JSON.stringify(new URL('../plugin/external.js', import.meta.url).href)}
+    stagePlugin('acme-lint', { repo: 'acme/kit', sha: ${JSON.stringify(sha)}, skill: 'skills/lint' }, { cacheDir: ${JSON.stringify(cacheDir)}, gitBase: ${JSON.stringify(gitBase)} })`
+  const run = () => new Promise((resolve) => {
+    const child = spawn(process.execPath, ['--input-type=module', '-e', script], { stdio: 'pipe' })
+    let stderr = ''
+    child.stderr.on('data', chunk => (stderr += chunk))
+    child.on('close', code => resolve({ code, stderr }))
+  })
+  const results = await Promise.all([run(), run(), run()])
+  assert.deepEqual(results.map(result => result.code), [0, 0, 0], results.map(result => result.stderr).join('\n'))
 })
 
 test('a pinned commit already in the cache is not fetched again', () => {
@@ -105,6 +129,13 @@ test('with bundles and no explicit groups, only the groups of the bundles are ex
   assert.equal(config.skills.paths.length, 1)
   assert.ok(config.skills.paths[0].endsWith(join('skills', 'audit')))
   assert.ok(existsSync(config.skills.paths[0]))
+})
+
+test('explicit groups and bundles are combined', async () => {
+  const config = {}
+  const manifest = { plugins: {}, bundles: { only: { description: '', plugins: [], groups: ['audit'] } } }
+  await (await AgentSkillsPlugin({}, { groups: ['dat'], bundles: ['only'], manifest })).config(config)
+  assert.deepEqual(config.skills.paths.map(dir => dir.split(/[\\/]/).pop()), ['dat', 'audit'])
 })
 
 test('an unknown bundle name is rejected', async () => {

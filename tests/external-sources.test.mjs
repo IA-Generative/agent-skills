@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { test } from 'node:test'
 import { buildEntries, GENERATED_MARK, mergeMarketplace, validateManifest } from '../scripts/external-sources.mjs'
 
@@ -100,6 +103,15 @@ test('rejects a name already used by a hand-written plugin', () => {
   assert.match(validateManifest(manifest(), ['audit', 'dat'], ['acme-lint']).join('\n'), /acme-lint.*déjà/)
 })
 
+test('rejects generated names that collide with each other', () => {
+  const pluginAndBundle = manifest()
+  pluginAndBundle.bundles['acme-lint'] = pluginAndBundle.bundles['team-base']
+  const pluginAndGroup = manifest()
+  pluginAndGroup.plugins['mishell-audit'] = pluginAndGroup.plugins['acme-lint']
+  assert.match(validateManifest(pluginAndBundle, ['audit', 'dat'], []).join('\n'), /acme-lint.*plusieurs fois/)
+  assert.match(validateManifest(pluginAndGroup, ['audit', 'dat'], []).join('\n'), /mishell-audit.*plusieurs fois/)
+})
+
 test('rejects a path that escapes the repository', () => {
   const bad = manifest()
   bad.plugins['acme-lint'].skill = '../outside'
@@ -110,4 +122,24 @@ test('the committed manifest is valid against the repository groups', () => {
   const manifestFile = JSON.parse(readFileSync(new URL('../external-sources.json', import.meta.url), 'utf8'))
   const groups = ['dev', 'audit', 'repo', 'dat', 'mirai']
   assert.deepEqual(validateManifest(manifestFile, groups, ['mishell-skills']), [])
+})
+
+test('--check fails when the marketplace is stale and passes once regenerated', () => {
+  const repoRoot = new URL('..', import.meta.url).pathname
+  const cwd = mkdtempSync(join(tmpdir(), 'external-check-'))
+  try {
+    cpSync(join(repoRoot, 'skills'), join(cwd, 'skills'), { recursive: true })
+    mkdirSync(join(cwd, '.claude-plugin'))
+    writeFileSync(join(cwd, 'external-sources.json'), readFileSync(join(repoRoot, 'external-sources.json')))
+    writeFileSync(join(cwd, '.claude-plugin', 'marketplace.json'), JSON.stringify({ name: 'mk', plugins: [] }))
+    const run = (...args) => spawnSync(process.execPath, [join(repoRoot, 'scripts', 'external-sources.mjs'), ...args], { cwd, encoding: 'utf8' })
+    const stale = run('--check')
+    assert.equal(stale.status, 1)
+    assert.match(stale.stderr, /périmé/)
+    assert.equal(run().status, 0)
+    assert.equal(run('--check').status, 0)
+  }
+  finally {
+    rmSync(cwd, { recursive: true, force: true })
+  }
 })

@@ -10,6 +10,8 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+// Standalone on purpose: the plugin is installed from a git URL and cannot import from scripts/. The patterns
+// below mirror the ones scripts/external-sources.mjs validates the manifest with; keep both in sync.
 const MANIFEST_FILE = 'external-sources.json'
 const GIT_BASE = 'https://github.com/'
 const GIT_TIMEOUT_MS = 120_000
@@ -61,18 +63,30 @@ function fetchCommit({ repo, sha }, cacheDir, gitBase) {
     git(['init', '-q'], partial)
     git(['fetch', '-q', '--depth', '1', `${gitBase}${repo}`, sha], partial)
     git(['checkout', '-q', 'FETCH_HEAD'], partial)
-    fs.renameSync(partial, dir)
+    publish(partial, dir)
   }
-  catch (error) {
+  finally {
     fs.rmSync(partial, { recursive: true, force: true })
-    throw error
   }
   return dir
 }
 
+// Moves a fully built directory into place. Another process may have published the same one first:
+// that is a success, since a published directory is always complete.
+function publish(partial, dir) {
+  try {
+    fs.renameSync(partial, dir)
+  }
+  catch (error) {
+    if (!fs.existsSync(dir))
+      throw error
+  }
+}
+
 function insideOf(root, relativePath) {
   const resolved = path.resolve(root, relativePath)
-  if (path.relative(root, resolved).startsWith('..'))
+  const relative = path.relative(root, resolved)
+  if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative))
     throw new Error(`chemin hors du dépôt : ${relativePath}`)
   if (!fs.existsSync(resolved))
     throw new Error(`chemin absent du commit : ${relativePath}`)
@@ -91,8 +105,13 @@ export function stagePlugin(name, plugin, { cacheDir = defaultCacheDir(), gitBas
     return staged
   const partial = `${staged}.partial-${process.pid}`
   fs.rmSync(partial, { recursive: true, force: true })
-  fs.cpSync(source, path.join(partial, path.basename(source)), { recursive: true })
-  fs.renameSync(partial, staged)
+  try {
+    fs.cpSync(source, path.join(partial, path.basename(source)), { recursive: true })
+    publish(partial, staged)
+  }
+  finally {
+    fs.rmSync(partial, { recursive: true, force: true })
+  }
   return staged
 }
 
