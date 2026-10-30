@@ -44,26 +44,6 @@
       ]
     },
     {
-      "name": "pocock-code-review",
-      "description": "Skill code-review de Matt Pocock (mattpocock/skills)",
-      "source": {
-        "source": "git-subdir",
-        "url": "mattpocock/skills",
-        "path": "skills/engineering/code-review",
-        "sha": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
-      }
-    },
-    {
-      "name": "pocock-grill-with-docs",
-      "description": "Skill grill-with-docs de Matt Pocock (mattpocock/skills)",
-      "source": {
-        "source": "git-subdir",
-        "url": "mattpocock/skills",
-        "path": "skills/engineering/grill-with-docs",
-        "sha": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
-      }
-    },
-    {
       "name": "etalab-anssi-guides",
       "description": "Guides ANSSI (etalab-ia/skills)",
       "source": {
@@ -114,13 +94,11 @@
     {
       "name": "mishell-base",
       "source": "./",
-      "description": "Base du développeur : skills CI/CD et transverses Fabrique Numérique, code-review et grill-with-docs de Matt Pocock",
+      "description": "Base du développeur : skills CI/CD et transverses Fabrique Numérique",
       "skills": [],
       "dependencies": [
         "fabnum-cicd-skills",
-        "fabnum-transversal-skills",
-        "pocock-code-review",
-        "pocock-grill-with-docs"
+        "fabnum-transversal-skills"
       ]
     },
     {

@@ -79,7 +79,7 @@ méta-plugins qui n'ont que des `dependencies`.
 
 | Bundle | Contenu |
 |---|---|
-| `mishell-base` | skills CI/CD et transverses Fabrique Numérique (`dnum-mi/fabnum-cicd`, `dnum-mi/transversal-doc`), `code-review` et `grill-with-docs` de `mattpocock/skills` |
+| `mishell-base` | skills CI/CD et transverses Fabrique Numérique (`dnum-mi/fabnum-cicd`, `dnum-mi/transversal-doc`) |
 | `mishell-more` | groupes `audit` et `dat` de ce dépôt, `anssi-guides` et `rgaa` (`etalab-ia/skills`), skills DSO (`dnum-mi/starter-kit-opencode`) |
 
 ```bash

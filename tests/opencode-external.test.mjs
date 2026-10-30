@@ -95,7 +95,7 @@ test('the committed bundles resolve to the expected sources', () => {
   const committed = JSON.parse(readFileSync(join(REPO_ROOT, '.claude-plugin', 'marketplace.json'), 'utf8'))
   const base = bundleSelection(committed, ['mishell-base'], REPO_ROOT)
   const more = bundleSelection(committed, ['mishell-more'], REPO_ROOT)
-  assert.deepEqual([base.localDirs.length, base.plugins.length], [0, 4])
+  assert.deepEqual([base.localDirs.length, base.plugins.length], [0, 2])
   assert.deepEqual(more.localDirs.map(dir => dir.split(/[\\/]/).pop()), ['audit', 'dat'])
   assert.equal(more.plugins.length, 3)
 })
