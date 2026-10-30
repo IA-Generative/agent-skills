@@ -16,6 +16,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { addExternalPlugins, bundleSelection, readManifest, skillNames } from './external.js'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SKILLS_DIR = path.join(ROOT, 'skills')
@@ -26,11 +27,19 @@ function addUnique(list, value) {
     list.push(value)
 }
 
-function installGroup(config, group) {
+function installGroup(config, group, seenNames) {
   const dir = path.join(SKILLS_DIR, group)
   if (!fs.existsSync(path.join(dir, 'index.json')))
     throw new Error(`agent-skills : groupe inconnu '${group}' (attendu : ${ALL_GROUPS.join(', ')})`)
   addUnique(config.skills.paths, dir)
+  skillNames(dir).forEach(skill => seenNames.add(skill))
+}
+
+function requireList(options, key, example) {
+  const value = options[key] ?? []
+  if (!Array.isArray(value))
+    throw new Error(`agent-skills : "${key}" doit être une liste, par exemple ${example} (reçu : ${JSON.stringify(value)})`)
+  return value
 }
 
 export const AgentSkillsPlugin = async (_input, options = {}) => ({
@@ -39,10 +48,16 @@ export const AgentSkillsPlugin = async (_input, options = {}) => ({
       return
     config.skills ??= {}
     config.skills.paths ??= []
-    const groups = options.groups ?? ALL_GROUPS
-    if (!Array.isArray(groups))
-      throw new Error(`agent-skills : "groups" doit être une liste, par exemple ["dev", "repo"] (reçu : ${JSON.stringify(groups)})`)
+    const bundles = requireList(options, 'bundles', '["mishell-base"]')
+    const explicitGroups = options.groups === undefined ? undefined : requireList(options, 'groups', '["dev", "repo"]')
+    // Without "groups", every group is exposed, unless bundles are asked for: then only their groups are.
+    const selection = bundles.length > 0
+      ? bundleSelection(options.manifest ?? readManifest(ROOT), bundles)
+      : { groups: [], plugins: [] }
+    const groups = new Set([...(explicitGroups ?? (bundles.length > 0 ? [] : ALL_GROUPS)), ...selection.groups])
+    const seenNames = new Set()
     for (const group of groups)
-      installGroup(config, group)
+      installGroup(config, group, seenNames)
+    addExternalPlugins(config, selection.plugins, { cacheDir: options.cacheDir, gitBase: options.gitBase }, seenNames)
   },
 })

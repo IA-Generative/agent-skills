@@ -70,6 +70,34 @@ différent de `agent-skills`, réservé par Anthropic).
 > deux fois (`/repo-perimetre` et `/mishell-skills:repo-perimetre`). Si vous passez au plugin, retirez
 > les liens : `./install.sh --uninstall --target claude`.
 
+### Skills d'autres dépôts : les bundles `mishell-base` et `mishell-more`
+
+Deux **bundles** regroupent des skills de ce dépôt et de dépôts tiers. Rien de tiers n'est copié
+ici : `external-sources.json` liste chaque source (dépôt, **commit figé**, skill ou dossier de
+skills), et chaque agent la télécharge chez GitHub à l'installation.
+
+| Bundle | Contenu |
+|---|---|
+| `mishell-base` | skills CI/CD et transverses Fabrique Numérique (`dnum-mi/fabnum-cicd`, `dnum-mi/transversal-doc`), `code-review` et `grill-with-docs` de `mattpocock/skills` |
+| `mishell-more` | groupes `audit` et `dat` de ce dépôt, `anssi-guides` et `rgaa` (`etalab-ia/skills`), skills DSO (`dnum-mi/starter-kit-opencode`) |
+
+```bash
+/plugin install mishell-base --marketplace IA-Generative/agent-skills   # Claude Code
+/plugin install mishell-more --marketplace IA-Generative/agent-skills   # facultatif
+```
+
+OpenCode : `"bundles": ["mishell-base"]` à côté de `groups` (sans `groups`, seuls les groupes des
+bundles sont chargés ; sans `groups` ni `bundles`, tous les groupes le sont comme avant).
+Une source dont une skill porte le nom d'une skill déjà exposée est ignorée avec un avertissement,
+car les noms sont à plat sous OpenCode.
+
+- Le premier démarrage télécharge les sources dans `~/.cache/agent-skills/` (git requis) ; une
+  source injoignable est ignorée sans empêcher le reste de charger.
+- `install.sh` n'installe **pas** ces sources : il ne gère que les skills de ce dépôt.
+- `mishell-base` suit deux branches de travail encore ouvertes (`fabnum-cicd`, `transversal-doc`) :
+  repointer vers `main` ou un tag à leur fusion (`external-sources.json`, puis
+  `node scripts/external-sources.mjs`).
+
 > Le `install.sh` ci-dessous reste le chemin universel (symlinks) pour les autres agents
 > (Codex, Gemini CLI, Cursor, Copilot, Kimi, Deep Code) et pour ceux qui préfèrent une
 > seule commande idempotente sur toutes les machines.

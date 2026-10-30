@@ -1,0 +1,58 @@
+{
+  "plugins": {
+    "fabnum-cicd-skills": {
+      "description": "Skills CI/CD Fabrique Numérique (dnum-mi/fabnum-cicd)",
+      "repo": "dnum-mi/fabnum-cicd",
+      "sha": "a8a75a378a3e6ef70a51081bc6d4c07da229ac69",
+      "skillsDir": "skills"
+    },
+    "fabnum-transversal-skills": {
+      "description": "Skills transverses Fabrique Numérique : conventions, stack, API REST, déploiement (dnum-mi/transversal-doc)",
+      "repo": "dnum-mi/transversal-doc",
+      "sha": "6a6970e4b9ce20ce9fd9cbce884cc01a3557357e",
+      "skillsDir": ".agents/skills"
+    },
+    "pocock-code-review": {
+      "description": "Skill code-review de Matt Pocock (mattpocock/skills)",
+      "repo": "mattpocock/skills",
+      "sha": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa",
+      "skill": "skills/engineering/code-review"
+    },
+    "pocock-grill-with-docs": {
+      "description": "Skill grill-with-docs de Matt Pocock (mattpocock/skills)",
+      "repo": "mattpocock/skills",
+      "sha": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa",
+      "skill": "skills/engineering/grill-with-docs"
+    },
+    "etalab-anssi-guides": {
+      "description": "Guides ANSSI (etalab-ia/skills)",
+      "repo": "etalab-ia/skills",
+      "sha": "f7a8cff8e205131f5ccf2ff8e3986c9c271c9689",
+      "skill": "skills/anssi-guides"
+    },
+    "etalab-rgaa": {
+      "description": "Référentiel RGAA d'accessibilité (etalab-ia/skills)",
+      "repo": "etalab-ia/skills",
+      "sha": "f7a8cff8e205131f5ccf2ff8e3986c9c271c9689",
+      "skill": "skills/rgaa"
+    },
+    "starter-dso-skills": {
+      "description": "Skills DSO / Cloud Pi Native du starter-kit (dnum-mi/starter-kit-opencode)",
+      "repo": "dnum-mi/starter-kit-opencode",
+      "sha": "d10ffaa9b78ded708ad9e5b3fd40bccc35afc344",
+      "skillsDir": ".agents/skills/dso"
+    }
+  },
+  "bundles": {
+    "mishell-base": {
+      "description": "Base du développeur : skills CI/CD et transverses Fabrique Numérique, code-review et grill-with-docs de Matt Pocock",
+      "plugins": ["fabnum-cicd-skills", "fabnum-transversal-skills", "pocock-code-review", "pocock-grill-with-docs"],
+      "groups": []
+    },
+    "mishell-more": {
+      "description": "Compléments : audit et DAT de ce dépôt, guides ANSSI, RGAA, skills DSO",
+      "plugins": ["etalab-anssi-guides", "etalab-rgaa", "starter-dso-skills"],
+      "groups": ["audit", "dat"]
+    }
+  }
+}

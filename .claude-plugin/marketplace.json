@@ -18,6 +18,156 @@
         "./skills/mirai",
         "./skills/dev"
       ]
+    },
+    {
+      "name": "fabnum-cicd-skills",
+      "description": "Skills CI/CD Fabrique Numérique (dnum-mi/fabnum-cicd)",
+      "source": {
+        "source": "github",
+        "repo": "dnum-mi/fabnum-cicd",
+        "sha": "a8a75a378a3e6ef70a51081bc6d4c07da229ac69"
+      },
+      "skills": [
+        "./skills"
+      ],
+      "metadata": {
+        "generatedBy": "scripts/external-sources.mjs"
+      }
+    },
+    {
+      "name": "fabnum-transversal-skills",
+      "description": "Skills transverses Fabrique Numérique : conventions, stack, API REST, déploiement (dnum-mi/transversal-doc)",
+      "source": {
+        "source": "github",
+        "repo": "dnum-mi/transversal-doc",
+        "sha": "6a6970e4b9ce20ce9fd9cbce884cc01a3557357e"
+      },
+      "skills": [
+        "./.agents/skills"
+      ],
+      "metadata": {
+        "generatedBy": "scripts/external-sources.mjs"
+      }
+    },
+    {
+      "name": "pocock-code-review",
+      "description": "Skill code-review de Matt Pocock (mattpocock/skills)",
+      "source": {
+        "source": "git-subdir",
+        "url": "mattpocock/skills",
+        "path": "skills/engineering/code-review",
+        "sha": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+      },
+      "metadata": {
+        "generatedBy": "scripts/external-sources.mjs"
+      }
+    },
+    {
+      "name": "pocock-grill-with-docs",
+      "description": "Skill grill-with-docs de Matt Pocock (mattpocock/skills)",
+      "source": {
+        "source": "git-subdir",
+        "url": "mattpocock/skills",
+        "path": "skills/engineering/grill-with-docs",
+        "sha": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+      },
+      "metadata": {
+        "generatedBy": "scripts/external-sources.mjs"
+      }
+    },
+    {
+      "name": "etalab-anssi-guides",
+      "description": "Guides ANSSI (etalab-ia/skills)",
+      "source": {
+        "source": "git-subdir",
+        "url": "etalab-ia/skills",
+        "path": "skills/anssi-guides",
+        "sha": "f7a8cff8e205131f5ccf2ff8e3986c9c271c9689"
+      },
+      "metadata": {
+        "generatedBy": "scripts/external-sources.mjs"
+      }
+    },
+    {
+      "name": "etalab-rgaa",
+      "description": "Référentiel RGAA d'accessibilité (etalab-ia/skills)",
+      "source": {
+        "source": "git-subdir",
+        "url": "etalab-ia/skills",
+        "path": "skills/rgaa",
+        "sha": "f7a8cff8e205131f5ccf2ff8e3986c9c271c9689"
+      },
+      "metadata": {
+        "generatedBy": "scripts/external-sources.mjs"
+      }
+    },
+    {
+      "name": "starter-dso-skills",
+      "description": "Skills DSO / Cloud Pi Native du starter-kit (dnum-mi/starter-kit-opencode)",
+      "source": {
+        "source": "github",
+        "repo": "dnum-mi/starter-kit-opencode",
+        "sha": "d10ffaa9b78ded708ad9e5b3fd40bccc35afc344"
+      },
+      "skills": [
+        "./.agents/skills/dso"
+      ],
+      "metadata": {
+        "generatedBy": "scripts/external-sources.mjs"
+      }
+    },
+    {
+      "name": "mishell-audit",
+      "source": "./",
+      "description": "Skills du groupe audit de ce dépôt",
+      "skills": [
+        "./skills/audit"
+      ],
+      "metadata": {
+        "generatedBy": "scripts/external-sources.mjs"
+      }
+    },
+    {
+      "name": "mishell-dat",
+      "source": "./",
+      "description": "Skills du groupe dat de ce dépôt",
+      "skills": [
+        "./skills/dat"
+      ],
+      "metadata": {
+        "generatedBy": "scripts/external-sources.mjs"
+      }
+    },
+    {
+      "name": "mishell-base",
+      "source": "./",
+      "description": "Base du développeur : skills CI/CD et transverses Fabrique Numérique, code-review et grill-with-docs de Matt Pocock",
+      "skills": [],
+      "dependencies": [
+        "fabnum-cicd-skills",
+        "fabnum-transversal-skills",
+        "pocock-code-review",
+        "pocock-grill-with-docs"
+      ],
+      "metadata": {
+        "generatedBy": "scripts/external-sources.mjs"
+      }
+    },
+    {
+      "name": "mishell-more",
+      "source": "./",
+      "description": "Compléments : audit et DAT de ce dépôt, guides ANSSI, RGAA, skills DSO",
+      "skills": [],
+      "dependencies": [
+        "etalab-anssi-guides",
+        "etalab-rgaa",
+        "starter-dso-skills",
+        "mishell-audit",
+        "mishell-dat"
+      ],
+      "metadata": {
+        "generatedBy": "scripts/external-sources.mjs"
+      }
     }
   ]
 }
