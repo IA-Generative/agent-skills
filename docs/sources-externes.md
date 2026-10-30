@@ -47,24 +47,16 @@ d'externe à l'installation, l'adapter plutôt que le copier, et citer la source
 
 ## Méthodes de développement de base — recommandées, non reprises
 
-Trois dépôts tiers couvrent la méthode de développement générique que ce dépôt ne fournit pas. Ils sont
-**cités**, pas vendorés, et hors des bundles `mishell-base` / `mishell-more` (le README donne les
-commandes d'installation sous Claude Code). Revus le 2026-10-30.
+Citées dans le README (commandes d'installation sous Claude Code), pas vendorées, hors des bundles. Revues le 2026-10-30.
 
-| Dépôt | Revu au commit | Licence | Contenu |
+| Dépôt | Commit | Licence | Contenu |
 |---|---|---|---|
-| `mattpocock/skills` | `a496f55` | MIT | skills à la carte (TDD, diagnostic de bug, revue, `grilling`, modélisation du domaine, prototype, recherche…) |
-| `obra/superpowers` | `2ce8aa1` | MIT | méthode complète : brainstorming, plan, exécution, TDD, débogage systématique, revue, vérification |
-| `forrestchang/andrej-karpathy-skills` | `2c60614` | **aucune détectée** | quatre principes d'après un post de Karpathy ; l'auteur du dépôt n'est pas Karpathy |
+| `mattpocock/skills` | `a496f55` | MIT | skills à la carte : TDD, diagnostic de bug, revue, `grilling`, modélisation du domaine… |
+| `obra/superpowers` | `2ce8aa1` | MIT | méthode complète : brainstorming, plan, TDD, débogage systématique, revue, vérification |
+| `multica-ai/andrej-karpathy-skills` | `2c60614` | aucune détectée | une skill, `karpathy-guidelines` : quatre principes d'après un post de Karpathy (le dépôt n'est pas de lui) |
 
-- **Pas de double installation** : `mattpocock/skills` et `superpowers` se recoupent (TDD, débogage, revue) ; en
-  prendre une. Le README de `mattpocock/skills` prévient déjà que deux canaux pour la même source
-  doublent les skills.
-- **Recoupements avec nos skills** : `bug-investigate` (hypothèses puis test rouge) touche au
-  débogage de ces deux dépôts ; `repo-perimetre` reprend l'esprit « simplicité d'abord, changement chirurgical »
-  des principes Karpathy ; `controle-qualite-code` recoupe les skills de revue. Les nôtres restent
+- `mattpocock/skills` et `superpowers` se recoupent : en prendre une seule.
+- Recoupements avec nos skills : `bug-investigate` (débogage), `repo-perimetre` (esprit « simplicité d'abord,
+  changement chirurgical » des principes Karpathy), `controle-qualite-code` (revue). Les nôtres restent
   ciblées sur nos conventions (lecture seule, `private/`, neutralité vis-à-vis de l'agent).
-- **Karpathy : pas de licence détectée.** On recommande d'installer leur plugin, on ne recopie pas leur
-  texte ici sans accord de l'auteur du dépôt.
-- Avant d'en recommander un autre : lire tout le `SKILL.md`, vérifier qu'il ne lance rien d'externe à
-  l'installation, et citer la source et le commit.
+- Karpathy, sans licence détectée : on recommande leur plugin, on ne recopie pas leur texte.

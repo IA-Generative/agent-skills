@@ -21,22 +21,45 @@ rien : c'est l'agent qui lit les skills, pas le modèle.
 
 ---
 
-## Par où commencer : quel canal, pour qui
+## Installer en bref
 
-| Vous êtes… | Installez | Détail |
+Ce dépôt est **interne** à l'organisation GitHub IA-Generative : il faut en être membre et connecté
+(`gh auth login`). Choisissez votre agent :
+
+**Claude Code** — enregistrer la marketplace une fois, puis installer ce qu'il vous faut :
+
+```bash
+claude plugin marketplace add IA-Generative/agent-skills
+claude plugin install mishell-base@mishell     # développeur·se : socle Fabrique Numérique
+claude plugin install mishell-more@mishell     # sécurité, homologation, Cloud Pi Native (facultatif)
+claude plugin install mishell-skills@mishell   # toutes les skills de ce dépôt (facultatif)
+```
+
+**OpenCode** — dans `opencode.json` (`bundles` accepte `mishell-base`, `mishell-more`) :
+
+```json
+{ "plugin": [["agent-skills@git+https://github.com/IA-Generative/agent-skills.git",
+              { "bundles": ["mishell-base"] }]] }
+```
+
+**Codex, Gemini CLI, Cursor, Copilot, Kimi, Deep Code** — `install.sh` (macOS / Linux ; Windows plus bas) :
+
+```bash
+gh api repos/IA-Generative/agent-skills/contents/install.sh -H "Accept: application/vnd.github.raw" | bash
+```
+
+| Bundle | Pour qui | Contenu |
 |---|---|---|
-| **Développeur·se sous Claude Code** | le bundle `mishell-base` (socle Fabrique Numérique), plus `mishell-skills` si vous voulez aussi les skills de ce dépôt | [marketplace](#installer-par-plugin-opencode-ou-marketplace-claude-code) |
-| **Équipe sécurité, homologation ou déploiement Cloud Pi Native** | `mishell-more` : audits, DAT, guides ANSSI, RGAA, skills DSO | [bundles](#skills-dautres-dépôts--les-bundles-mishell-base-et-mishell-more) |
-| **Développeur·se sous OpenCode** | le plugin OpenCode, avec `groups` et/ou `bundles` | [plugin OpenCode](#installer-par-plugin-opencode-ou-marketplace-claude-code) |
-| **Codex, Gemini CLI, Cursor, Copilot, Kimi, Deep Code** | `install.sh` (liens symboliques vers `~/.agents/skills`) | [une seule commande](#installer-ou-mettre-à-jour--une-seule-commande) |
-| **Contributeur·rice** | un clone puis `./install.sh` : votre clone devient la source des liens | [Ajouter une skill](#ajouter-ou-modifier-une-skill) |
+| `mishell-base` | tout·e développeur·se | skills CI/CD et transverses Fabrique Numérique |
+| `mishell-more` | sécurité, homologation, déploiement CPiN | audits et DAT de ce dépôt, ANSSI, RGAA, DSO |
+| `mishell-skills` | l'équipe IA-Generative | les 5 groupes de ce dépôt, dont MirAI |
 
-Quel que soit le canal, ce dépôt est **interne** à l'organisation GitHub IA-Generative : il faut en être
-membre et connecté à GitHub (`gh auth login`). Les sources tierces des bundles sont publiques.
-Une méthode de développement générique (TDD, débogage, revue) n'est **pas** dans ces bundles :
-voir [la section dédiée](#recommandé-en-complément--une-méthode-de-développement-de-base).
+Contributeur·rice : un clone puis `./install.sh`. Une méthode de développement générique (TDD,
+débogage, revue) n'est pas dans ces bundles : [voir plus bas](#recommandé-en-complément--une-méthode-de-développement-de-base).
 
-## Installer par plugin (OpenCode) ou marketplace (Claude Code)
+---
+
+## Détails : plugin OpenCode et marketplace Claude Code
 
 Deux agents savent charger ces skills **sans clone ni symlink** : OpenCode via son mécanisme
 de plugin, Claude Code via sa marketplace.
@@ -92,15 +115,7 @@ ici : `.claude-plugin/marketplace.json` référence chaque source (dépôt, **co
 de skills), et chaque agent la télécharge chez GitHub à l'installation. Les bundles sont des
 méta-plugins qui n'ont que des `dependencies`.
 
-| Bundle | Contenu |
-|---|---|
-| `mishell-base` | skills CI/CD et transverses Fabrique Numérique (`dnum-mi/fabnum-cicd`, `dnum-mi/transversal-doc`) |
-| `mishell-more` | groupes `audit` et `dat` de ce dépôt, `anssi-guides` et `rgaa` (`etalab-ia/skills`), skills DSO (`dnum-mi/starter-kit-opencode`) |
-
-```bash
-/plugin install mishell-base --marketplace IA-Generative/agent-skills   # Claude Code
-/plugin install mishell-more --marketplace IA-Generative/agent-skills   # facultatif
-```
+Installation : voir [Installer en bref](#installer-en-bref).
 
 OpenCode : le plugin lit ce même `marketplace.json`. `"bundles": ["mishell-base"]` se place à côté
 de `groups` (sans `groups`, seules les skills des bundles sont chargées ; sans `groups` ni
@@ -126,25 +141,21 @@ car les noms sont à plat sous OpenCode.
 
 ### Recommandé en complément : une méthode de développement de base
 
-Les skills d'ici couvrent le cycle de vie des dépôts, l'audit et l'homologation. Elles ne remplacent pas
-une **méthode de développement** de base (cadrer, tester d'abord, déboguer, faire relire). Trois dépôts
-tiers, publics, la couvrent ; ils ne sont **pas** inclus dans les bundles (rien n'est copié ici, et ils
-évoluent vite). À installer vous-même, sous Claude Code :
+Ces skills ne remplacent pas une méthode de développement (cadrer, tester d'abord, déboguer, relire).
+Trois dépôts tiers publics la couvrent ; ils ne sont **pas** dans les bundles. Sous Claude Code, prenez
+**une seule** des deux premières (elles se recoupent : TDD, débogage, revue) :
 
-| Source | Ce que c'est | Installer |
-|---|---|---|
-| [`mattpocock/skills`](https://github.com/mattpocock/skills) | skills à la carte pour développeur·se : TDD, diagnostic de bug, revue de code, interrogation d'un plan (`grilling`), modélisation du domaine… | `claude plugin install mattpocock-skills@claude-plugins-official` |
-| [`obra/superpowers`](https://github.com/obra/superpowers) | une méthode complète en skills : brainstorming, plan d'implémentation, TDD, débogage systématique, revue, vérification avant de conclure | `/plugin install superpowers@claude-plugins-official` |
-| [`forrestchang/andrej-karpathy-skills`](https://github.com/forrestchang/andrej-karpathy-skills) | quatre principes courts tirés d'un post public d'Andrej Karpathy : réfléchir avant de coder, simplicité d'abord, changements chirurgicaux, exécution guidée par un objectif vérifiable. Dépôt **tiers**, pas de Karpathy lui-même | `/plugin marketplace add forrestchang/andrej-karpathy-skills` puis `/plugin install andrej-karpathy-skills@karpathy-skills` |
+- [`mattpocock/skills`](https://github.com/mattpocock/skills) — skills à la carte.
+  `claude plugin install mattpocock-skills@claude-plugins-official`
+- [`obra/superpowers`](https://github.com/obra/superpowers) — méthode complète, déjà enchaînée.
+  `claude plugin install superpowers@claude-plugins-official`
+- En option, [`multica-ai/andrej-karpathy-skills`](https://github.com/multica-ai/andrej-karpathy-skills) —
+  quatre principes courts d'après un post de Karpathy (dépôt tiers, sans licence détectée).
+  `claude plugin marketplace add multica-ai/andrej-karpathy-skills` puis
+  `claude plugin install andrej-karpathy-skills@karpathy-skills`
 
-**Notre recommandation :** choisissez **une seule** des deux premières. Elles couvrent le même terrain
-(TDD, débogage, revue) et se déclencheraient sur les mêmes demandes : `mattpocock/skills` si vous voulez
-choisir skill par skill, `superpowers` si vous voulez un enchaînement complet déjà posé. Les principes
-Karpathy tiennent en peu de texte et se tentent en plus de l'une ou l'autre. Cette recommandation vient de
-la lecture de leurs dépôts, pas d'un test comparatif ici : retours bienvenus.
-
-Pour les autres agents, suivre le README de chaque dépôt (il s'installe séparément pour chaque agent).
-Revue, licences et recoupements avec nos skills : [docs/sources-externes.md](docs/sources-externes.md).
+Recommandation tirée de la lecture de ces dépôts, pas d'un test comparatif ici. Autres agents : le README
+de chaque dépôt. Détail (commit revu, licence, recoupements) : [docs/sources-externes.md](docs/sources-externes.md).
 
 ---
 
