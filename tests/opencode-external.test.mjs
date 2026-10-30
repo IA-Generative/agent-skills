@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawn } from 'node:child_process'
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { after, before, test } from 'node:test'
+import { fileURLToPath } from 'node:url'
 import { AgentSkillsPlugin } from '../plugin/agent-skills.js'
 import { addExternalPlugins, bundleSelection, stagePlugin } from '../plugin/external.js'
 
@@ -42,18 +43,61 @@ after(() => rmSync(workDir, { recursive: true, force: true }))
 const options = () => ({ cacheDir: join(workDir, 'cache'), gitBase })
 const skillNames = dir => readdirSync(dir).sort()
 
-test('bundleSelection merges the groups and plugins of several bundles without duplicates', () => {
-  const manifest = {
-    plugins: { a: {}, b: {} },
-    bundles: { one: { plugins: ['a'], groups: ['audit'] }, two: { plugins: ['a', 'b'], groups: ['audit', 'dat'] } },
-  }
-  const selection = bundleSelection(manifest, ['one', 'two'])
-  assert.deepEqual(selection.groups, ['audit', 'dat'])
-  assert.deepEqual(selection.plugins.map(([name]) => name), ['a', 'b'])
+const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url))
+const SHA = 'a'.repeat(40)
+const marketplace = {
+  plugins: [
+    { name: 'local-audit', source: './', skills: ['./skills/audit'] },
+    { name: 'acme-lint', source: { source: 'git-subdir', url: 'acme/kit', path: 'skills/lint', sha: SHA } },
+    { name: 'acme-all', source: { source: 'github', repo: 'acme/kit', sha: SHA }, skills: ['./skills'] },
+    { name: 'plain', source: { source: 'github', repo: 'acme/kit', sha: SHA } },
+    { name: 'base', source: './', skills: [], dependencies: ['acme-lint', 'local-audit'] },
+    { name: 'more', source: './', skills: [], dependencies: ['base', 'acme-all'] },
+  ],
+}
+
+test('bundleSelection follows dependencies recursively, once each', () => {
+  const selection = bundleSelection(marketplace, ['more', 'base'], REPO_ROOT)
+  assert.deepEqual(selection.localDirs, [join(REPO_ROOT, 'skills', 'audit')])
+  assert.deepEqual(selection.plugins, [
+    ['acme-lint', { repo: 'acme/kit', sha: SHA, skill: 'skills/lint' }],
+    ['acme-all', { repo: 'acme/kit', sha: SHA, skillsDir: 'skills' }],
+  ])
 })
 
-test('bundleSelection rejects an unknown bundle and lists the available ones', () => {
-  assert.throws(() => bundleSelection({ plugins: {}, bundles: { one: {} } }, ['nope']), /nope.*one/)
+test('a github plugin without a skills field exposes its default skills directory', () => {
+  assert.deepEqual(bundleSelection(marketplace, ['plain'], REPO_ROOT).plugins, [['plain', { repo: 'acme/kit', sha: SHA, skillsDir: 'skills' }]])
+})
+
+test('bundleSelection rejects an unknown plugin and lists the available ones', () => {
+  assert.throws(() => bundleSelection(marketplace, ['nope'], REPO_ROOT), /nope.*acme-lint/)
+})
+
+test('bundleSelection refuses what it cannot fetch instead of skipping it silently', () => {
+  const npm = { plugins: [{ name: 'p', source: { source: 'npm', package: 'x' } }] }
+  const cross = { plugins: [{ name: 'p', source: './', skills: [], dependencies: [{ name: 'q', marketplace: 'other' }] }] }
+  assert.throws(() => bundleSelection(npm, ['p'], REPO_ROOT), /npm/)
+  assert.throws(() => bundleSelection(cross, ['p'], REPO_ROOT), /autre marketplace/)
+})
+
+test('every external source of the committed marketplace is pinned to a full commit', () => {
+  const committed = JSON.parse(readFileSync(join(REPO_ROOT, '.claude-plugin', 'marketplace.json'), 'utf8'))
+  const external = committed.plugins.filter(plugin => typeof plugin.source === 'object')
+  assert.ok(external.length > 0)
+  for (const { name, source } of external) {
+    assert.ok(['github', 'git-subdir'].includes(source.source), `${name} : source non prise en charge par le plugin OpenCode`)
+    assert.match(source.repo ?? source.url, /^[\w.-]+\/[\w.-]+$/, `${name} : owner/repo attendu`)
+    assert.match(source.sha, /^[0-9a-f]{40}$/, `${name} : sha de commit complet attendu`)
+  }
+})
+
+test('the committed bundles resolve to the expected sources', () => {
+  const committed = JSON.parse(readFileSync(join(REPO_ROOT, '.claude-plugin', 'marketplace.json'), 'utf8'))
+  const base = bundleSelection(committed, ['mishell-base'], REPO_ROOT)
+  const more = bundleSelection(committed, ['mishell-more'], REPO_ROOT)
+  assert.deepEqual([base.localDirs.length, base.plugins.length], [0, 4])
+  assert.deepEqual(more.localDirs.map(dir => dir.split(/[\\/]/).pop()), ['audit', 'dat'])
+  assert.equal(more.plugins.length, 3)
 })
 
 test('a skillsDir plugin exposes the whole directory of the pinned commit', () => {
@@ -124,8 +168,8 @@ test('the plugin exposes every group by default', async () => {
 
 test('with bundles and no explicit groups, only the groups of the bundles are exposed', async () => {
   const config = {}
-  const manifest = { plugins: {}, bundles: { only: { description: '', plugins: [], groups: ['audit'] } } }
-  await (await AgentSkillsPlugin({}, { bundles: ['only'], manifest })).config(config)
+  const only = { plugins: [{ name: 'only', source: './', skills: ['./skills/audit'] }] }
+  await (await AgentSkillsPlugin({}, { bundles: ['only'], marketplace: only })).config(config)
   assert.equal(config.skills.paths.length, 1)
   assert.ok(config.skills.paths[0].endsWith(join('skills', 'audit')))
   assert.ok(existsSync(config.skills.paths[0]))
@@ -133,8 +177,8 @@ test('with bundles and no explicit groups, only the groups of the bundles are ex
 
 test('explicit groups and bundles are combined', async () => {
   const config = {}
-  const manifest = { plugins: {}, bundles: { only: { description: '', plugins: [], groups: ['audit'] } } }
-  await (await AgentSkillsPlugin({}, { groups: ['dat'], bundles: ['only'], manifest })).config(config)
+  const only = { plugins: [{ name: 'only', source: './', skills: ['./skills/audit'] }] }
+  await (await AgentSkillsPlugin({}, { groups: ['dat'], bundles: ['only'], marketplace: only })).config(config)
   assert.deepEqual(config.skills.paths.map(dir => dir.split(/[\\/]/).pop()), ['dat', 'audit'])
 })
 

@@ -29,10 +29,7 @@
       },
       "skills": [
         "./skills"
-      ],
-      "metadata": {
-        "generatedBy": "scripts/external-sources.mjs"
-      }
+      ]
     },
     {
       "name": "fabnum-transversal-skills",
@@ -44,10 +41,7 @@
       },
       "skills": [
         "./.agents/skills"
-      ],
-      "metadata": {
-        "generatedBy": "scripts/external-sources.mjs"
-      }
+      ]
     },
     {
       "name": "pocock-code-review",
@@ -57,9 +51,6 @@
         "url": "mattpocock/skills",
         "path": "skills/engineering/code-review",
         "sha": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
-      },
-      "metadata": {
-        "generatedBy": "scripts/external-sources.mjs"
       }
     },
     {
@@ -70,9 +61,6 @@
         "url": "mattpocock/skills",
         "path": "skills/engineering/grill-with-docs",
         "sha": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
-      },
-      "metadata": {
-        "generatedBy": "scripts/external-sources.mjs"
       }
     },
     {
@@ -83,9 +71,6 @@
         "url": "etalab-ia/skills",
         "path": "skills/anssi-guides",
         "sha": "f7a8cff8e205131f5ccf2ff8e3986c9c271c9689"
-      },
-      "metadata": {
-        "generatedBy": "scripts/external-sources.mjs"
       }
     },
     {
@@ -96,9 +81,6 @@
         "url": "etalab-ia/skills",
         "path": "skills/rgaa",
         "sha": "f7a8cff8e205131f5ccf2ff8e3986c9c271c9689"
-      },
-      "metadata": {
-        "generatedBy": "scripts/external-sources.mjs"
       }
     },
     {
@@ -111,10 +93,7 @@
       },
       "skills": [
         "./.agents/skills/dso"
-      ],
-      "metadata": {
-        "generatedBy": "scripts/external-sources.mjs"
-      }
+      ]
     },
     {
       "name": "mishell-audit",
@@ -122,10 +101,7 @@
       "description": "Skills du groupe audit de ce dépôt",
       "skills": [
         "./skills/audit"
-      ],
-      "metadata": {
-        "generatedBy": "scripts/external-sources.mjs"
-      }
+      ]
     },
     {
       "name": "mishell-dat",
@@ -133,10 +109,7 @@
       "description": "Skills du groupe dat de ce dépôt",
       "skills": [
         "./skills/dat"
-      ],
-      "metadata": {
-        "generatedBy": "scripts/external-sources.mjs"
-      }
+      ]
     },
     {
       "name": "mishell-base",
@@ -148,10 +121,7 @@
         "fabnum-transversal-skills",
         "pocock-code-review",
         "pocock-grill-with-docs"
-      ],
-      "metadata": {
-        "generatedBy": "scripts/external-sources.mjs"
-      }
+      ]
     },
     {
       "name": "mishell-more",
@@ -164,10 +134,7 @@
         "starter-dso-skills",
         "mishell-audit",
         "mishell-dat"
-      ],
-      "metadata": {
-        "generatedBy": "scripts/external-sources.mjs"
-      }
+      ]
     }
   ]
 }

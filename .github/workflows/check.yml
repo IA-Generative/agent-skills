@@ -14,9 +14,7 @@ jobs:
         run: ./install.sh --check
       - name: Catalogues index.json à jour (node scripts/skills-index.mjs pour les régénérer)
         run: node scripts/skills-index.mjs --check
-      - name: Entrées marketplace des sources externes à jour (node scripts/external-sources.mjs pour les régénérer)
-        run: node scripts/external-sources.mjs --check
-      - name: Tests du générateur et du plugin OpenCode
+      - name: Tests du plugin OpenCode et du marketplace (sources figées par sha)
         run: node --test tests/*.test.mjs
       - name: Installation dans un HOME vierge, deux fois (idempotence)
         run: |

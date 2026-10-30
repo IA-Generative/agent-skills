@@ -20,10 +20,9 @@ docs/                   documentation du dépôt (sources externes reprises ou c
 install.sh              installe / met à jour : symlinks vers ~/.agents/skills et ~/.claude/skills
 plugin/agent-skills.js  plugin OpenCode : injecte les skills par groupe, sans clone ni symlink
 plugin/external.js      sources externes du plugin OpenCode : fetch d'un commit figé dans ~/.cache/agent-skills
-external-sources.json   sources de skills d'autres dépôts et bundles (mishell-base, mishell-more), ÉCRIT À LA MAIN
-.claude-plugin/         marketplace Claude Code (skills embarquées + entrées générées depuis external-sources.json)
-scripts/external-sources.mjs  génère / vérifie ces entrées : node scripts/external-sources.mjs [--check]
-tests/*.test.mjs        générateur et plugin OpenCode : node --test tests/*.test.mjs
+.claude-plugin/         marketplace Claude Code, ÉCRIT À LA MAIN : skills embarquées, sources d'autres dépôts
+                        (github / git-subdir épinglés par sha) et bundles (mishell-base, mishell-more) ; lu aussi par le plugin OpenCode
+tests/*.test.mjs        plugin OpenCode et marketplace : node --test tests/*.test.mjs
 opencode.jsonc          config OpenCode du dépôt (charge le plugin local)
 .github/                CI (./install.sh --check) et modèles d'issue
 ```
@@ -84,8 +83,7 @@ restent uniques à l'échelle de la machine (voir invariant 1).
 ## Vérifications avant de proposer une PR
 
 ```bash
-node scripts/external-sources.mjs --check   # marketplace.json à jour avec external-sources.json
-node --test tests/*.test.mjs        # générateur des sources externes et plugin OpenCode
+node --test tests/*.test.mjs        # plugin OpenCode, sources externes du marketplace épinglées par sha
 ./install.sh --check                # frontmatter conforme, name == dossier, description ≤ 1024
 ./install.sh --dry-run --offline    # liens attendus, sans rien changer
 git status --short                  # rien d'inattendu, pas de private/ ni de __pycache__

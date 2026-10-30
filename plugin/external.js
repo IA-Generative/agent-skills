@@ -10,33 +10,65 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-// Standalone on purpose: the plugin is installed from a git URL and cannot import from scripts/. The patterns
-// below mirror the ones scripts/external-sources.mjs validates the manifest with; keep both in sync.
-const MANIFEST_FILE = 'external-sources.json'
+// Standalone on purpose: the plugin is installed from a git URL and cannot import from scripts/.
+const MARKETPLACE_FILE = path.join('.claude-plugin', 'marketplace.json')
 const GIT_BASE = 'https://github.com/'
 const GIT_TIMEOUT_MS = 120_000
 const SHA_PATTERN = /^[0-9a-f]{40}$/
 const REPO_PATTERN = /^[\w.-]+\/[\w.-]+$/
 const SHA_PREFIX_LENGTH = 12
 const SKILL_FILE = 'SKILL.md'
+const DEFAULT_SKILLS_DIR = 'skills'
 
 const defaultCacheDir = () => path.join(process.env.XDG_CACHE_HOME ?? path.join(os.homedir(), '.cache'), 'agent-skills')
 
-export function readManifest(root) {
-  return JSON.parse(fs.readFileSync(path.join(root, MANIFEST_FILE), 'utf8'))
+export function readMarketplace(root) {
+  return JSON.parse(fs.readFileSync(path.join(root, MARKETPLACE_FILE), 'utf8'))
 }
 
-export function bundleSelection(manifest, bundleNames) {
-  const groups = new Set()
-  const plugins = new Set()
-  for (const name of bundleNames) {
-    const bundle = manifest.bundles[name]
-    if (!bundle)
-      throw new Error(`agent-skills : bundle inconnu '${name}' (attendu : ${Object.keys(manifest.bundles).join(', ')})`)
-    bundle.groups.forEach(group => groups.add(group))
-    bundle.plugins.forEach(plugin => plugins.add(plugin))
+const withoutDotSlash = relativePath => relativePath.replace(/^\.\//, '')
+
+// What a marketplace entry contributes: local directories of this repository, or external sources to fetch.
+function entrySkills(entry, root, selection) {
+  const { source } = entry
+  if (source === './') {
+    for (const skillsPath of entry.skills ?? [])
+      selection.localDirs.push(insideOf(root, withoutDotSlash(skillsPath)))
   }
-  return { groups: [...groups], plugins: [...plugins].map(name => [name, manifest.plugins[name]]) }
+  else if (source?.source === 'github') {
+    for (const skillsPath of entry.skills?.length ? entry.skills : [DEFAULT_SKILLS_DIR])
+      selection.plugins.push([entry.name, { repo: source.repo, sha: source.sha, skillsDir: withoutDotSlash(skillsPath) }])
+  }
+  else if (source?.source === 'git-subdir') {
+    selection.plugins.push([entry.name, { repo: source.url, sha: source.sha, skill: source.path }])
+  }
+  else {
+    throw new Error(`agent-skills : la source '${source?.source ?? source}' de '${entry.name}' n'est pas prise en charge (github, git-subdir ou ./ attendus)`)
+  }
+}
+
+function collect(marketplace, name, root, selection, visited) {
+  if (visited.has(name))
+    return
+  visited.add(name)
+  const entry = marketplace.plugins.find(plugin => plugin.name === name)
+  if (!entry)
+    throw new Error(`agent-skills : plugin inconnu '${name}' (attendu : ${marketplace.plugins.map(plugin => plugin.name).join(', ')})`)
+  for (const dependency of entry.dependencies ?? []) {
+    if (dependency.marketplace)
+      throw new Error(`agent-skills : '${name}' dépend d'un plugin d'un autre marketplace, non pris en charge`)
+    collect(marketplace, typeof dependency === 'string' ? dependency.split('@')[0] : dependency.name, root, selection, visited)
+  }
+  entrySkills(entry, root, selection)
+}
+
+// Resolves marketplace plugins (bundles included, through their `dependencies`) into the skills they provide.
+export function bundleSelection(marketplace, names, root) {
+  const selection = { localDirs: [], plugins: [] }
+  const visited = new Set()
+  for (const name of names)
+    collect(marketplace, name, root, selection, visited)
+  return selection
 }
 
 export function skillNames(dir) {

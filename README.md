@@ -73,8 +73,9 @@ différent de `agent-skills`, réservé par Anthropic).
 ### Skills d'autres dépôts : les bundles `mishell-base` et `mishell-more`
 
 Deux **bundles** regroupent des skills de ce dépôt et de dépôts tiers. Rien de tiers n'est copié
-ici : `external-sources.json` liste chaque source (dépôt, **commit figé**, skill ou dossier de
-skills), et chaque agent la télécharge chez GitHub à l'installation.
+ici : `.claude-plugin/marketplace.json` référence chaque source (dépôt, **commit figé**, skill ou dossier
+de skills), et chaque agent la télécharge chez GitHub à l'installation. Les bundles sont des
+méta-plugins qui n'ont que des `dependencies`.
 
 | Bundle | Contenu |
 |---|---|
@@ -86,17 +87,23 @@ skills), et chaque agent la télécharge chez GitHub à l'installation.
 /plugin install mishell-more --marketplace IA-Generative/agent-skills   # facultatif
 ```
 
-OpenCode : `"bundles": ["mishell-base"]` à côté de `groups` (sans `groups`, seuls les groupes des
-bundles sont chargés ; sans `groups` ni `bundles`, tous les groupes le sont comme avant).
+OpenCode : le plugin lit ce même `marketplace.json`. `"bundles": ["mishell-base"]` se place à côté
+de `groups` (sans `groups`, seules les skills des bundles sont chargées ; sans `groups` ni
+`bundles`, tous les groupes le sont comme avant).
 Une source dont une skill porte le nom d'une skill déjà exposée est ignorée avec un avertissement,
 car les noms sont à plat sous OpenCode.
 
 - Le premier démarrage télécharge les sources dans `~/.cache/agent-skills/` (git requis) ; une
   source injoignable est ignorée sans empêcher le reste de charger.
+- Testé avec OpenCode 1.18 (`skills.paths`). La V2 range les skills dans un tableau `skills` : non vérifié.
+- Pour les seules skills DSO, OpenCode sait aussi les charger **sans ce plugin**, par son catalogue HTTP
+  natif, figé sur un commit (le dépôt publie son `index.json`) ; ne pas combiner avec `mishell-more` :
+  ```json
+  { "skills": { "urls": ["https://raw.githubusercontent.com/dnum-mi/starter-kit-opencode/d10ffaa9b78ded708ad9e5b3fd40bccc35afc344/.agents/skills/dso/"] } }
+  ```
 - `install.sh` n'installe **pas** ces sources : il ne gère que les skills de ce dépôt.
 - `mishell-base` suit deux branches de travail encore ouvertes (`fabnum-cicd`, `transversal-doc`) :
-  repointer vers `main` ou un tag à leur fusion (`external-sources.json`, puis
-  `node scripts/external-sources.mjs`).
+  repointer vers `main` ou un tag à leur fusion (champ `sha` des entrées de `marketplace.json`).
 
 > Le `install.sh` ci-dessous reste le chemin universel (symlinks) pour les autres agents
 > (Codex, Gemini CLI, Cursor, Copilot, Kimi, Deep Code) et pour ceux qui préfèrent une
