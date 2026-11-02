@@ -1,7 +1,6 @@
 # Installation
 
-Le dépôt est **interne** à l'organisation GitHub IA-Generative : il faut en être membre et connecté (`gh auth login`).
-Un `curl` sur `raw.githubusercontent.com` répond 404 : d'où `gh api`.
+Le dépôt est **public** : aucune connexion GitHub n'est requise.
 
 ## Choisir sa voie
 
@@ -50,28 +49,24 @@ Dans `opencode.json` (le plugin est téléchargé dans le cache, pas dans le pro
 
 ## `install.sh` / `install.ps1` (symlinks)
 
-Prérequis, une fois par machine : `git` et `gh`.
+Prérequis, une fois par machine : `git`.
 
 | Système | Installer |
 |---|---|
-| macOS | `xcode-select --install`, puis `brew install gh` |
-| Windows | `winget install --id Git.Git -e` puis `winget install --id GitHub.cli -e` |
-| Linux | `git` via le gestionnaire de paquets ; `gh` selon [cli/cli](https://github.com/cli/cli#installation) |
-
-```bash
-gh auth login --web -p https
-```
+| macOS | `xcode-select --install` |
+| Windows | `winget install --id Git.Git -e` |
+| Linux | `git` via le gestionnaire de paquets |
 
 Installer, et plus tard mettre à jour : la même ligne.
 
 ```bash
 # macOS / Linux
-gh api repos/IA-Generative/agent-skills/contents/install.sh -H "Accept: application/vnd.github.raw" | bash
+curl -fsSL https://raw.githubusercontent.com/IA-Generative/agent-skills/main/install.sh | bash
 ```
 
 ```powershell
 # Windows (sans droits administrateur) ; recharger le PATH ou rouvrir PowerShell après winget
-& ([scriptblock]::Create((gh api repos/IA-Generative/agent-skills/contents/install.ps1 -H "Accept: application/vnd.github.raw" | Out-String)))
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/IA-Generative/agent-skills/main/install.ps1)))
 ```
 
 Le dépôt est cloné dans `~/.local/share/agent-skills`, puis chaque skill est liée dans les dossiers lus par les agents (jonction sous Windows). Relancer ensuite la session de l'agent. Installer l'agent **avant** les skills.

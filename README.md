@@ -16,8 +16,7 @@ Deep Code. Éprouvées avec Claude Code et OpenCode ; retours sur les autres bie
 
 ## Installer
 
-Dépôt **interne** à l'organisation GitHub IA-Generative : être membre et connecté (`gh auth login`).
-Chaque étape s'ajoute à la précédente.
+Dépôt **public** : aucune connexion GitHub requise. Chaque étape s'ajoute à la précédente.
 
 ### 1. Les indispensables : principes de travail
 
