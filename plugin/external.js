@@ -1,16 +1,16 @@
 /**
  * External skill sources for the OpenCode plugin.
  *
- * Reads the same external-sources.json as scripts/external-sources.mjs (which generates the Claude Code
- * marketplace entries). Each source is fetched once, at its pinned commit, into a cache directory under
- * the user's home: nothing third-party is stored in this repository.
+ * Reads .claude-plugin/marketplace.json, the same file Claude Code uses. Each source is fetched once, at
+ * its pinned commit, into a cache directory under the user's home: nothing third-party is stored in this
+ * repository.
  */
 import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-// Standalone on purpose: the plugin is installed from a git URL and cannot import from scripts/.
+// Standalone on purpose: the plugin is installed from a git URL and only reads files shipped in this repository.
 const MARKETPLACE_FILE = path.join('.claude-plugin', 'marketplace.json')
 const GIT_BASE = 'https://github.com/'
 const GIT_TIMEOUT_MS = 120_000

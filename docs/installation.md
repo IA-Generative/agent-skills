@@ -23,7 +23,8 @@ claude plugin install mishell-skills@eric-skills   # toutes les skills de ce dé
 - Ensuite `/reload-plugins`, puis `claude plugin list` doit afficher le plugin `enabled`. Les skills se lancent sous `/mishell-skills:<nom>`.
 - `IA-Generative/agent-skills` est la source ; `eric-skills` est le nom de la marketplace (`agent-skills` est réservé par Anthropic).
 - Un seul canal : avec le plugin **et** `install.sh`, chaque skill apparaît deux fois. Retirer les liens : `./install.sh --uninstall --target claude`.
-- Ancien plugin `skills` : `/plugin uninstall skills@eric-skills` avant d'installer `mishell-skills`.
+- Ancien plugin `skills` : `/plugin uninstall skills@mishell` avant d'installer `mishell-skills`.
+- Marketplace ajoutée sous l'ancien nom `mishell` : `claude plugin marketplace remove mishell`, puis `marketplace add` ci-dessus et réinstaller les plugins `@eric-skills`.
 
 ## OpenCode
 
