@@ -45,7 +45,7 @@ Le socle Fabrique Numérique : CI/CD, conventions, stack, API REST, déploiement
 
 ```bash
 claude plugin marketplace add IA-Generative/agent-skills
-claude plugin install mishell-base@mishell --scope local
+claude plugin install mishell-base@eric-skills --scope local
 ```
 
 `--scope local` : ce projet seulement, sans modifier les fichiers versionnés (défaut `user` :
@@ -56,7 +56,7 @@ toutes vos sessions ; `project` : partagé avec l'équipe via git).
 Audits (pen-test, red-team, RAG), DAT d'homologation, guides ANSSI, RGAA, skills DSO / Cloud Pi Native.
 
 ```bash
-claude plugin install mishell-more@mishell --scope local
+claude plugin install mishell-more@eric-skills --scope local
 ```
 
 ### Autres agents, toutes les skills

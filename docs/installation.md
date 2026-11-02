@@ -15,16 +15,16 @@ Un `curl` sur `raw.githubusercontent.com` répond 404 : d'où `gh api`.
 
 ```bash
 claude plugin marketplace add IA-Generative/agent-skills
-claude plugin install mishell-base@mishell     # socle Fabrique Numérique
-claude plugin install mishell-more@mishell     # sécurité, homologation, CPiN (facultatif)
-claude plugin install mishell-skills@mishell   # toutes les skills de ce dépôt (facultatif)
+claude plugin install mishell-base@eric-skills     # socle Fabrique Numérique
+claude plugin install mishell-more@eric-skills     # sécurité, homologation, CPiN (facultatif)
+claude plugin install mishell-skills@eric-skills   # toutes les skills de ce dépôt (facultatif)
 ```
 
 - `marketplace add` n'enregistre que le catalogue : aucune skill n'est chargée avant `install`.
 - Ensuite `/reload-plugins`, puis `claude plugin list` doit afficher le plugin `enabled`. Les skills se lancent sous `/mishell-skills:<nom>`.
-- `IA-Generative/agent-skills` est la source ; `mishell` est le nom de la marketplace (`agent-skills` est réservé par Anthropic).
+- `IA-Generative/agent-skills` est la source ; `eric-skills` est le nom de la marketplace (`agent-skills` est réservé par Anthropic).
 - Un seul canal : avec le plugin **et** `install.sh`, chaque skill apparaît deux fois. Retirer les liens : `./install.sh --uninstall --target claude`.
-- Ancien plugin `skills` : `/plugin uninstall skills@mishell` avant d'installer `mishell-skills`.
+- Ancien plugin `skills` : `/plugin uninstall skills@eric-skills` avant d'installer `mishell-skills`.
 
 ## OpenCode
 
