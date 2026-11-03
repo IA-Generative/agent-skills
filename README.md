@@ -45,29 +45,31 @@ Quittez et relancez opencode après modification.
 `--marketplace` depuis v2.1.275) :
 
 ```bash
-/plugin install mishell-skills --marketplace IA-Generative/agent-skills
+/plugin install agent-skills --marketplace IA-Generative/agent-skills
 ```
 
 Équivalent en deux étapes, pour les versions antérieures à v2.1.275 :
 
 ```bash
 /plugin marketplace add IA-Generative/agent-skills
-/plugin install mishell-skills@mishell
+/plugin install agent-skills@eric-skills
 ```
 
-`IA-Generative/agent-skills` est la **source** (le repo GitHub) ; `mishell` est le **nom**
+`IA-Generative/agent-skills` est la **source** (le repo GitHub) ; `eric-skills` est le **nom**
 sous lequel la marketplace s'enregistre (champ `name` de `marketplace.json` — nécessairement
-différent de `agent-skills`, réservé par Anthropic).
+différent de `agent-skills`, réservé par Anthropic **comme nom de marketplace** ; comme nom de
+plugin, il est permis).
 
 - `marketplace add` n'enregistre que le **catalogue** : tant qu'un `install` n'a pas eu lieu, `/plugin`
   liste les plugins de la marketplace (onglet *Discover*) mais **aucune skill n'est chargée**.
 - Après l'installation : `/reload-plugins`, puis `claude plugin list` doit afficher
-  `mishell-skills@mishell` comme `enabled`. Les skills se lancent alors sous `/mishell-skills:<nom>`.
+  `agent-skills@eric-skills` comme `enabled`. Les skills se lancent alors sous `/agent-skills:<nom>`.
 - Le plugin embarque les skills des 5 groupes ; rien n'est injecté au démarrage de session.
-- Le plugin s'appelait `skills` : déjà installé, le retirer (`/plugin uninstall skills@mishell`) avant d'installer `mishell-skills`.
+- Ancien plugin `mishell-skills` (marketplace `mishell`) : `/plugin uninstall mishell-skills@mishell`
+  puis `/plugin marketplace remove mishell`, avant d'installer `agent-skills`.
 
 > **Un seul canal pour Claude Code.** Avec le plugin **et** `install.sh`, chaque skill apparaît
-> deux fois (`/repo-perimetre` et `/mishell-skills:repo-perimetre`). Si vous passez au plugin, retirez
+> deux fois (`/repo-perimetre` et `/agent-skills:repo-perimetre`). Si vous passez au plugin, retirez
 > les liens : `./install.sh --uninstall --target claude`.
 
 > Le `install.sh` ci-dessous reste le chemin universel (symlinks) pour les autres agents

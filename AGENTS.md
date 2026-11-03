@@ -19,7 +19,7 @@ hooks/<nom>.md          hooks Claude Code à coller dans un settings.json (non i
 docs/                   documentation du dépôt (sources externes reprises ou citées)
 install.sh              installe / met à jour : symlinks vers ~/.agents/skills et ~/.claude/skills
 plugin/agent-skills.js  plugin OpenCode : injecte les skills par groupe, sans clone ni symlink
-.claude-plugin/         marketplace Claude Code (skills embarquées)
+.claude-plugin/         marketplace Claude Code : le plugin agent-skills, skills de CE dépôt uniquement (aucune source tierce)
 opencode.jsonc          config OpenCode du dépôt (charge le plugin local)
 .github/                CI (./install.sh --check) et modèles d'issue
 ```
